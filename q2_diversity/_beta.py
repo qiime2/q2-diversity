@@ -15,6 +15,10 @@ def beta_diversity(metric, feature_table, phylogeny=None):
     sample_ids = feature_table.ids(axis='sample')
 
     if metric in ('unweighted_unifrac', 'weighted_unifrac'):
+        if phylogeny is None:
+            raise TypeError(
+                "Phylogeny was not provided for phylogenetic metric %r"
+                % metric)
         feature_ids = feature_table.ids(axis='observation')
         return skbio.diversity.beta_diversity(
             metric=metric,

@@ -6,8 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-__version__ = "0.0.0-dev"
-
 from ._beta import beta_diversity
+
+__version__ = "0.0.0-dev"
 
 __all__ = ['beta_diversity']
