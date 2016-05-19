@@ -6,11 +6,13 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-
+import biom
+import skbio
 import skbio.diversity
 
 
-def beta_diversity(metric, feature_table, phylogeny=None):
+def beta_diversity(metric: str, feature_table: biom.Table,
+                   phylogeny: skbio.TreeNode=None) -> skbio.DistanceMatrix:
     counts = feature_table.matrix_data.toarray().astype(int).T
     sample_ids = feature_table.ids(axis='sample')
 

@@ -8,14 +8,19 @@ type-imports:
     - q2_types:PCoAResults
     - qiime.plugin:Str
     - qiime.plugin:Int
+    - skbio:TreeNode
+    - skbio:Phylogeny
+    - skbio:DistanceMatrix
+    - skbio:OrdinationResults
+    - biom:Table
 inputs:
-    feature_table: FeatureTable[Frequency]
-    phylogeny: Phylogeny
+    feature_table: (FeatureTable[Frequency], Table)
+    phylogeny: (Phylogeny, TreeNode)
     metric: Str
     depth: Int
 outputs:
-    - distance_matrix: DistanceMatrix
-    - pcoa_results: PCoAResults
+    - distance_matrix: (DistanceMatrix, DistanceMatrix)
+    - pcoa_results: (PCoAResults, OrdinationResults)
 ---
 ## Compute PCoA results from a feature table
 
