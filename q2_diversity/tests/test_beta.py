@@ -6,7 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from unittest import TestCase, main
+import unittest
 import io
 
 import skbio
@@ -17,7 +17,7 @@ from biom.table import Table
 from q2_diversity import beta_diversity
 
 
-class BetaDiversityTests(TestCase):
+class BetaDiversityTests(unittest.TestCase):
 
     def test_non_phylogenetic(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -59,14 +59,15 @@ class BetaDiversityTests(TestCase):
                   ['S1', 'S2', 'S3'])
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        self.assertRaises(TypeError, beta_diversity, 'braycurtis', t,
-                          phylogeny=tree)
+        with self.assertRaises(TypeError):
+            beta_diversity('bray_curtis', t, phylogeny=tree)
 
     def test_phylogenetic_invalid_input(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
                   ['S1', 'S2', 'S3'])
-        self.assertRaises(TypeError, beta_diversity, 'unweighted_unifrac', t)
+        with self.assertRaises(TypeError):
+            beta_diversity('unweighted_unifrac', t)
 
 if __name__ == "__main__":
-    main()
+    unittest.main()
