@@ -6,11 +6,10 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from ._alpha import alpha, alpha_phylogenetic, alpha_group_significance
-from ._beta import beta, beta_phylogenetic, bioenv
-from ._ordination import pcoa
 
-__version__ = "0.0.2"
+from ._method import (alpha, alpha_phylogenetic, phylogenetic_metrics,
+                      non_phylogenetic_metrics)
+from ._visualizer import alpha_group_significance
 
-__all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic', 'pcoa',
-           'alpha_group_significance', 'bioenv']
+__all__ = ['alpha', 'alpha_phylogenetic', 'alpha_group_significance',
+           'phylogenetic_metrics', 'non_phylogenetic_metrics']

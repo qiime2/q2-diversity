@@ -63,3 +63,5 @@ target/
 
 # vi
 .*.swp
+
+node_modules

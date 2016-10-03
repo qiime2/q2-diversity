@@ -1,0 +1,54 @@
+# index.template
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="dist/bootstrap.min.css">
+    <style type="text/css">
+      body {
+        padding-left: 10px;
+      }
+    </style>
+    <script src='dist/vendor.bundle.js'></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <hr>
+
+      <h2>Kruskal-Wallis (all groups)</h2>
+      <p>
+        <span class="text-info">H:&nbsp;</span>
+        <span id="kw-all-h"></span>
+      </p>
+      <p>
+        <span class="text-info">p-value:&nbsp;</span>
+        <span id="kw-all-p"></span>
+      </p>
+
+      <hr>
+
+      <h2>Kruskal-Wallis (pairwise)</h2>
+      <a id="kw-csv">Download CSV</a>
+      <div id="kw-pairwise"></d>
+    </div>
+    <script>
+      var d = [];
+      function load_data(categoryName, dataStr, kwAllStr, kwPairwiseStr, kwCSVPath) {
+        d.push({
+          category: categoryName,
+          data: JSON.parse(dataStr),
+          kwAll: JSON.parse(kwAllStr),
+          kwPairwise: kwPairwiseStr,
+          kwCSVPath: kwCSVPath,
+        });
+      }
+    </script>
+  #for @category in @categories:
+    <script src='@category?callback=load_data'></script>
+  #end
+    <script src='dist/bundle.js'></script>
+  </body>
+</html>
