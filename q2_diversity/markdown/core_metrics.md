@@ -19,6 +19,12 @@ outputs:
     - observed_otus_vector:
         - SampleData[AlphaDiversity]
         - pandas.Series
+    - shannon_vector:
+        - SampleData[AlphaDiversity]
+        - pandas.Series
+    - evenness_vector:
+        - SampleData[AlphaDiversity]
+        - pandas.Series
     - unweighted_unifrac_distance_matrix:
         - DistanceMatrix
         - skbio.DistanceMatrix
@@ -50,6 +56,8 @@ This method rarefies a feature table to an even sampling depth and then applies 
  * Alpha diversity
   * Faith's Phylogenetic Diversity index: a qualitative phylogenetic measure of community richness
   * Observed OTUs: a qualitative non-phylogenetic measure of community richness
+  * Shannon's Diversity index: a quantitative non-phylogenetic measure of community richness
+  * Evenness (or Pielou's Evenness): a non-phylogenetic measure of community evenness
  * Beta diversity
   * Unweighted UniFrac: a qualitative phylogenetic measure of pairwise community dissimilarity (computed for all pairs of samples)
   * Weighted UniFrac: a quantitative phylogenetic measure of pairwise community dissimilarity (computed for all pairs of samples)
@@ -71,6 +79,8 @@ Principle coordinates analysis is subsequently applied to all pairwise distance 
 >>> from q2_diversity import alpha, alpha_phylogenetic
 >>> faith_pd_vector = alpha_phylogenetic(table=rarefied_table, phylogeny=phylogeny, metric='faith_pd')
 >>> observed_otus_vector = alpha(table=rarefied_table, metric='observed_otus')
+>>> shannon_vector = alpha(table=rarefied_table, metric='shannon')
+>>> evenness_vector = alpha(table=rarefied_table, metric='pielou_e')
 ```
 
 ### Compute beta diversity metrics
