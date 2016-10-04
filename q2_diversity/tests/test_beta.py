@@ -18,7 +18,8 @@ from biom.table import Table
 import pandas as pd
 import qiime
 
-from q2_diversity import beta, beta_phylogenetic, bioenv
+from q2_diversity import (beta, beta_phylogenetic, bioenv,
+                          beta_group_significance)
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -129,6 +130,107 @@ class BioenvTests(unittest.TestCase):
             self.assertTrue('contained 3 samples' in open(index_fp).read())
             self.assertTrue('only 2 sample' in open(index_fp).read())
 
+
+class BetaGroupSignificanceTests(unittest.TestCase):
+
+    def test_permanova(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            pdf_fp = os.path.join(output_dir, 'boxplots.pdf')
+            self.assertTrue(os.path.exists(pdf_fp))
+            png_fp = os.path.join(output_dir, 'boxplots.png')
+            self.assertTrue(os.path.exists(png_fp))
+            self.assertTrue('PERMANOVA results' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_anosim(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md, method='anosim',
+                                    permutations=42)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            pdf_fp = os.path.join(output_dir, 'boxplots.pdf')
+            self.assertTrue(os.path.exists(pdf_fp))
+            png_fp = os.path.join(output_dir, 'boxplots.png')
+            self.assertTrue(os.path.exists(png_fp))
+            self.assertTrue('ANOSIM results' in open(index_fp).read())
+            self.assertTrue('<td>42</td>' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_alt_permutations(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md, permutations=42)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue('<td>42</td>' in open(index_fp).read())
+
+    def test_invalid_method(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with self.assertRaises(ValueError):
+            with tempfile.TemporaryDirectory() as output_dir:
+                beta_group_significance(output_dir, dm, md, method='bad!')
+
+    def test_filtered_samples_numeric_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25, 0.66],
+                                   [0.25, 0.00, 0.00, 0.66],
+                                   [0.25, 0.00, 0.00, 0.66],
+                                   [0.66, 0.66, 0.66, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3',
+                                       'sample4'])
+        md = qiime.MetadataCategory(
+            pd.Series(['1.0', '2.0', '2.0', ''], name='a or b',
+                      index=['sample1', 'sample2', 'sample3', 'sample4']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue('Warning' in open(index_fp).read())
+
+    def test_filtered_samples_str_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25, 0.66],
+                                   [0.25, 0.00, 0.00, 0.66],
+                                   [0.25, 0.00, 0.00, 0.66],
+                                   [0.66, 0.66, 0.66, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3',
+                                       'sample4'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b', ''], name='a or b',
+                      index=['sample1', 'sample2', 'sample3', 'sample4']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue('Warning' in open(index_fp).read())
 
 if __name__ == "__main__":
     unittest.main()

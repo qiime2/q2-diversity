@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                          Metadata)
+                          Metadata, Int)
 
 import q2_diversity
 import q2_diversity._alpha as alpha
@@ -96,6 +96,20 @@ plugin.visualizers.register_function(
                  "dropped. The output visualization will indicate how many "
                  "samples were dropped due to missing data, if any were "
                  "dropped.")
+)
+
+beta_group_significance_methods = \
+    list(q2_diversity._beta._beta_group_significance_fns.keys())
+
+plugin.visualizers.register_function(
+    function=q2_diversity.beta_group_significance,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={'method': Str % Choices(beta_group_significance_methods),
+                'permutations': Int,
+                'metadata': MetadataCategory},
+    name='Beta diversity group significance',
+    description=('Determine whether groups of samples are significantly '
+                 'different from one another.')
 )
 
 plugin.methods.register_markdown('markdown/core_metrics.md')
