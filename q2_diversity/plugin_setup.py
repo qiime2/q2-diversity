@@ -6,7 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime.plugin import Plugin, Str, Properties, MetadataCategory, Choices
+from qiime.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
+                          Metadata)
 
 import q2_diversity
 import q2_diversity._alpha as alpha
@@ -81,6 +82,20 @@ plugin.visualizers.register_function(
     name='Alpha diversity comparisons',
     description=("Visually and statistically compare groups of alpha diversity"
                  " values.")
+)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.bioenv,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={'metadata': Metadata},
+    name='bioenv',
+    description=("Find the subsets of variables in metadata whose Euclidean "
+                 "distances are maximally rank-correlated with distance "
+                 "matrix. All numeric variables in metadata will be "
+                 "considered, and samples which are missing data will be "
+                 "dropped. The output visualization will indicate how many "
+                 "samples were dropped due to missing data, if any were "
+                 "dropped.")
 )
 
 plugin.methods.register_markdown('markdown/core_metrics.md')

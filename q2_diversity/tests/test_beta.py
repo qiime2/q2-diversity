@@ -8,13 +8,17 @@
 
 import unittest
 import io
+import os
+import tempfile
 
 import skbio
 import numpy as np
 import numpy.testing as npt
 from biom.table import Table
+import pandas as pd
+import qiime
 
-from q2_diversity import beta, beta_phylogenetic
+from q2_diversity import beta, beta_phylogenetic, bioenv
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -85,6 +89,46 @@ class BetaDiversityTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
             beta_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
+
+
+class BioenvTests(unittest.TestCase):
+
+    def test_bioenv(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.Metadata(
+            pd.DataFrame([['1.0', 'a'], ['2.0', 'b'], ['3.0', 'c']],
+                         index=['sample1', 'sample2', 'sample3'],
+                         columns=['metadata1', 'metadata2']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            bioenv(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('metadata1' in open(index_fp).read())
+            self.assertFalse('metadata2' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_bioenv_exclude_missing_data(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.Metadata(
+            pd.DataFrame([['1.0', '2.0'], ['2.0', ''], ['3.0', '42.0']],
+                         index=['sample1', 'sample2', 'sample3'],
+                         columns=['metadata1', 'metadata2']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            bioenv(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('metadata1' in open(index_fp).read())
+            self.assertTrue('metadata2' in open(index_fp).read())
+            self.assertTrue('Warning' in open(index_fp).read())
+            self.assertTrue('contained 3 samples' in open(index_fp).read())
+            self.assertTrue('only 2 sample' in open(index_fp).read())
+
 
 if __name__ == "__main__":
     unittest.main()
