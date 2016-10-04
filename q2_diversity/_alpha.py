@@ -16,6 +16,7 @@ import pandas as pd
 import seaborn as sns
 import skbio.diversity
 from statsmodels.sandbox.stats.multicomp import multipletests
+import matplotlib.pyplot as plt
 
 
 # We should consider moving these functions to scikit-bio. They're part of
@@ -119,4 +120,66 @@ def alpha_compare(output_dir: str, alpha_diversity: pd.Series,
                  '\n')
         fh.write(kw_H_pairwise.to_html())
         fh.write('<a href="./kruskal-wallis-pairwise.csv">csv</a>\n')
+        fh.write('</body></html>')
+
+_alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
+                          'pearson': scipy.stats.pearsonr}
+
+
+def alpha_correlation(output_dir: str,
+                      alpha_diversity: pd.Series,
+                      metadata: qiime.MetadataCategory,
+                      method: str='spearman') -> None:
+    try:
+        alpha_correlation_fn = _alpha_correlation_fns[method]
+    except KeyError:
+        raise ValueError('Unknown alpha correlation method %s. The available '
+                         'options are %s.' %
+                         (method, ', '.join(_alpha_correlation_fns.keys())))
+
+    # Cast metadata to numeric, then drop samples that have no data for this
+    # metadata category.
+    try:
+        metadata = pd.to_numeric(metadata.to_series())
+    except ValueError:
+        raise ValueError('Non-numeric data is present in metadata.')
+
+    # create a dataframe containing the data to be correlated, and drop
+    # any samples that have no data in either column
+    df = pd.concat([metadata, alpha_diversity], axis=1)
+    df.dropna(inplace=True)
+
+    # compute correlation
+    correlation_result = alpha_correlation_fn(df[metadata.name],
+                                              df[alpha_diversity.name])
+
+    # generate a scatter plot
+    g = sns.lmplot(x=metadata.name, y=alpha_diversity.name, data=df)
+    g.savefig(os.path.join(output_dir, 'scatter-plot.png'))
+    g.savefig(os.path.join(output_dir, 'scatter-plot.pdf'))
+
+    index_fp = os.path.join(output_dir, 'index.html')
+    with open(index_fp, 'w') as fh:
+        fh.write('<html><body>')
+        if alpha_diversity.shape[0] != df.shape[0]:
+            fh.write("<b>Warning</b>: Some samples were filtered because they "
+                     "were missing metadata values.<br><b>The input "
+                     "contained %d samples but %s was computed on "
+                     "only %d samples.</b><p>"
+                     % (alpha_diversity.shape[0], method, df.shape[0]))
+        fh.write('<table border=1>\n')
+        fh.write(' <tr><td>Test</td><td>%s correlation</td></tr>\n' %
+                 method.title())
+        fh.write(' <tr><td>Test statistic</td><td>%1.4f</td></tr>\n' %
+                 correlation_result[0])
+        fh.write(' <tr><td>P-value</td><td>%1.4f</td></tr>\n' %
+                 correlation_result[1])
+        fh.write(' <tr><td>Sample size</td><td>%d</td></tr>\n' %
+                 df.shape[0])
+        fh.write('</table>')
+        fh.write('<p>\n')
+        fh.write('<a href="scatter-plot.pdf">\n')
+        fh.write(' <img src="scatter-plot.png">')
+        fh.write(' <p>Download as PDF</p>\n')
+        fh.write('</a>\n\n')
         fh.write('</body></html>')

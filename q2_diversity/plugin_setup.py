@@ -112,4 +112,17 @@ plugin.visualizers.register_function(
                  'different from one another.')
 )
 
+alpha_correlation_methods = \
+    list(q2_diversity._alpha._alpha_correlation_fns.keys())
+
+plugin.visualizers.register_function(
+    function=q2_diversity.alpha_correlation,
+    inputs={'alpha_diversity': SampleData[AlphaDiversity]},
+    parameters={'method': Str % Choices(alpha_correlation_methods),
+                'metadata': MetadataCategory},
+    name='Alpha diversity correlation',
+    description=('Determine whether sample metadata is correlated with '
+                 'alpha diversity.')
+)
+
 plugin.methods.register_markdown('markdown/core_metrics.md')
