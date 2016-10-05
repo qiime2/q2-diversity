@@ -94,8 +94,33 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
         fh.write(result.to_html())
         fh.write('</body></html>')
 
+
 _beta_group_significance_fns = {'permanova': skbio.stats.distance.permanova,
                                 'anosim': skbio.stats.distance.anosim}
+
+
+def _get_group_distances(distance_matrix, group_id, group, groupings):
+    x_ticklabels = []
+    group_distances = []
+    within_group_distances = []
+    for i, sid1 in enumerate(group.index):
+        for sid2 in group.index[:i]:
+            within_group_distances.append(distance_matrix[sid1, sid2])
+    x_ticklabels.append('%s (n=%d)' %
+                        (group_id, len(within_group_distances)))
+    group_distances.append(within_group_distances)
+
+    for group2_id, group2 in groupings:
+        between_group_distances = []
+        if group_id == group2_id:
+            continue
+        for sid1 in group.index:
+            for sid2 in group2.index:
+                between_group_distances.append(distance_matrix[sid1, sid2])
+        x_ticklabels.append('%s (n=%d)' %
+                            (group2_id, len(between_group_distances)))
+        group_distances.append(between_group_distances)
+    return group_distances, x_ticklabels
 
 
 def beta_group_significance(output_dir: str,
@@ -108,12 +133,15 @@ def beta_group_significance(output_dir: str,
     except KeyError:
         raise ValueError('Unknown group significance method %s. The available '
                          'options are %s.' %
-                         (method, ', '.join(_beta_group_significance_fns)))
+                         (method,
+                          ', '.join(_beta_group_significance_fns.keys())))
 
     # Cast metadata to numeric (if applicable), which gives better sorting
-    # in boxplots. Then drop samples with have no data for this metadata
+    # in boxplots. Then filter any samples that are not in the distance matrix,
+    # and drop samples with have no data for this metadata
     # category, including those with empty strings as values.
     metadata = pd.to_numeric(metadata.to_series(), errors='ignore')
+    metadata = metadata.loc[list(distance_matrix.ids)]
     metadata = metadata.replace(r'', np.nan).dropna()
 
     # filter the distance matrix to exclude samples that were dropped from
@@ -128,31 +156,24 @@ def beta_group_significance(output_dir: str,
                                         permutations=permutations)
 
     # Generate distance boxplots
-    # Identify the groups (it would be nice if skbio had a public API for
-    # this, so we'd be sure to have the same groups as as used by the test).
-    grouping = metadata.groupby(metadata)
-    group_distances = []
-    group_ids = []
-    for group_id, group in grouping:
-        group_ids.append(group_id)
-        d = []
-        for i, sid1 in enumerate(group.index):
-            for sid2 in group.index[:i]:
-                d.append(distance_matrix[sid1, sid2])
-        group_distances.append(d)
-    group_distances = list(zip(group_ids, group_distances))
-    group_distances.sort()
+    # Identify the groups, then compute the within group distances and the
+    # between group distances, and generate one boxplot per group.
+    groupings = list(metadata.groupby(metadata))
+    groupings.sort()
+    for group_id, group in groupings:
+        group_distances, x_ticklabels = \
+            _get_group_distances(distance_matrix, group_id, group, groupings)
 
-    # Plot the within group distances by group
-    ax = sns.boxplot(data=[e[1] for e in group_distances])
-    ax.set_xticklabels(['%s (n=%d)' % (e[0], len(e[1]))
-                        for e in group_distances], rotation=90)
-    ax.set_xlabel(metadata.name)
-    ax.set_ylabel('Within group distances')
-    plt.tight_layout()
-    fig = ax.get_figure()
-    fig.savefig(os.path.join(output_dir, 'boxplots.png'))
-    fig.savefig(os.path.join(output_dir, 'boxplots.pdf'))
+        ax = sns.boxplot(data=group_distances)
+        ax.set_xticklabels(x_ticklabels, rotation=90)
+        ax.set_xlabel('Group')
+        ax.set_ylabel('Distance')
+        ax.set_title('Distances to %s' % group_id)
+        plt.tight_layout()
+        fig = ax.get_figure()
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.png' % group_id))
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' % group_id))
+        fig.clear()
 
     index_fp = os.path.join(output_dir, 'index.html')
     with open(index_fp, 'w') as fh:
@@ -165,9 +186,10 @@ def beta_group_significance(output_dir: str,
                      "only %d samples.</b><p>"
                      % (initial_dm_length, method, filtered_dm_length))
         fh.write(result.to_frame().to_html())
-        fh.write('<p>\n')
-        fh.write('<a href="boxplots.pdf">\n')
-        fh.write(' <img src="boxplots.png">')
-        fh.write(' <p>Download as PDF</p>\n')
-        fh.write('</a>\n\n')
-        fh.write('</body></html>')
+        for group_id, group in groupings:
+            fh.write('<p>\n')
+            fh.write('<a href="%s-boxplots.pdf">\n' % group_id)
+            fh.write(' <img src="%s-boxplots.png">' % group_id)
+            fh.write(' <p>Download as PDF</p>\n')
+            fh.write('</a>\n\n')
+            fh.write('</body></html>')

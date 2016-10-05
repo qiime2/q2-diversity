@@ -10,6 +10,7 @@ import unittest
 import io
 import os
 import tempfile
+import glob
 
 import skbio
 import numpy as np
@@ -146,10 +147,20 @@ class BetaGroupSignificanceTests(unittest.TestCase):
             beta_group_significance(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            pdf_fp = os.path.join(output_dir, 'boxplots.pdf')
-            self.assertTrue(os.path.exists(pdf_fp))
-            png_fp = os.path.join(output_dir, 'boxplots.png')
-            self.assertTrue(os.path.exists(png_fp))
+            # all expected boxplots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.png')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.png')))
+            # no extra boxplots are generated
+            self.assertEqual(len(glob.glob('%s/*-boxplots.pdf' % output_dir)),
+                             2)
+            self.assertEqual(len(glob.glob('%s/*-boxplots.png' % output_dir)),
+                             2)
             self.assertTrue('PERMANOVA results' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
 
@@ -167,10 +178,20 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                     permutations=42)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            pdf_fp = os.path.join(output_dir, 'boxplots.pdf')
-            self.assertTrue(os.path.exists(pdf_fp))
-            png_fp = os.path.join(output_dir, 'boxplots.png')
-            self.assertTrue(os.path.exists(png_fp))
+            # all expected boxplots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.png')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.png')))
+            # no extra boxplots are generated
+            self.assertEqual(len(glob.glob('%s/*-boxplots.pdf' % output_dir)),
+                             2)
+            self.assertEqual(len(glob.glob('%s/*-boxplots.png' % output_dir)),
+                             2)
             self.assertTrue('ANOSIM results' in open(index_fp).read())
             self.assertTrue('<td>42</td>' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
@@ -231,6 +252,20 @@ class BetaGroupSignificanceTests(unittest.TestCase):
             beta_group_significance(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue('Warning' in open(index_fp).read())
+
+    def test_extra_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.MetadataCategory(
+            pd.Series(['a', 'b', 'b', 'c'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3', 'sample4']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md, permutations=42)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue('<td>2</td>' in open(index_fp).read())
 
 if __name__ == "__main__":
     unittest.main()

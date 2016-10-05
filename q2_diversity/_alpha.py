@@ -16,7 +16,6 @@ import pandas as pd
 import seaborn as sns
 import skbio.diversity
 from statsmodels.sandbox.stats.multicomp import multipletests
-import matplotlib.pyplot as plt
 
 
 # We should consider moving these functions to scikit-bio. They're part of
