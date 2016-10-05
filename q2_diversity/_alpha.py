@@ -153,7 +153,8 @@ def alpha_correlation(output_dir: str,
                                               df[alpha_diversity.name])
 
     # generate a scatter plot
-    g = sns.lmplot(x=metadata.name, y=alpha_diversity.name, data=df)
+    g = sns.lmplot(x=metadata.name, y=alpha_diversity.name, data=df,
+                   fit_reg=False)
     g.savefig(os.path.join(output_dir, 'scatter-plot.png'))
     g.savefig(os.path.join(output_dir, 'scatter-plot.pdf'))
 
