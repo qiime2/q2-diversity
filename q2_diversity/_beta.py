@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import os.path
+import collections
 
 import numpy as np
 import qiime
@@ -99,28 +100,32 @@ _beta_group_significance_fns = {'permanova': skbio.stats.distance.permanova,
                                 'anosim': skbio.stats.distance.anosim}
 
 
-def _get_group_distances(distance_matrix, group_id, group, groupings):
+def _get_distance_boxplot_data(distance_matrix, group_id, groupings):
     x_ticklabels = []
-    group_distances = []
+    all_group_distances = []
+
+    # extract the within group distances
     within_group_distances = []
-    for i, sid1 in enumerate(group.index):
-        for sid2 in group.index[:i]:
+    group = groupings[group_id]
+    for i, sid1 in enumerate(group):
+        for sid2 in group[:i]:
             within_group_distances.append(distance_matrix[sid1, sid2])
     x_ticklabels.append('%s (n=%d)' %
                         (group_id, len(within_group_distances)))
-    group_distances.append(within_group_distances)
+    all_group_distances.append(within_group_distances)
 
-    for group2_id, group2 in groupings:
+    # extract between group distances for group to each other group
+    for other_group_id, other_group in groupings.items():
         between_group_distances = []
-        if group_id == group2_id:
+        if group_id == other_group_id:
             continue
-        for sid1 in group.index:
-            for sid2 in group2.index:
+        for sid1 in group:
+            for sid2 in other_group:
                 between_group_distances.append(distance_matrix[sid1, sid2])
         x_ticklabels.append('%s (n=%d)' %
-                            (group2_id, len(between_group_distances)))
-        group_distances.append(between_group_distances)
-    return group_distances, x_ticklabels
+                            (other_group_id, len(between_group_distances)))
+        all_group_distances.append(between_group_distances)
+    return all_group_distances, x_ticklabels
 
 
 def beta_group_significance(output_dir: str,
@@ -156,19 +161,29 @@ def beta_group_significance(output_dir: str,
                                         permutations=permutations)
 
     # Generate distance boxplots
+    sns.set_style("white")
     # Identify the groups, then compute the within group distances and the
     # between group distances, and generate one boxplot per group.
-    groupings = list(metadata.groupby(metadata))
-    groupings.sort()
-    for group_id, group in groupings:
+    # groups will be an OrderedDict mapping group id to the sample ids in that
+    # group. The order is used both on the x-axis, and in the layout of the
+    # boxplots in the visualization.
+    groupings = collections.OrderedDict(
+        [(id, list(series.index))
+         for id, series in sorted(metadata.groupby(metadata))])
+
+    for group_id in groupings:
         group_distances, x_ticklabels = \
-            _get_group_distances(distance_matrix, group_id, group, groupings)
+            _get_distance_boxplot_data(distance_matrix, group_id, groupings)
 
         ax = sns.boxplot(data=group_distances)
         ax.set_xticklabels(x_ticklabels, rotation=90)
         ax.set_xlabel('Group')
         ax.set_ylabel('Distance')
         ax.set_title('Distances to %s' % group_id)
+        # change the color of the boxes to white
+        for box in ax.artists:
+            box.set_facecolor('white')
+        sns.despine()
         plt.tight_layout()
         fig = ax.get_figure()
         fig.savefig(os.path.join(output_dir, '%s-boxplots.png' % group_id))
@@ -186,7 +201,7 @@ def beta_group_significance(output_dir: str,
                      "only %d samples.</b><p>"
                      % (initial_dm_length, method, filtered_dm_length))
         fh.write(result.to_frame().to_html())
-        for group_id, group in groupings:
+        for group_id in groupings:
             fh.write('<p>\n')
             fh.write('<a href="%s-boxplots.pdf">\n' % group_id)
             fh.write(' <img src="%s-boxplots.png">' % group_id)

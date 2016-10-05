@@ -11,6 +11,7 @@ import io
 import os
 import tempfile
 import glob
+import collections
 
 import skbio
 import numpy as np
@@ -21,6 +22,7 @@ import qiime
 
 from q2_diversity import (beta, beta_phylogenetic, bioenv,
                           beta_group_significance)
+from q2_diversity._beta import _get_distance_boxplot_data
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -266,6 +268,70 @@ class BetaGroupSignificanceTests(unittest.TestCase):
             beta_group_significance(output_dir, dm, md, permutations=42)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue('<td>2</td>' in open(index_fp).read())
+
+    def test_get_distance_boxplot_data_two_groups(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.12, 0.13, 0.14, 0.15],
+                                   [0.12, 0.00, 0.22, 0.23, 0.24],
+                                   [0.13, 0.22, 0.00, 0.31, 0.32],
+                                   [0.14, 0.23, 0.31, 0.00, 0.44],
+                                   [0.15, 0.24, 0.32, 0.44, 0.00]],
+                                  ids=['s1', 's2', 's3', 's4', 's5'])
+
+        groupings = collections.OrderedDict(
+            [('g1', ['s1', 's2']), ('g2', ['s3', 's4', 's5'])])
+        obs = _get_distance_boxplot_data(dm, 'g1', groupings)
+        exp_data = [[0.12], [0.13, 0.14, 0.15, 0.22, 0.23, 0.24]]
+        exp_labels = ['g1 (n=1)', 'g2 (n=6)']
+        self.assertEqual(obs[0], exp_data)
+        self.assertEqual(obs[1], exp_labels)
+
+    def test_get_distance_boxplot_data_within_always_first(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.12, 0.13, 0.14, 0.15],
+                                   [0.12, 0.00, 0.22, 0.23, 0.24],
+                                   [0.13, 0.22, 0.00, 0.31, 0.32],
+                                   [0.14, 0.23, 0.31, 0.00, 0.44],
+                                   [0.15, 0.24, 0.32, 0.44, 0.00]],
+                                  ids=['s1', 's2', 's3', 's4', 's5'])
+
+        groupings = collections.OrderedDict(
+            [('g2', ['s3', 's4', 's5']), ('g1', ['s1', 's2'])])
+        obs = _get_distance_boxplot_data(dm, 'g1', groupings)
+        exp_data = [[0.12], [0.13, 0.14, 0.15, 0.22, 0.23, 0.24]]
+        exp_labels = ['g1 (n=1)', 'g2 (n=6)']
+        self.assertEqual(obs[0], exp_data)
+        self.assertEqual(obs[1], exp_labels)
+
+    def test_get_distance_boxplot_data_three_groups(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.12, 0.13, 0.14, 0.15],
+                                   [0.12, 0.00, 0.22, 0.23, 0.24],
+                                   [0.13, 0.22, 0.00, 0.31, 0.32],
+                                   [0.14, 0.23, 0.31, 0.00, 0.44],
+                                   [0.15, 0.24, 0.32, 0.44, 0.00]],
+                                  ids=['s1', 's2', 's3', 's4', 's5'])
+
+        groupings = collections.OrderedDict(
+            [('g1', ['s1', 's2']), ('g2', ['s3', 's5']), ('g3', ['s4'])])
+        obs = _get_distance_boxplot_data(dm, 'g1', groupings)
+        exp_data = [[0.12], [0.13, 0.15, 0.22, 0.24], [0.14, 0.23]]
+        exp_labels = ['g1 (n=1)', 'g2 (n=4)', 'g3 (n=2)']
+        self.assertEqual(obs[0], exp_data)
+        self.assertEqual(obs[1], exp_labels)
+
+    def test_get_distance_boxplot_data_between_order_retained(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.12, 0.13, 0.14, 0.15],
+                                   [0.12, 0.00, 0.22, 0.23, 0.24],
+                                   [0.13, 0.22, 0.00, 0.31, 0.32],
+                                   [0.14, 0.23, 0.31, 0.00, 0.44],
+                                   [0.15, 0.24, 0.32, 0.44, 0.00]],
+                                  ids=['s1', 's2', 's3', 's4', 's5'])
+
+        groupings = collections.OrderedDict(
+            [('g1', ['s1', 's2']), ('g3', ['s4']), ('g2', ['s3', 's5'])])
+        obs = _get_distance_boxplot_data(dm, 'g1', groupings)
+        exp_data = [[0.12], [0.14, 0.23], [0.13, 0.15, 0.22, 0.24]]
+        exp_labels = ['g1 (n=1)', 'g3 (n=2)', 'g2 (n=4)']
+        self.assertEqual(obs[0], exp_data)
+        self.assertEqual(obs[1], exp_labels)
 
 if __name__ == "__main__":
     unittest.main()
