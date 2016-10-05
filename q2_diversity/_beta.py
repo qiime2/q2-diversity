@@ -8,6 +8,7 @@
 
 import os.path
 import collections
+import urllib.parse
 
 import numpy as np
 import qiime
@@ -139,7 +140,7 @@ def beta_group_significance(output_dir: str,
         raise ValueError('Unknown group significance method %s. The available '
                          'options are %s.' %
                          (method,
-                          ', '.join(_beta_group_significance_fns.keys())))
+                          ', '.join(_beta_group_significance_fns)))
 
     # Cast metadata to numeric (if applicable), which gives better sorting
     # in boxplots. Then filter any samples that are not in the distance matrix,
@@ -186,8 +187,10 @@ def beta_group_significance(output_dir: str,
         sns.despine()
         plt.tight_layout()
         fig = ax.get_figure()
-        fig.savefig(os.path.join(output_dir, '%s-boxplots.png' % group_id))
-        fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' % group_id))
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.png' %
+                                 urllib.parse.quote_plus(str(group_id))))
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' %
+                                 urllib.parse.quote_plus(str(group_id))))
         fig.clear()
 
     index_fp = os.path.join(output_dir, 'index.html')
@@ -203,8 +206,10 @@ def beta_group_significance(output_dir: str,
         fh.write(result.to_frame().to_html())
         for group_id in groupings:
             fh.write('<p>\n')
-            fh.write('<a href="%s-boxplots.pdf">\n' % group_id)
-            fh.write(' <img src="%s-boxplots.png">' % group_id)
+            fh.write('<a href="%s-boxplots.pdf">\n' %
+                     urllib.parse.quote_plus(str(group_id)))
+            fh.write(' <img src="%s-boxplots.png">' %
+                     urllib.parse.quote_plus(str(group_id)))
             fh.write(' <p>Download as PDF</p>\n')
             fh.write('</a>\n\n')
             fh.write('</body></html>')

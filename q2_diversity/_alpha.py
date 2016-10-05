@@ -136,12 +136,12 @@ def alpha_correlation(output_dir: str,
                          'options are %s.' %
                          (method, ', '.join(_alpha_correlation_fns.keys())))
 
-    # Cast metadata to numeric, then drop samples that have no data for this
-    # metadata category.
+    # Cast metadata to numeric.
     try:
         metadata = pd.to_numeric(metadata.to_series())
     except ValueError:
-        raise ValueError('Non-numeric data is present in metadata.')
+        raise ValueError('Non-numeric data is present in metadata category %s.'
+                         % metadata.to_series().name)
 
     # create a dataframe containing the data to be correlated, and drop
     # any samples that have no data in either column

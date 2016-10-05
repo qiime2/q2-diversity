@@ -99,7 +99,7 @@ plugin.visualizers.register_function(
 )
 
 beta_group_significance_methods = \
-    list(q2_diversity._beta._beta_group_significance_fns.keys())
+    list(q2_diversity._beta._beta_group_significance_fns)
 
 plugin.visualizers.register_function(
     function=q2_diversity.beta_group_significance,
@@ -113,7 +113,7 @@ plugin.visualizers.register_function(
 )
 
 alpha_correlation_methods = \
-    list(q2_diversity._alpha._alpha_correlation_fns.keys())
+    list(q2_diversity._alpha._alpha_correlation_fns)
 
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_correlation,
@@ -121,8 +121,8 @@ plugin.visualizers.register_function(
     parameters={'method': Str % Choices(alpha_correlation_methods),
                 'metadata': MetadataCategory},
     name='Alpha diversity correlation',
-    description=('Determine whether sample metadata is correlated with '
-                 'alpha diversity.')
+    description=('Determine whether numeric sample metadata category is '
+                 'correlated with alpha diversity.')
 )
 
 plugin.methods.register_markdown('markdown/core_metrics.md')
