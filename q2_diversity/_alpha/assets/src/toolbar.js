@@ -5,7 +5,7 @@
 import { select } from 'd3';
 
 import setupData from './data';
-import { render, kwStats } from './render';
+import { render, kwStats, warnings } from './render';
 
 
 export function addCategoryPicker(row, categories, selectedCategory) {
@@ -20,6 +20,7 @@ export function addCategoryPicker(row, categories, selectedCategory) {
       render(svg, preppedData);
       const body = select('body .container-fluid');
       kwStats(body, data);
+      warnings(body, data);
     })
     .selectAll('option')
     .data(categories)

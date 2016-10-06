@@ -1,6 +1,6 @@
 {
-  "name": "q2-diversity-alpha-compare",
-  "version": "0.0.1-dev",
+  "name": "",
+  "version": "",
   "description": "",
   "main": "main.js",
   "dependencies": {
@@ -27,7 +27,7 @@
     "type": "git",
     "url": "git+https://github.com/qiime2/q2-diversity.git"
   },
-  "author": "Matthew Ryan Dillon",
+  "author": "",
   "bugs": {
     "url": "https://github.com/qiime2/q2-diversity/issues"
   },

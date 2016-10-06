@@ -8,13 +8,15 @@
 
 import json
 import os
+import pkg_resources
 import shutil
+from urllib.parse import quote
 
 import scipy
-import numpy
-import qiime
+import numpy as np
 import pandas as pd
 import seaborn as sns
+import qiime
 from statsmodels.sandbox.stats.multicomp import multipletests
 from trender import TRender
 
@@ -22,28 +24,39 @@ from trender import TRender
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                              metadata: qiime.Metadata) -> None:
     metadata_df = metadata.to_dataframe()
-    metadata_df = metadata_df.select_dtypes(exclude=[numpy.number])
+    metadata_df = metadata_df.apply(pd.to_numeric, errors='ignore')
+    pre_filtered_cols = set(metadata_df.columns)
+    metadata_df = metadata_df.select_dtypes(exclude=[np.number])
+    post_filtered_cols = set(metadata_df.columns)
+    filtered_numeric_categories = list(pre_filtered_cols - post_filtered_cols)
+
     categories = metadata_df.columns
 
     filenames = []
+    filtered_categories = []
     for category in categories:
         metadata_category = metadata.get_category(category).to_series()
-        filtered_metadata = metadata_category[alpha_diversity.index]
-        data = pd.concat([alpha_diversity, filtered_metadata], axis=1)
+        metadata_category = metadata_category[alpha_diversity.index]
+        metadata_category = metadata_category.replace(r'', np.nan).dropna()
+
+        initial_data_length = alpha_diversity.shape[0]
+        data = pd.concat([alpha_diversity, metadata_category], axis=1,
+                         join='inner')
+        filtered_data_length = data.shape[0]
+
         names = []
         groups = []
-        for name, group in data.groupby(filtered_metadata.name):
+        for name, group in data.groupby(metadata_category.name):
             names.append('%s (n=%d)' % (name, len(group)))
             groups.append(list(group[alpha_diversity.name]))
 
-        if (len(groups) > 1 and len(groups) != len(data)):
-            filename = 'category-%s.jsonp' % category
+        if (len(groups) > 1 and len(groups) != len(data.index)):
+            escaped_category = quote(category)
+            filename = 'category-%s.jsonp' % escaped_category
             filenames.append(filename)
-            df = pd.Series(groups, index=names)
 
             # perform Kruskal-Wallis across all groups
             kw_H_all, kw_p_all = scipy.stats.mstats.kruskalwallis(*groups)
-            kwAll = json.dumps({'H': kw_H_all, 'p': kw_p_all})
 
             # perform pairwise Kruskal-Wallis across all pairs of groups and
             # correct for multiple comparisons
@@ -59,22 +72,36 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
             kw_H_pairwise['q-value'] = multipletests(
                 kw_H_pairwise['p-value'], method='fdr_bh')[1]
             kw_H_pairwise.sort_index(inplace=True)
-            outfile = 'kruskal-wallis-pairwise-%s.csv' % category
-            outpath = os.path.join(output_dir, outfile)
-            kw_H_pairwise.to_csv(outpath)
+            pairwise_fn = 'kruskal-wallis-pairwise-%s.csv' % escaped_category
+            pairwise_path = os.path.join(output_dir, pairwise_fn)
+            kw_H_pairwise.to_csv(pairwise_path)
 
             with open(os.path.join(output_dir, filename), 'w') as fh:
-                fh.write('load_data("%s",`' % category)
-                df.to_json(fh, orient='split')
-                fh.write("`,'%s',`" % kwAll)
-                kw_H_pairwise.to_html(fh, classes="table table-striped "
-                                                  "table-hover")
-                fh.write("`,'./%s');" % outfile)
+                df = pd.Series(groups, index=names)
 
-    TEMPLATES = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             'assets')
+                fh.write("load_data('%s'," % category)
+                df.to_json(fh, orient='split')
+                fh.write(",")
+                json.dump({'initial': initial_data_length,
+                           'filtered': filtered_data_length}, fh)
+                fh.write(",")
+                json.dump({'H': kw_H_all, 'p': kw_p_all}, fh)
+                fh.write(",'")
+                table = kw_H_pairwise.to_html(classes="table table-striped "
+                                              "table-hover")
+                table = table.replace('border="1"', 'border="0"')
+                fh.write(table.replace('\n', ''))
+                fh.write("','%s');" % quote(pairwise_fn))
+        else:
+            filtered_categories.append(category)
+
+    TEMPLATES = pkg_resources.resource_filename('q2_diversity._alpha',
+                                                'assets')
     index = TRender('index.template', path=TEMPLATES)
-    rendered_index = index.render({'categories': filenames})
+    rendered_index = index.render(
+        {'categories': [quote(fn) for fn in filenames],
+         'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
+         'filtered_categories': ', '.join(filtered_categories)})
     with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
         fh.write(rendered_index)
 
@@ -84,6 +111,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
 
 _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
                           'pearson': scipy.stats.pearsonr}
+
 
 def alpha_correlation(output_dir: str,
                       alpha_diversity: pd.Series,

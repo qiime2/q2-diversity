@@ -113,7 +113,7 @@ plugin.visualizers.register_function(
 )
 
 alpha_correlation_methods = \
-    list(q2_diversity._alpha._alpha_correlation_fns)
+    list(q2_diversity._alpha._visualizer._alpha_correlation_fns)
 
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_correlation,

@@ -29,13 +29,13 @@ export function render(svg, data) {
 
   chart.attr('transform', `translate(${margin.left},${margin.top})`);
 
-  setupXLabel(svg, width, height, category, xAxis);
+  const maxLabelX = setupXLabel(svg, width, height, category, xAxis);
   setupYLabel(svg, height, yAxis);
 
   plotBoxes(chart, data, x, y);
 
   svg.attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.bottom + margin.top);
+    .attr('height', height + margin.bottom + margin.top + maxLabelX);
 }
 
 export function kwStats(body, data) {
@@ -43,4 +43,18 @@ export function kwStats(body, data) {
   select('#kw-all-p').text(data.kwAll.p);
   select('#kw-pairwise').html(data.kwPairwise);
   select('#kw-csv').attr('href', data.kwCSVPath);
+}
+
+export function warnings(body, data) {
+  const { filtered: { initial, filtered } } = data;
+  if (initial !== filtered) {
+    select('#filtered-samples')
+      .style('display', null)
+      .html(`Some samples were filtered from the input alpha diversity data
+        because they were missing metadata values.<strong>The input alpha
+        diversity data contained ${initial} samples, but the analysis was run
+        on only ${filtered} samples.</strong>`);
+  } else {
+    select('#filtered-samples').style('display', 'none').html(null);
+  }
 }
