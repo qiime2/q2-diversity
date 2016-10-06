@@ -79,7 +79,7 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     # the metadata, and keep track of how many samples survived the filtering
     # so that information can be presented to the user.
     initial_dm_length = distance_matrix.shape[0]
-    distance_matrix = distance_matrix.filter(df.index)
+    distance_matrix = distance_matrix.filter(df.index, strict=False)
     filtered_dm_length = distance_matrix.shape[0]
 
     result = skbio.stats.distance.bioenv(distance_matrix, df)
