@@ -6,7 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime.plugin import Plugin, Str, Properties, Metadata, Choices
+from qiime.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
+                          Metadata, Int)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -95,6 +96,33 @@ plugin.visualizers.register_function(
                  "dropped. The output visualization will indicate how many "
                  "samples were dropped due to missing data, if any were "
                  "dropped.")
+)
+
+beta_group_significance_methods = \
+    list(q2_diversity._beta._beta_group_significance_fns)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.beta_group_significance,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={'method': Str % Choices(beta_group_significance_methods),
+                'permutations': Int,
+                'metadata': MetadataCategory},
+    name='Beta diversity group significance',
+    description=('Determine whether groups of samples are significantly '
+                 'different from one another.')
+)
+
+alpha_correlation_methods = \
+    list(q2_diversity._alpha._alpha_correlation_fns)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.alpha_correlation,
+    inputs={'alpha_diversity': SampleData[AlphaDiversity]},
+    parameters={'method': Str % Choices(alpha_correlation_methods),
+                'metadata': MetadataCategory},
+    name='Alpha diversity correlation',
+    description=('Determine whether numeric sample metadata category is '
+                 'correlated with alpha diversity.')
 )
 
 plugin.methods.register_markdown('markdown/core_metrics.md')
