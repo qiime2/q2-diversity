@@ -80,7 +80,7 @@
     </div>
     <script>
       var d = [];
-      function load_data(categoryName, data, filtered, kwAll, kwPairwise, kwCSVPath) {
+      function load_data(categoryName, data, filtered, kwAll, kwPairwise, kwCSVPath, metricName) {
         d.push({
           category: categoryName,
           data: data,
@@ -88,6 +88,7 @@
           kwPairwise: kwPairwise,
           filtered: filtered,
           kwCSVPath: kwCSVPath,
+          metricName: metricName,
         });
       }
     </script>

@@ -68,5 +68,6 @@ export default function setupData(data) {
     min: min(minVals),
     max: max(maxVals),
     category: data.category,
+    metric: data.metricName,
   };
 }

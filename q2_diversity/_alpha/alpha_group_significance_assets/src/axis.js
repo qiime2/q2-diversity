@@ -23,7 +23,7 @@ export function setupXLabel(svg, width, height, label, xAxis) {
   return maxHeight;
 }
 
-export function setupYLabel(svg, height, yAxis) {
+export function setupYLabel(svg, height, label, yAxis) {
   svg.select('.y.axis')
     .call(yAxis);
 
@@ -31,5 +31,5 @@ export function setupYLabel(svg, height, yAxis) {
     .attr('text-anchor', 'middle')
     .style('font', '12px sans-serif')
     .attr('transform', `translate(-50,${(height / 2)})rotate(-90)`)
-    .text('Faith Pd');
+    .text(label);
 }

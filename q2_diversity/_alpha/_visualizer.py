@@ -30,6 +30,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     filtered_numeric_categories = pre_filtered_cols - post_filtered_cols
 
     categories = metadata_df.columns
+    metric_name = alpha_diversity.name
 
     if len(categories) == 0:
         raise ValueError('Only numeric data is present in metadata file.')
@@ -93,7 +94,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                                               "table-hover")
                 table = table.replace('border="1"', 'border="0"')
                 fh.write(table.replace('\n', ''))
-                fh.write("','%s');" % quote(pairwise_fn))
+                fh.write("','%s', '%s');" % (quote(pairwise_fn), metric_name))
         else:
             filtered_categories.append(category)
 
