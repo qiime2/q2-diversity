@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block head %}
+  <script src='dist/vendor.bundle.js'></script>
+{% endblock %}
+
 {% block content %}
   {% if filtered_categories %}
   <div class="row">
