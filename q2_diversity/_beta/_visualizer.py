@@ -146,7 +146,9 @@ def beta_group_significance(output_dir: str,
                                  urllib.parse.quote_plus(str(group_id))))
         fig.clear()
 
-    result = result.to_frame().to_html()
+    result = result.to_frame().to_html(classes="table table-striped "
+                                       "table-hover")
+    result = result.replace('border="1"', 'border="0"')
     index = os.path.join(
         TEMPLATES, 'beta_group_significance_assets', 'index.html')
     q2templates.render(index, output_dir, context={

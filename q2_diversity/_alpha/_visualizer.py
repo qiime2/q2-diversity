@@ -108,8 +108,9 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
         'filtered_categories': ', '.join(filtered_categories)})
 
-    shutil.copytree(os.path.join(TEMPLATES, 'dst'),
-                    os.path.join(output_dir, 'dist'))
+    shutil.copytree(
+        os.path.join(TEMPLATES, 'alpha_group_significance_assets' 'dst'),
+        os.path.join(output_dir, 'dist'))
 
 
 _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
@@ -181,5 +182,5 @@ def alpha_correlation(output_dir: str,
         'categories': [quote(fn) for fn in filenames],
         'filtered_categories': ', '.join(filtered_categories)})
 
-    shutil.copytree(os.path.join(TEMPLATES, 'dst'),
+    shutil.copytree(os.path.join(TEMPLATES, 'alpha_correlation_assets', 'dst'),
                     os.path.join(output_dir, 'dist'))

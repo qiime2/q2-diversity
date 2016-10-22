@@ -131,7 +131,7 @@ class BioenvTests(unittest.TestCase):
             self.assertTrue('metadata2' in open(index_fp).read())
             self.assertTrue('Warning' in open(index_fp).read())
             self.assertTrue('contained 3 samples' in open(index_fp).read())
-            self.assertTrue('only 2 sample' in open(index_fp).read())
+            self.assertTrue('2 samples' in open(index_fp).read())
 
     def test_bioenv_extra_metadata(self):
         dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
