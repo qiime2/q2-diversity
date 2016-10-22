@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if initial_dm_length != filtered_dm_length %}
+    <p class="alert alert-warning">
+      <b>Warning</b>: Some samples were filtered from the input distance matrix
+      because they were missing metadata values.<br><b>The input distance matrix
+      contained {{ initial_dm_length }} samples but {{ method }} was computed on
+      only {{ filtered_dm_length }} samples.</b><p>
+    </p>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-lg-12">
+      {% for group_id in groupings %}
+      <div class="text-center">
+        <a href="{{ group_id | replace(' ', '+') }}-boxplots.pdf">
+          <img src="{{ group_id | replace(' ', '+') }}-boxplots.png">
+          <br>
+          <p>Download as PDF</p>
+        </a>
+      </div>
+      <hr>
+      {% endfor %}
+    </div>
+  </div>
+
+{% endblock %}

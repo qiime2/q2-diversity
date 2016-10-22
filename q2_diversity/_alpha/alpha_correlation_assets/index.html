@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if filtered_categories %}
+  <div class="row">
+    <p class="alert alert-warning col-md-12">
+      The following metadata categories have been omitted because the
+      metadata was categorical, not numerical:
+      <strong>{{ filtered_categories }}</strong>
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <p class="alert alert-warning col-md-12" id="filtered-samples"></p>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12" id="main"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th id="method"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Test statistic</th>
+            <td id="test-stat"></td>
+          </tr>
+          <tr>
+            <th scope="row">P-value</th>
+            <td id="p-val"></td>
+          </tr>
+          <tr>
+            <th scope="row">Sample size</th>
+            <td id="sample-size"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  var d = [];
+  function load_data(categoryName, data, filtered, stats) {
+    d.push({
+      category: categoryName,
+      data: data,
+      filtered: filtered,
+      stats: stats,
+    });
+  }
+</script>
+{% for category in categories %}
+<script src='{{ category }}?callback=load_data'></script>
+{% endfor %}
+<script src='dist/bundle.js'></script>
+{% endblock %}

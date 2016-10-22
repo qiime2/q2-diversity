@@ -9,6 +9,7 @@
 import os.path
 import collections
 import urllib.parse
+import pkg_resources
 
 import qiime
 import skbio
@@ -17,6 +18,10 @@ import numpy
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import q2templates
+
+
+TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
 
 
 def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
@@ -35,18 +40,14 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     filtered_dm_length = distance_matrix.shape[0]
 
     result = skbio.stats.distance.bioenv(distance_matrix, df)
-    index_fp = os.path.join(output_dir, 'index.html')
-    with open(index_fp, 'w') as fh:
-        fh.write('<html><body>')
-        if initial_dm_length != filtered_dm_length:
-            fh.write("<b>Warning</b>: Some samples were filtered from the "
-                     "input distance matrix because they were missing "
-                     "metadata values.<br><b>The input distance matrix "
-                     "contained %d samples but bioenv was computed on "
-                     "only %d samples.</b><p>"
-                     % (initial_dm_length, filtered_dm_length))
-        fh.write(result.to_html())
-        fh.write('</body></html>')
+    result = result.to_html(classes='table table-striped table-hover').replace(
+        'border="1"', 'border="0"')
+
+    index = os.path.join(TEMPLATES, 'bioenv_assets', 'index.html')
+    q2templates.render(index, output_dir, context={
+        'initial_dm_length': initial_dm_length,
+        'filtered_dm_length': filtered_dm_length,
+        'result': result})
 
 
 _beta_group_significance_fns = {'permanova': skbio.stats.distance.permanova,
@@ -145,23 +146,13 @@ def beta_group_significance(output_dir: str,
                                  urllib.parse.quote_plus(str(group_id))))
         fig.clear()
 
-    index_fp = os.path.join(output_dir, 'index.html')
-    with open(index_fp, 'w') as fh:
-        fh.write('<html><body>')
-        if initial_dm_length != filtered_dm_length:
-            fh.write("<b>Warning</b>: Some samples were filtered from the "
-                     "input distance matrix because they were missing "
-                     "metadata values.<br><b>The input distance matrix "
-                     "contained %d samples but %s was computed on "
-                     "only %d samples.</b><p>"
-                     % (initial_dm_length, method, filtered_dm_length))
-        fh.write(result.to_frame().to_html())
-        for group_id in groupings:
-            fh.write('<p>\n')
-            fh.write('<a href="%s-boxplots.pdf">\n' %
-                     urllib.parse.quote_plus(str(group_id)))
-            fh.write(' <img src="%s-boxplots.png">' %
-                     urllib.parse.quote_plus(str(group_id)))
-            fh.write(' <p>Download as PDF</p>\n')
-            fh.write('</a>\n\n')
-            fh.write('</body></html>')
+    result = result.to_frame().to_html()
+    index = os.path.join(
+        TEMPLATES, 'beta_group_significance_assets', 'index.html')
+    q2templates.render(index, output_dir, context={
+        'initial_dm_length': initial_dm_length,
+        'filtered_dm_length': filtered_dm_length,
+        'method': method,
+        'groupings': groupings,
+        'result': result
+    })

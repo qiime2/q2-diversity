@@ -17,7 +17,10 @@ import numpy as np
 import pandas as pd
 import qiime
 from statsmodels.sandbox.stats.multicomp import multipletests
-from trender import TRender
+import q2templates
+
+
+TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 
 
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
@@ -98,23 +101,15 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         else:
             filtered_categories.append(category)
 
-    TEMPLATES = pkg_resources.resource_filename(
-        'q2_diversity._alpha', 'alpha_group_significance_assets')
-    index = TRender('index.template', path=TEMPLATES)
-    rendered_index = index.render(
-        {'categories': [quote(fn) for fn in filenames],
-         'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
-         'filtered_categories': ', '.join(filtered_categories)})
-    with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
-        fh.write(rendered_index)
+    index = os.path.join(
+        TEMPLATES, 'alpha_group_significance_assets', 'index.html')
+    q2templates.render(index, output_dir, context={
+        'categories': [quote(fn) for fn in filenames],
+        'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
+        'filtered_categories': ', '.join(filtered_categories)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'dst'),
                     os.path.join(output_dir, 'dist'))
-
-    SHARED_ASSETS = pkg_resources.resource_filename('q2_diversity', 'assets')
-    for fn in ['bootstrap.min.css', 'd3-license.txt', 'qiime_logo_large.png']:
-        shutil.copy(os.path.join(SHARED_ASSETS, fn),
-                    os.path.join(output_dir, 'dist', fn))
 
 
 _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
@@ -181,20 +176,10 @@ def alpha_correlation(output_dir: str,
                 'sampleSize': df.shape[0]}, fh)
             fh.write(");")
 
-    TEMPLATES = pkg_resources.resource_filename(
-        'q2_diversity._alpha', 'alpha_correlation_assets')
-    index = TRender('index.template', path=TEMPLATES)
-    rendered_index = index.render({
+    index = os.path.join(TEMPLATES, 'alpha_correlation_assets', 'index.html')
+    q2templates.render(index, output_dir, context={
         'categories': [quote(fn) for fn in filenames],
         'filtered_categories': ', '.join(filtered_categories)})
-    with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
-        fh.write(rendered_index)
 
     shutil.copytree(os.path.join(TEMPLATES, 'dst'),
                     os.path.join(output_dir, 'dist'))
-
-    SHARED_ASSETS = pkg_resources.resource_filename('q2_diversity', 'assets')
-    OUTPUT_ASSETS = os.path.join(output_dir, 'dist')
-    for fn in ['bootstrap.min.css', 'qiime_logo_large.png']:
-        shutil.copy(os.path.join(SHARED_ASSETS, fn),
-                    os.path.join(OUTPUT_ASSETS, fn))

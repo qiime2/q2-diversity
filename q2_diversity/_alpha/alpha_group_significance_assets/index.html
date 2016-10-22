@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if filtered_numeric_categories %}
+  <div class="row">
+    <p class="alert alert-warning col-md-12">
+      The following metadata categories have been omitted because the
+      metadata was numerical, not categorical:
+      <strong>{{ filtered_numeric_categories }}</strong>
+    </p>
+  </div>
+  {% endif %}
+  {% if filtered_categories %}
+  <div class="row">
+    <p class="alert alert-warning col-md-12">
+      The following metadata categories have been omitted because the number
+      of groups was equal to the number of samples, or there was only a single
+      category:
+      <strong>{{ filtered_categories }}</strong>
+    </p>
+  </div>
+  {% endif %}
+  <div class="row">
+    <p class="alert alert-warning col-md-12" id="filtered-samples"></p>
+  </div>
+</div>
+
+<div class="container-fluid" id="main">
+  <hr>
+
+  <h2>Kruskal-Wallis (all groups)</h2>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">H</th>
+        <td id="kw-all-h"></td>
+      </tr>
+      <tr>
+        <th scope="row">p-value</th>
+        <td id="kw-all-p"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Kruskal-Wallis (pairwise)</h2>
+  <a id="kw-csv">Download CSV</a>
+  <div id="kw-pairwise"></d>
+</div>
+<script>
+  var d = [];
+  function load_data(categoryName, data, filtered, kwAll, kwPairwise, kwCSVPath, metricName) {
+    d.push({
+      category: categoryName,
+      data: data,
+      kwAll: kwAll,
+      kwPairwise: kwPairwise,
+      filtered: filtered,
+      kwCSVPath: kwCSVPath,
+      metricName: metricName,
+    });
+  }
+</script>
+{% for category in categories %}
+<script src='{{ category }}?callback=load_data'></script>
+{% endfor %}
+<script src='dist/bundle.js'></script>
+{% endblock %}
