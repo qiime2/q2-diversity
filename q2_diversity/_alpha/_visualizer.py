@@ -109,7 +109,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         'filtered_categories': ', '.join(filtered_categories)})
 
     shutil.copytree(
-        os.path.join(TEMPLATES, 'alpha_group_significance_assets' 'dst'),
+        os.path.join(TEMPLATES, 'alpha_group_significance_assets', 'dst'),
         os.path.join(output_dir, 'dist'))
 
 
