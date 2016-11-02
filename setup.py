@@ -11,12 +11,12 @@ from setuptools import setup, find_packages
 setup(
     name="q2-diversity",
     # TODO stop duplicating version string
-    version="0.0.5",
+    version="0.0.6",
     packages=find_packages(),
-    install_requires=['qiime >= 2.0.5', 'q2-feature-table >= 0.0.5',
-                      'q2-types >= 0.0.5', 'scikit-bio', 'seaborn',
+    install_requires=['qiime >= 2.0.6', 'q2-feature-table >= 0.0.6',
+                      'q2-types >= 0.0.6', 'scikit-bio', 'seaborn',
                       'statsmodels', 'scipy', 'numpy', 'pandas',
-                      'biom-format >= 2.1.5, < 2.2.0', 'q2templates'],
+                      'biom-format >= 2.1.5, < 2.2.0', 'q2templates >= 0.0.6'],
     package_data={'q2_diversity': ['markdown/*md'],
                   'q2_diversity._alpha': [
                       'alpha_group_significance_assets/index.html',

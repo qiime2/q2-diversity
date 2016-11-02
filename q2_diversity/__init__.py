@@ -11,7 +11,7 @@ from ._alpha import (alpha, alpha_phylogenetic, alpha_group_significance,
 from ._beta import beta, beta_phylogenetic, bioenv, beta_group_significance
 from ._ordination import pcoa
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic', 'pcoa',
            'alpha_group_significance', 'bioenv', 'beta_group_significance',
