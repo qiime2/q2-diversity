@@ -20,8 +20,8 @@
     "webpack-dev-server": "^1.16.1"
   },
   "scripts": {
-    "dev": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline",
-    "build": "./node_modules/webpack/bin/webpack.js"
+    "dev": "webpack-dev-server --inline",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",

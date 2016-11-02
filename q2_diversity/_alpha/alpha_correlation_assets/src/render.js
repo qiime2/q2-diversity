@@ -17,7 +17,7 @@ export function render(svg, data) {
 
   const { xAxisLabel, yAxisLabel, minX, maxX, minY, maxY } = data;
 
-  const x = scaleLinear().domain([minX, maxX]).range([0, width]).nice();
+  const x = scaleLinear().domain([minX - ((maxX - minX) * 0.03), maxX]).range([0, width]).nice();
   const y = scaleLinear().domain([minY, maxY]).range([height, 0]).nice();
 
   const xAxis = axisBottom();
