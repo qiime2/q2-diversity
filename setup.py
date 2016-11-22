@@ -17,8 +17,7 @@ setup(
                       'q2-types >= 0.0.6', 'scikit-bio', 'seaborn',
                       'statsmodels', 'scipy', 'numpy', 'pandas',
                       'biom-format >= 2.1.5, < 2.2.0', 'q2templates >= 0.0.6'],
-    package_data={'q2_diversity': ['markdown/*md'],
-                  'q2_diversity._alpha': [
+    package_data={'q2_diversity._alpha': [
                       'alpha_group_significance_assets/index.html',
                       'alpha_group_significance_assets/dst/*',
                       'alpha_correlation_assets/index.html',

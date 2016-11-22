@@ -75,6 +75,33 @@ plugin.methods.register_function(
     description=("Apply principal coordinate analysis.")
 )
 
+plugin.methods.register_function(
+    function=q2_diversity.core_metrics,
+    inputs={
+        'table': FeatureTable[Frequency],
+        'phylogeny': Phylogeny[Rooted]
+    },
+    parameters={
+        'sampling_depth': Int
+    },
+    outputs=[
+        ('faith_pd_vector', SampleData[AlphaDiversity]),
+        ('observed_otus_vector', SampleData[AlphaDiversity]),
+        ('shannon_vector', SampleData[AlphaDiversity]),
+        ('evenness_vector', SampleData[AlphaDiversity]),
+        ('unweighted_unifrac_distance_matrix', DistanceMatrix),
+        ('weighted_unifrac_distance_matrix', DistanceMatrix),
+        ('jaccard_distance_matrix', DistanceMatrix),
+        ('bray_curtis_distance_matrix', DistanceMatrix),
+        ('unweighted_unifrac_pcoa_results', PCoAResults),
+        ('weighted_unifrac_pcoa_results', PCoAResults),
+        ('jaccard_pcoa_results', PCoAResults),
+        ('bray_curtis_pcoa_results', PCoAResults)
+    ],
+    name='Core diversity metrics',
+    description="Applies a collection of diversity metrics to a feature table."
+)
+
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_group_significance,
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
@@ -124,5 +151,3 @@ plugin.visualizers.register_function(
     description=('Determine whether numeric sample metadata category is '
                  'correlated with alpha diversity.')
 )
-
-plugin.methods.register_markdown('markdown/core_metrics.md')

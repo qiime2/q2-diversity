@@ -10,9 +10,10 @@ from ._alpha import (alpha, alpha_phylogenetic, alpha_group_significance,
                      alpha_correlation)
 from ._beta import beta, beta_phylogenetic, bioenv, beta_group_significance
 from ._ordination import pcoa
+from ._core_metrics import core_metrics
 
 __version__ = "0.0.7.dev0"
 
 __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic', 'pcoa',
            'alpha_group_significance', 'bioenv', 'beta_group_significance',
-           'alpha_correlation']
+           'alpha_correlation', 'core_metrics']
