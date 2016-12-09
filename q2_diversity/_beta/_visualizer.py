@@ -56,8 +56,8 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     q2templates.render(index, output_dir, context={
         'initial_dm_length': initial_dm_length,
         'filtered_dm_length': filtered_dm_length,
-        'filtered_categorical_cols': filtered_categorical_cols,
-        'filtered_zero_variance_cols': filtered_zero_variance_cols,
+        'filtered_categorical_cols': ', '.join(filtered_categorical_cols),
+        'filtered_zero_variance_cols': ', '.join(filtered_zero_variance_cols),
         'result': result})
 
 

@@ -111,7 +111,10 @@ class BioenvTests(unittest.TestCase):
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
-            self.assertTrue('metadata2' in open(index_fp).read())
+
+            self.assertTrue('not numerical' in open(index_fp).read())
+            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+
             self.assertFalse('Warning' in open(index_fp).read())
 
     def test_bioenv_exclude_missing_data(self):
@@ -148,7 +151,29 @@ class BioenvTests(unittest.TestCase):
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
-            self.assertTrue('metadata2' in open(index_fp).read())
+
+            self.assertTrue('not numerical' in open(index_fp).read())
+            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_bioenv_zero_variance_column(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime.Metadata(
+            pd.DataFrame([['1.0', '2.0'], ['2.0', '2.0'], ['3.0', '2.0']],
+                         index=['sample1', 'sample2', 'sample3'],
+                         columns=['metadata1', 'metadata2']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            bioenv(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue('metadata1' in open(index_fp).read())
+
+            self.assertTrue('no variance' in open(index_fp).read())
+            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+
             self.assertFalse('Warning' in open(index_fp).read())
 
 
