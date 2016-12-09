@@ -30,7 +30,16 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     # values, and then drop samples that contain NaNs
     df = metadata.to_dataframe()
     df = df.apply(lambda x: pd.to_numeric(x, errors='ignore'))
+
+    # filter categorical columns
+    pre_filtered_cols = set(df.columns)
     df = df.select_dtypes([numpy.number]).dropna()
+    filtered_categorical_cols = pre_filtered_cols - set(df.columns)
+
+    # filter 0 variance numerical columns
+    pre_filtered_cols = set(df.columns)
+    df = df.loc[:, df.var() != 0]
+    filtered_zero_variance_cols = pre_filtered_cols - set(df.columns)
 
     # filter the distance matrix to exclude samples that were dropped from
     # the metadata, and keep track of how many samples survived the filtering
@@ -47,6 +56,8 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     q2templates.render(index, output_dir, context={
         'initial_dm_length': initial_dm_length,
         'filtered_dm_length': filtered_dm_length,
+        'filtered_categorical_cols': filtered_categorical_cols,
+        'filtered_zero_variance_cols': filtered_zero_variance_cols,
         'result': result})
 
 

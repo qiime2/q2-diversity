@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% if filtered_categorical_cols %}
+      <div class="alert alert-warning col-md-12">
+        The following metadata categories have been omitted because the
+        metadata was categorical, not numerical:
+        <strong>{{ filtered_categorical_cols }}</strong>
+      </div>
+    {% endif %}
+    {% if filtered_zero_variance_cols %}
+      <div class="alert alert-warning col-md-12">
+        The following metadata categories have been omitted because the
+        metadata column had no variance:
+        <strong>{{ filtered_zero_variance_cols }}</strong>
+      </div>
+    {% endif %}
     {% if initial_dm_length != filtered_dm_length %}
       <p class="alert alert-warning">
         <b>Warning</b>: Some samples were filtered from the input distance matrix

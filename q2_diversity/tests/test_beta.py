@@ -111,7 +111,7 @@ class BioenvTests(unittest.TestCase):
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
-            self.assertFalse('metadata2' in open(index_fp).read())
+            self.assertTrue('metadata2' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
 
     def test_bioenv_exclude_missing_data(self):
@@ -148,7 +148,7 @@ class BioenvTests(unittest.TestCase):
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
-            self.assertFalse('metadata2' in open(index_fp).read())
+            self.assertTrue('metadata2' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
 
 
