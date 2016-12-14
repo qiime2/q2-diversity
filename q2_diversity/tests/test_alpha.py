@@ -27,9 +27,10 @@ class AlphaTests(unittest.TestCase):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        actual = alpha(table=t, metric='observed_otus')
+        actual = alpha(table=t, metric='feature_counts')
         # expected computed by hand
-        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2}, name='observed_otus')
+        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
+                             name='feature_counts')
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylo_metric(self):
@@ -65,7 +66,8 @@ class AlphaTests(unittest.TestCase):
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
-            alpha_phylogenetic(table=t, phylogeny=tree, metric='observed_otus')
+            alpha_phylogenetic(table=t, phylogeny=tree,
+                               metric='feature_counts')
 
     def test_alpha_phylogenetic_unknown_metric(self):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),

@@ -10,6 +10,7 @@
 import biom
 import skbio
 import skbio.diversity
+import skbio.tree
 
 
 # We should consider moving these functions to scikit-bio. They're part of
@@ -35,13 +36,17 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
     sample_ids = table.ids(axis='sample')
     feature_ids = table.ids(axis='observation')
 
-    return skbio.diversity.beta_diversity(
-        metric=metric,
-        counts=counts,
-        ids=sample_ids,
-        otu_ids=feature_ids,
-        tree=phylogeny
-    )
+    try:
+        results = skbio.diversity.beta_diversity(metric=metric,
+                                                 counts=counts,
+                                                 ids=sample_ids,
+                                                 otu_ids=feature_ids,
+                                                 tree=phylogeny)
+    except skbio.tree.MissingNodeError:
+        raise skbio.tree.MissingNodeError("All ``feature_ids`` must be "
+                                          "present as tip names in ``tree``.")
+
+    return results
 
 
 def beta(table: biom.Table, metric: str)-> skbio.DistanceMatrix:
