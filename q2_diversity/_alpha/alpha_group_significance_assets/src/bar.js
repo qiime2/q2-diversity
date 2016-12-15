@@ -30,8 +30,8 @@ export default function plotBoxes(chart, data, x, y) {
     .attr('stroke-width', 1)
     .attr('stroke', 'black')
     .attr('stroke-opacity', 0.3)
-    .attr('fill', 'white')
-    .attr('fill-opacity', 0)
+    .attr('fill', 'black')
+    .attr('fill-opacity', 0.33)
     .attr('cx', 0)
     .attr('cy', d => y(d));
 
