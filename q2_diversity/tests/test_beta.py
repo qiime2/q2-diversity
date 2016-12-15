@@ -94,6 +94,18 @@ class BetaDiversityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             beta_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
 
+    def test_beta_phylogenetic_skbio_error_rewriting(self):
+        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                  ['O1', 'O2'],
+                  ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25):0.25, O3:0.75)root;'))
+        # Verify through regex that there is a ``feature_ids`` substring
+        # followed by a ``phylogeny``
+        with self.assertRaisesRegex(skbio.tree.MissingNodeError,
+                                    'feature_ids.*phylogeny'):
+            beta_phylogenetic(table=t, phylogeny=tree,
+                              metric='weighted_unifrac')
 
 class BioenvTests(unittest.TestCase):
 

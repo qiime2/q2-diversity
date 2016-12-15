@@ -27,10 +27,10 @@ class AlphaTests(unittest.TestCase):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        actual = alpha(table=t, metric='feature_counts')
+        actual = alpha(table=t, metric='observed_otus')
         # expected computed by hand
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                             name='feature_counts')
+                             name='observed_otus')
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylo_metric(self):
@@ -67,7 +67,7 @@ class AlphaTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
             alpha_phylogenetic(table=t, phylogeny=tree,
-                               metric='feature_counts')
+                               metric='observed_otus')
 
     def test_alpha_phylogenetic_unknown_metric(self):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -77,6 +77,18 @@ class AlphaTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
             alpha_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
+
+    def test_alpha_phylogenetic_skbio_error_rewriting(self):
+        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25):0.25, O3:0.75)root;'))
+        # Verify through regex that there is a ``feature_ids`` substring
+        # followed by a ``phylogeny``
+        with self.assertRaisesRegex(skbio.tree.MissingNodeError,
+                                    'feature_ids.*phylogeny'):
+            alpha_phylogenetic(table=t, phylogeny=tree, metric='faith_pd')
 
 
 class AlphaCorrelationTests(unittest.TestCase):

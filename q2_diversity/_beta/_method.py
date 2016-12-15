@@ -43,12 +43,9 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
                                                  otu_ids=feature_ids,
                                                  tree=phylogeny)
     except skbio.tree.MissingNodeError as e:
-        if 'otu_ids' in str(e):
-            raise skbio.tree.MissingNodeError("All ``feature_ids`` must be "
-                                              "present as tip names in "
-                                              "``tree``.")
-        else:
-            raise
+        message = str(e).replace('otu_ids', 'feature_ids')
+        message = message.replace('tree', 'phylogeny')
+        raise skbio.tree.MissingNodeError(message)
 
     return results
 
