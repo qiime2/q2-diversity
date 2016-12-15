@@ -42,9 +42,14 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
                                                  ids=sample_ids,
                                                  otu_ids=feature_ids,
                                                  tree=phylogeny)
-    except skbio.tree.MissingNodeError:
-        raise skbio.tree.MissingNodeError("All ``feature_ids`` must be "
-                                          "present as tip names in ``tree``.")
+    except skbio.tree.MissingNodeError as e:
+        if 'otu_ids' in str(e):
+            raise skbio.tree.MissingNodeError("All ``feature_ids`` must be "
+                                              "present as tip names in "
+                                              "``tree``.")
+        else:
+            raise
+
     result.name = metric
     return result
 
