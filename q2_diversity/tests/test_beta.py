@@ -107,6 +107,7 @@ class BetaDiversityTests(unittest.TestCase):
             beta_phylogenetic(table=t, phylogeny=tree,
                               metric='weighted_unifrac')
 
+
 class BioenvTests(unittest.TestCase):
 
     def test_bioenv(self):
