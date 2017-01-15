@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import qiime2
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
                            Metadata, Int)
 
@@ -103,6 +104,43 @@ plugin.methods.register_function(
     ],
     name='Core diversity metrics',
     description="Applies a collection of diversity metrics to a feature table."
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.filter_distance_matrix,
+    inputs={
+        'distance_matrix': DistanceMatrix
+    },
+    parameters={
+        'sample_metadata': Metadata,
+        'where': Str
+    },
+    outputs=[
+        ('filtered_distance_matrix', DistanceMatrix)
+    ],
+    name="Filter samples from a distance matrix",
+    description="Filter samples from a distance matrix, retaining only the "
+                "samples matching search criteria specified by "
+                "`sample_metadata` and `where` parameters. See the filtering "
+                "tutorial for additional details: "
+                "https://docs.qiime2.org/%s/tutorials/filtering/"
+                % qiime2.__version__,
+    input_descriptions={
+        'distance_matrix': 'Distance matrix to filter'
+    },
+    parameter_descriptions={
+        'sample_metadata': 'Sample metadata used in conjuction with `where` '
+                           'parameter to select samples to retain',
+        'where': 'SQLite WHERE clause specifying sample metadata criteria '
+                 'that must be met to be included in the filtered distance '
+                 'matrix. If not provided, all samples in `sample_metadata` '
+                 'that are also in the input distance matrix will be '
+                 'retained.'
+    },
+    output_descriptions={
+        'filtered_distance_matrix': 'Distance matrix filtered to include '
+                                    'samples matching search criteria'
+    }
 )
 
 plugin.visualizers.register_function(
