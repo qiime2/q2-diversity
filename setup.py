@@ -15,7 +15,11 @@ setup(
     install_requires=['qiime2 == 2017.2.*', 'q2-feature-table == 2017.2.*',
                       'q2-types == 2017.2.*', 'q2templates == 2017.2.*',
                       'scikit-bio', 'seaborn', 'statsmodels', 'scipy', 'numpy',
-                      'pandas', 'biom-format >= 2.1.5, < 2.2.0'],
+                      'pandas', 'biom-format >= 2.1.5, < 2.2.0',
+                      # `ipywidgets` included to avoid ShimWarning from
+                      # `seaborn` imports:
+                      #  https://github.com/mwaskom/seaborn/issues/874
+                      'ipywidgets'],
     package_data={'q2_diversity._alpha': [
                       'alpha_group_significance_assets/index.html',
                       'alpha_group_significance_assets/dst/*',
