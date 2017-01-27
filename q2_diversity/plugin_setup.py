@@ -33,6 +33,19 @@ plugin.methods.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics())},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which beta '
+                  'diversity should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in table. This '
+                      'tree can contain tip ids that are not present in '
+                      'table, but all feature ids in table must be present '
+                      'in this tree.')
+    },
+    parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.'
+    },
+    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
                  " for all pairs of samples in a feature table.")
@@ -43,6 +56,14 @@ plugin.methods.register_function(
     inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling')},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics())},
     outputs=[('distance_matrix', DistanceMatrix)],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which beta '
+                  'diversity should be computed.')
+    },
+    parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.'
+    },
+    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
     description=("Computes a user-specified beta diversity metric for all "
                  "pairs of samples in a feature table.")
@@ -55,6 +76,21 @@ plugin.methods.register_function(
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
               SampleData[AlphaDiversity] % Properties('phylogenetic'))],
+    input_descriptions={
+        'table': ('The feature table containing the samples for which alpha '
+                  'diversity should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in table. This '
+                      'tree can contain tip ids that are not present in '
+                      'table, but all feature ids in table must be present '
+                      'in this tree.')
+    },
+    parameter_descriptions={
+        'metric': 'The alpha diversity metric to be computed.'
+    },
+    output_descriptions={
+        'alpha_diversity': 'Vector containing per-sample alpha diversities.'
+    },
     name='Alpha diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic alpha diversity "
                  "metric for all samples in a feature table.")
@@ -65,6 +101,16 @@ plugin.methods.register_function(
     inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling')},
     parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics())},
     outputs=[('alpha_diversity', SampleData[AlphaDiversity])],
+    input_descriptions={
+        'table': ('The feature table containing the samples for which alpha '
+                  'diversity should be computed.')
+    },
+    parameter_descriptions={
+        'metric': 'The alpha diversity metric to be computed.'
+    },
+    output_descriptions={
+        'alpha_diversity': 'Vector containing per-sample alpha diversities.'
+    },
     name='Alpha diversity',
     description=("Computes a user-specified alpha diversity metric for all "
                  "samples in a feature table.")
@@ -75,6 +121,12 @@ plugin.methods.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={},
     outputs=[('pcoa', PCoAResults)],
+    input_descriptions={
+        'distance_matrix': ('The distance matrix on which PCoA should be '
+                            'computed.')
+    },
+    parameter_descriptions={},
+    output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',
     description=("Apply principal coordinate analysis.")
 )
@@ -102,6 +154,45 @@ plugin.methods.register_function(
         ('jaccard_pcoa_results', PCoAResults),
         ('bray_curtis_pcoa_results', PCoAResults)
     ],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which '
+                  'diversity metrics should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in table. This '
+                      'tree can contain tip ids that are not present in '
+                      'table, but all feature ids in table must be present '
+                      'in this tree.')
+    },
+    parameter_descriptions = {
+        'sampling_depth': ('The total frequency that each sample should be '
+                          'rarefied to prior to computing diversity metrics.')
+    },
+    output_descriptions = {
+        'faith_pd_vector': 'Vector of Faith PD values by sample.',
+        'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
+        'shannon_vector': 'Vector of Shannon diversity values by sample.',
+        'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',
+        'unweighted_unifrac_distance_matrix':
+            'Matrix of unweighted UniFrac distances between pairs of samples.',
+        'weighted_unifrac_distance_matrix':
+            'Matrix of weighted UniFrac distances between pairs of samples.',
+        'jaccard_distance_matrix':
+            'Matrix of Jaccard distances between pairs of samples.',
+        'bray_curtis_distance_matrix':
+            'Matrix of Bray-Curtis distances between pairs of samples.',
+        'unweighted_unifrac_pcoa_results':
+            ('PCoA matrix computed from unweighted UniFrac distances between '
+             'samples.'),
+        'weighted_unifrac_pcoa_results':
+            ('PCoA matrix computed from weighted UniFrac distances between '
+             'samples.'),
+        'jaccard_pcoa_results':
+            ('PCoA matrix computed from Jaccard distances between '
+             'samples.'),
+        'bray_curtis_pcoa_results':
+            ('PCoA matrix computed from Bray-Curtis distances between '
+             'samples.'),
+    },
     name='Core diversity metrics',
     description="Applies a collection of diversity metrics to a feature table."
 )
@@ -118,7 +209,7 @@ plugin.methods.register_function(
     outputs=[
         ('filtered_distance_matrix', DistanceMatrix)
     ],
-    name="Filter samples from a distance matrix",
+    name="Filter samples from a distance matrix.",
     description="Filter samples from a distance matrix, retaining only the "
                 "samples matching search criteria specified by "
                 "`sample_metadata` and `where` parameters. See the filtering "
@@ -126,7 +217,7 @@ plugin.methods.register_function(
                 "https://docs.qiime2.org/%s/tutorials/filtering/"
                 % qiime2.__version__,
     input_descriptions={
-        'distance_matrix': 'Distance matrix to filter'
+        'distance_matrix': 'Distance matrix to filter.'
     },
     parameter_descriptions={
         'sample_metadata': 'Sample metadata used in conjuction with `where` '
@@ -147,6 +238,12 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_group_significance,
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'metadata': Metadata},
+    input_descriptions = {
+        'alpha_diversity': 'Vector of alpha diversity values by sample.'
+    },
+    parameter_descriptions = {
+        'metadata': 'The sample metadata.'
+    },
     name='Alpha diversity comparisons',
     description=("Visually and statistically compare groups of alpha diversity"
                  " values.")
@@ -156,6 +253,12 @@ plugin.visualizers.register_function(
     function=q2_diversity.bioenv,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={'metadata': Metadata},
+    input_descriptions = {
+        'distance_matrix': 'Matrix of distances between pairs of samples.'
+    },
+    parameter_descriptions = {
+        'metadata': 'The sample metadata.'
+    },
     name='bioenv',
     description=("Find the subsets of variables in metadata whose Euclidean "
                  "distances are maximally rank-correlated with distance "
@@ -175,9 +278,19 @@ plugin.visualizers.register_function(
     parameters={'method': Str % Choices(beta_group_significance_methods),
                 'permutations': Int,
                 'metadata': MetadataCategory},
+    input_descriptions = {
+        'distance_matrix': 'Matrix of distances between pairs of samples.'
+    },
+    parameter_descriptions = {
+        'method': 'The group significance test to be applied.',
+        'permutations': ('The number of permuations to be run when computing '
+                         'p-values.'),
+        'metadata': 'The sample metadata.'
+    },
     name='Beta diversity group significance',
     description=('Determine whether groups of samples are significantly '
-                 'different from one another.')
+                 'different from one another using a permutation-based '
+                 'statistical test.')
 )
 
 alpha_correlation_methods = \
@@ -188,6 +301,13 @@ plugin.visualizers.register_function(
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'method': Str % Choices(alpha_correlation_methods),
                 'metadata': Metadata},
+    input_descriptions = {
+        'alpha_diversity': 'Vector of alpha diversity values by sample.'
+    },
+    parameter_descriptions = {
+        'method': 'The correlation test to be applied.',
+        'metadata': 'The sample metadata.'
+    },
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata category is '
                  'correlated with alpha diversity.')
