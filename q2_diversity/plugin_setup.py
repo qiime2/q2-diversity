@@ -37,10 +37,10 @@ plugin.methods.register_function(
         'table': ('The feature table containing the samples over which beta '
                   'diversity should be computed.'),
         'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in table. This '
-                      'tree can contain tip ids that are not present in '
-                      'table, but all feature ids in table must be present '
-                      'in this tree.')
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
     },
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.'
@@ -80,10 +80,10 @@ plugin.methods.register_function(
         'table': ('The feature table containing the samples for which alpha '
                   'diversity should be computed.'),
         'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in table. This '
-                      'tree can contain tip ids that are not present in '
-                      'table, but all feature ids in table must be present '
-                      'in this tree.')
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
     },
     parameter_descriptions={
         'metric': 'The alpha diversity metric to be computed.'
@@ -158,16 +158,16 @@ plugin.methods.register_function(
         'table': ('The feature table containing the samples over which '
                   'diversity metrics should be computed.'),
         'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in table. This '
-                      'tree can contain tip ids that are not present in '
-                      'table, but all feature ids in table must be present '
-                      'in this tree.')
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
     },
-    parameter_descriptions = {
+    parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
-                          'rarefied to prior to computing diversity metrics.')
+                           'rarefied to prior to computing diversity metrics.')
     },
-    output_descriptions = {
+    output_descriptions={
         'faith_pd_vector': 'Vector of Faith PD values by sample.',
         'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
         'shannon_vector': 'Vector of Shannon diversity values by sample.',
@@ -217,7 +217,7 @@ plugin.methods.register_function(
                 "https://docs.qiime2.org/%s/tutorials/filtering/"
                 % qiime2.__version__,
     input_descriptions={
-        'distance_matrix': 'Distance matrix to filter.'
+        'distance_matrix': 'Distance matrix to filter by sample.'
     },
     parameter_descriptions={
         'sample_metadata': 'Sample metadata used in conjuction with `where` '
@@ -238,10 +238,10 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_group_significance,
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'metadata': Metadata},
-    input_descriptions = {
+    input_descriptions={
         'alpha_diversity': 'Vector of alpha diversity values by sample.'
     },
-    parameter_descriptions = {
+    parameter_descriptions={
         'metadata': 'The sample metadata.'
     },
     name='Alpha diversity comparisons',
@@ -253,10 +253,10 @@ plugin.visualizers.register_function(
     function=q2_diversity.bioenv,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={'metadata': Metadata},
-    input_descriptions = {
+    input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
     },
-    parameter_descriptions = {
+    parameter_descriptions={
         'metadata': 'The sample metadata.'
     },
     name='bioenv',
@@ -278,12 +278,12 @@ plugin.visualizers.register_function(
     parameters={'method': Str % Choices(beta_group_significance_methods),
                 'permutations': Int,
                 'metadata': MetadataCategory},
-    input_descriptions = {
+    input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
     },
-    parameter_descriptions = {
+    parameter_descriptions={
         'method': 'The group significance test to be applied.',
-        'permutations': ('The number of permuations to be run when computing '
+        'permutations': ('The number of permutations to be run when computing '
                          'p-values.'),
         'metadata': 'The sample metadata.'
     },
@@ -301,10 +301,10 @@ plugin.visualizers.register_function(
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'method': Str % Choices(alpha_correlation_methods),
                 'metadata': Metadata},
-    input_descriptions = {
+    input_descriptions={
         'alpha_diversity': 'Vector of alpha diversity values by sample.'
     },
-    parameter_descriptions = {
+    parameter_descriptions={
         'method': 'The correlation test to be applied.',
         'metadata': 'The sample metadata.'
     },
