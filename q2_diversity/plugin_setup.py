@@ -6,7 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import qiime2
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
                            Metadata, Int)
 
@@ -213,9 +212,7 @@ plugin.methods.register_function(
     description="Filter samples from a distance matrix, retaining only the "
                 "samples matching search criteria specified by "
                 "`sample_metadata` and `where` parameters. See the filtering "
-                "tutorial for additional details: "
-                "https://docs.qiime2.org/%s/tutorials/filtering/"
-                % qiime2.__version__,
+                "tutorial on https://docs.qiime2.org for additional details.",
     input_descriptions={
         'distance_matrix': 'Distance matrix to filter by sample.'
     },
