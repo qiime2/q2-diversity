@@ -24,6 +24,18 @@
     </p>
   </div>
   {% endif %}
+  {% if filtered_group_comparisons %}
+  <div class="row">
+    <p class="alert alert-warning col-md-12">
+      The following pairwise group comparisons have been omitted because the
+      Kruskal-Wallis test could not be completed. This can occur if the two
+      groups being compared each have a sample size (n) of 1 and contain
+      the same single value.
+      </thead>
+      <strong>{{ filtered_group_comparisons }}</strong>
+    </p>
+  </div>
+  {% endif %}
   <div class="row">
     <p class="alert alert-warning col-md-12" id="filtered-samples"></p>
   </div>

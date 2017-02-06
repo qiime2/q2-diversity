@@ -31,6 +31,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     metadata_df = metadata_df.select_dtypes(exclude=[np.number])
     post_filtered_cols = set(metadata_df.columns)
     filtered_numeric_categories = pre_filtered_cols - post_filtered_cols
+    filtered_group_comparisons = []
 
     categories = metadata_df.columns
     metric_name = alpha_diversity.name
@@ -69,9 +70,14 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
             kw_H_pairwise = []
             for i in range(len(names)):
                 for j in range(i):
-                    H, p = scipy.stats.mstats.kruskalwallis(groups[i],
-                                                            groups[j])
-                    kw_H_pairwise.append([names[j], names[i], H, p])
+                    try:
+                        H, p = scipy.stats.mstats.kruskalwallis(groups[i],
+                                                                groups[j])
+                        kw_H_pairwise.append([names[j], names[i], H, p])
+                    except ValueError:
+                        filtered_group_comparisons.append(
+                            ['%s:%s' % (category, names[i]),
+                             '%s:%s' % (category, names[j])])
             kw_H_pairwise = pd.DataFrame(
                 kw_H_pairwise, columns=['Group 1', 'Group 2', 'H', 'p-value'])
             kw_H_pairwise.set_index(['Group 1', 'Group 2'], inplace=True)
@@ -106,7 +112,9 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     q2templates.render(index, output_dir, context={
         'categories': [quote(fn) for fn in filenames],
         'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
-        'filtered_categories': ', '.join(filtered_categories)})
+        'filtered_categories': ', '.join(filtered_categories),
+        'filtered_group_comparisons':
+            '; '.join([' vs '.join(e) for e in filtered_group_comparisons])})
 
     shutil.copytree(
         os.path.join(TEMPLATES, 'alpha_group_significance_assets', 'dst'),
