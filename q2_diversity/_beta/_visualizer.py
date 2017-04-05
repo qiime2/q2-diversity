@@ -10,6 +10,7 @@ import os.path
 import collections
 import urllib.parse
 import pkg_resources
+import itertools
 
 import qiime2
 import skbio
@@ -19,6 +20,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import q2templates
+from statsmodels.sandbox.stats.multicomp import multipletests
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -93,10 +95,21 @@ def _get_distance_boxplot_data(distance_matrix, group_id, groupings):
     return all_group_distances, x_ticklabels
 
 
+def _get_pairwise_group_significance_stats(
+        distance_matrix, group1_id, group2_id, groupings, metadata,
+        beta_group_significance_fn, permutations):
+    group1_group2_samples = groupings[group1_id] + groupings[group2_id]
+    metadata = metadata[group1_group2_samples]
+    distance_matrix = distance_matrix.filter(group1_group2_samples)
+    return beta_group_significance_fn(distance_matrix, metadata,
+                                      permutations=permutations)
+
+
 def beta_group_significance(output_dir: str,
                             distance_matrix: skbio.DistanceMatrix,
                             metadata: qiime2.MetadataCategory,
                             method: str='permanova',
+                            pairwise: bool=False,
                             permutations: int=999) -> None:
     try:
         beta_group_significance_fn = _beta_group_significance_fns[method]
@@ -159,9 +172,44 @@ def beta_group_significance(output_dir: str,
                                  urllib.parse.quote_plus(str(group_id))))
         fig.clear()
 
-    result = result.to_frame().to_html(classes="table table-striped "
-                                       "table-hover")
-    result = result.replace('border="1"', 'border="0"')
+    result_html = result.to_frame().to_html(classes=("table table-striped "
+                                                     "table-hover"))
+    result_html = result_html.replace('border="1"', 'border="0"')
+
+    if pairwise:
+        pairwise_results = []
+        for group1_id, group2_id in itertools.combinations(groupings, 2):
+            pairwise_result = \
+                _get_pairwise_group_significance_stats(
+                    distance_matrix=distance_matrix,
+                    group1_id=group1_id,
+                    group2_id=group2_id,
+                    groupings=groupings,
+                    metadata=metadata,
+                    beta_group_significance_fn=beta_group_significance_fn,
+                    permutations=permutations)
+            pairwise_results.append([group1_id,
+                                     group2_id,
+                                     pairwise_result['sample size'],
+                                     pairwise_result['test statistic'],
+                                     pairwise_result['p-value']])
+        columns = ['Group 1', 'Group 2', 'Sample size',
+                   result['test statistic name'], 'p-value']
+        pairwise_results = pd.DataFrame(pairwise_results, columns=columns)
+        pairwise_results.set_index(['Group 1', 'Group 2'], inplace=True)
+        pairwise_results['q-value'] = multipletests(
+            pairwise_results['p-value'], method='fdr_bh')[1]
+        pairwise_results.sort_index(inplace=True)
+        pairwise_path = os.path.join(output_dir, 'pairwise.csv')
+        pairwise_results.to_csv(pairwise_path)
+
+        pairwise_results_html = pairwise_results.to_html(
+            classes=("table table-striped table-hover"))
+        pairwise_results_html = pairwise_results_html.replace(
+            'border="1"', 'border="0"')
+    else:
+        pairwise_results_html = None
+
     index = os.path.join(
         TEMPLATES, 'beta_group_significance_assets', 'index.html')
     q2templates.render(index, output_dir, context={
@@ -169,5 +217,6 @@ def beta_group_significance(output_dir: str,
         'filtered_dm_length': filtered_dm_length,
         'method': method,
         'groupings': groupings,
-        'result': result
+        'result': result_html,
+        'pairwise_results': pairwise_results_html
     })

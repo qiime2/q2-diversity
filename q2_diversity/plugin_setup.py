@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int)
+                           Metadata, Int, Bool)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -274,7 +274,8 @@ plugin.visualizers.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={'method': Str % Choices(beta_group_significance_methods),
                 'permutations': Int,
-                'metadata': MetadataCategory},
+                'metadata': MetadataCategory,
+                'pairwise': Bool},
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
     },
@@ -282,7 +283,11 @@ plugin.visualizers.register_function(
         'method': 'The group significance test to be applied.',
         'permutations': ('The number of permutations to be run when computing '
                          'p-values.'),
-        'metadata': 'The sample metadata.'
+        'metadata': 'The sample metadata.',
+        'pairwise': ('Perform pairwise tests between all pairs of groups '
+                     'in addition to the test across all groups. '
+                     'This can be very slow if there are a lot of groups '
+                     'in the category.')
     },
     name='Beta diversity group significance',
     description=('Determine whether groups of samples are significantly '

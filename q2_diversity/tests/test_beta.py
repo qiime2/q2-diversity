@@ -221,6 +221,7 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                              2)
             self.assertTrue('PERMANOVA results' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
+            self.assertFalse('Pairwise permanova' in open(index_fp).read())
 
     def test_anosim(self):
         dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
@@ -253,6 +254,71 @@ class BetaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue('ANOSIM results' in open(index_fp).read())
             self.assertTrue('<td>42</td>' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
+            self.assertFalse('Pairwise anosim' in open(index_fp).read())
+
+    def test_permanova_pairwise(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md, pairwise=True)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected boxplots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.png')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.png')))
+            # no extra boxplots are generated
+            self.assertEqual(len(glob.glob('%s/*-boxplots.pdf' % output_dir)),
+                             2)
+            self.assertEqual(len(glob.glob('%s/*-boxplots.png' % output_dir)),
+                             2)
+            self.assertTrue('PERMANOVA results' in open(index_fp).read())
+            self.assertTrue('Pairwise permanova' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_anosim_pairwise(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series(['a', 'b', 'b'], name='a or b',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_group_significance(output_dir, dm, md, method='anosim',
+                                    permutations=42, pairwise=True)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected boxplots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'a-boxplots.png')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir, 'b-boxplots.png')))
+            # no extra boxplots are generated
+            self.assertEqual(len(glob.glob('%s/*-boxplots.pdf' % output_dir)),
+                             2)
+            self.assertEqual(len(glob.glob('%s/*-boxplots.png' % output_dir)),
+                             2)
+            self.assertTrue('ANOSIM results' in open(index_fp).read())
+            self.assertTrue('<td>42</td>' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+            self.assertTrue('Pairwise anosim' in open(index_fp).read())
 
     def test_alt_permutations(self):
         dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],

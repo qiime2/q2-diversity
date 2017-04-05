@@ -13,6 +13,7 @@
   <div class="row">
     <div class="col-lg-12">
       {{ result }}
+      <hr>
       {% for group_id in groupings %}
       <div class="text-center">
         <a href="{{ group_id | replace(' ', '+') }}-boxplots.pdf">
@@ -21,8 +22,13 @@
           <p>Download as PDF</p>
         </a>
       </div>
-      <hr>
       {% endfor %}
+      {% if pairwise_results %}
+        <hr>
+        <h2>Pairwise {{ method }} results</h2>
+        <a href="pairwise.csv">Download CSV</a>
+        {{ pairwise_results }}
+      {% endif %}
     </div>
   </div>
 
