@@ -191,16 +191,18 @@ def beta_group_significance(output_dir: str,
             pairwise_results.append([group1_id,
                                      group2_id,
                                      pairwise_result['sample size'],
+                                     permutations,
                                      pairwise_result['test statistic'],
                                      pairwise_result['p-value']])
-        columns = ['Group 1', 'Group 2', 'Sample size',
+        columns = ['Group 1', 'Group 2', 'Sample size', 'Permutations',
                    result['test statistic name'], 'p-value']
         pairwise_results = pd.DataFrame(pairwise_results, columns=columns)
         pairwise_results.set_index(['Group 1', 'Group 2'], inplace=True)
         pairwise_results['q-value'] = multipletests(
             pairwise_results['p-value'], method='fdr_bh')[1]
         pairwise_results.sort_index(inplace=True)
-        pairwise_path = os.path.join(output_dir, 'pairwise.csv')
+        pairwise_path = os.path.join(
+            output_dir, '%s-pairwise.csv' % method)
         pairwise_results.to_csv(pairwise_path)
 
         pairwise_results_html = pairwise_results.to_html(
