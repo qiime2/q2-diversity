@@ -21,8 +21,9 @@ import pandas as pd
 import qiime2
 
 from q2_diversity import (beta, beta_phylogenetic, bioenv,
-                          beta_group_significance)
-from q2_diversity._beta._visualizer import _get_distance_boxplot_data
+                          beta_group_significance, beta_correlation)
+from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
+                                            _metadata_distance)
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -454,6 +455,150 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         exp_labels = ['g1 (n=1)', 'g3 (n=2)', 'g2 (n=4)']
         self.assertEqual(obs[0], exp_data)
         self.assertEqual(obs[1], exp_labels)
+
+
+class BetaCorelationTests(unittest.TestCase):
+
+    def test_metadata_distance_int(self):
+        md = pd.Series([1, 2, 3], name='number',
+                       index=['sample1', 'sample2', 'sample3'])
+        exp = skbio.DistanceMatrix([[0, 1, 2],
+                                    [1, 0, 1],
+                                    [2, 1, 0]],
+                                   ids=['sample1', 'sample2', 'sample3'])
+        obs = _metadata_distance(md)
+        self.assertEqual(exp, obs)
+
+    def test_metadata_distance_float(self):
+        md = pd.Series([1.5, 2.0, 3.0], name='number',
+                       index=['sample1', 'sample2', 'sample3'])
+        exp = skbio.DistanceMatrix([[0.0, 0.5, 1.5],
+                                    [0.5, 0.0, 1.0],
+                                    [1.5, 1.0, 0.0]],
+                                   ids=['sample1', 'sample2', 'sample3'])
+        obs = _metadata_distance(md)
+        self.assertEqual(exp, obs)
+
+    def test_metadata_distance_one_sample(self):
+        md = pd.Series([1.5], name='number',
+                       index=['sample1'])
+        exp = skbio.DistanceMatrix([[0.0]],
+                                   ids=['sample1'])
+        obs = _metadata_distance(md)
+        self.assertEqual(exp, obs)
+
+    def test_basic(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1, 2, 3], name='number',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_correlation(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected plots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.png')))
+            self.assertTrue('Mantel test results' in open(index_fp).read())
+            self.assertTrue('Spearman' in open(index_fp).read())
+            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_warning_on_extra_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1, 2, 3, 4], name='number',
+                      index=['sample1', 'sample2', 'sample3', 'sample4']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_correlation(output_dir, dm, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected plots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.png')))
+            self.assertTrue('Mantel test results' in open(index_fp).read())
+            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertTrue('Warning' in open(index_fp).read())
+
+    def test_error_on_missing_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1, 2], name='number',
+                      index=['sample1', 'sample2']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            with self.assertRaisesRegex(ValueError, 'no data: sample3'):
+                beta_correlation(output_dir, dm, md)
+
+    def test_error_on_nan_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1.0, 2.0, ''], name='number',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            with self.assertRaisesRegex(ValueError, 'no data: sample3'):
+                beta_correlation(output_dir, dm, md)
+
+    def test_error_on_non_numeric_metadata(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1.0, 2.0, 'hello-world'], name='number',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            with self.assertRaisesRegex(ValueError, 'Non-numeric data was'):
+                beta_correlation(output_dir, dm, md)
+
+    def test_basic_pearson(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1, 2, 3], name='number',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_correlation(output_dir, dm, md, method='pearson')
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected plots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.png')))
+            self.assertTrue('Mantel test results' in open(index_fp).read())
+            self.assertTrue('Pearson' in open(index_fp).read())
+            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
 
 
 if __name__ == "__main__":

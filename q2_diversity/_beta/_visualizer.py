@@ -15,6 +15,7 @@ import itertools
 import qiime2
 import skbio
 import skbio.diversity
+import scipy.spatial.distance
 import numpy
 import pandas as pd
 import seaborn as sns
@@ -221,4 +222,72 @@ def beta_group_significance(output_dir: str,
         'groupings': groupings,
         'result': result_html,
         'pairwise_results': pairwise_results_html
+    })
+
+
+def _metadata_distance(metadata: pd.Series)-> skbio.DistanceMatrix:
+    # This code is derived from @jairideout's scikit-bio cookbook recipe,
+    # "Exploring Microbial Community Diversity"
+    # https://github.com/biocore/scikit-bio-cookbook
+    distances = scipy.spatial.distance.pdist(
+        metadata.values[:, numpy.newaxis], metric='euclidean')
+    return skbio.DistanceMatrix(distances, ids=metadata.index)
+
+
+def beta_correlation(output_dir: str,
+                     distance_matrix: skbio.DistanceMatrix,
+                     metadata: qiime2.MetadataCategory,
+                     method: str='spearman',
+                     permutations: int=999) -> None:
+    try:
+        metadata = pd.to_numeric(metadata.to_series(), errors='raise')
+    except ValueError as e:
+        raise ValueError('Only numeric data can be used with the Mantel test. '
+                         'Non-numeric data was encountered in the sample '
+                         'metadata. Orignal error message follows:\n%s' %
+                         str(e))
+
+    initial_metadata_length = len(metadata)
+    metadata = metadata.loc[list(distance_matrix.ids)]
+    metadata = metadata.replace(r'', numpy.nan).dropna()
+    filtered_metadata_length = len(metadata)
+
+    ids_with_missing_metadata = set(distance_matrix.ids) - set(metadata.index)
+    if len(ids_with_missing_metadata) > 0:
+        raise ValueError('All samples in distance matrix must be present '
+                         'and contain data in the sample metadata. The '
+                         'following samples were present in the distance '
+                         'matrix, but were missing from the sample metadata '
+                         'or had no data: %s' %
+                         ', '.join(ids_with_missing_metadata))
+
+    metadata_distances = _metadata_distance(metadata)
+    r, p, n = skbio.stats.distance.mantel(
+        distance_matrix, metadata_distances, method, permutations)
+
+    result = pd.Series([method.title(), n, permutations, r, p],
+                       index=['Method', 'Sample size', 'Permutations',
+                              'r statistic', 'p-value'],
+                       name='Mantel test results')
+    result_html = result.to_frame().to_html(classes=("table table-striped "
+                                                     "table-hover"))
+    result_html = result_html.replace('border="1"', 'border="0"')
+
+    scatter_data = []
+    for id1, id2 in itertools.combinations(distance_matrix.ids, 2):
+        scatter_data.append((distance_matrix[id1, id2],
+                             metadata_distances[id1, id2]))
+    x = 'Input distance'
+    y = 'Euclidean distance of\n%s' % metadata.name
+    scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
+    fig = sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False).get_figure()
+    fig.savefig(os.path.join(output_dir, 'beta-correlation-scatter.png'))
+    fig.savefig(os.path.join(output_dir, 'beta-correlation-scatter.pdf'))
+
+    index = os.path.join(
+        TEMPLATES, 'beta_correlation_assets', 'index.html')
+    q2templates.render(index, output_dir, context={
+        'initial_metadata_length': initial_metadata_length,
+        'filtered_metadata_length': filtered_metadata_length,
+        'result': result_html
     })

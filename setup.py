@@ -27,6 +27,7 @@ setup(
                       'alpha_correlation_assets/dst/*'],
                   'q2_diversity._beta': [
                       'beta_group_significance_assets/index.html',
+                      'beta_correlation_assets/index.html',
                       'bioenv_assets/index.html',
                    ]},
     author="Greg Caporaso",

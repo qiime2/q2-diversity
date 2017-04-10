@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if initial_metadata_length != filtered_metadata_length %}
+    <p class="alert alert-warning">
+      <b>Warning</b>: Some samples were filtered from the sample metadata
+      because they were not present in the distance matrix.<br><b>The input
+      metadata contained {{ initial_metadata_length }} samples but Mantel was
+      computed on only {{ filtered_metadata_length }} samples.</b><p>
+    </p>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-lg-12">
+      {{ result }}
+      <div class="text-center">
+        <a href="beta-correlation-scatter.pdf">
+          <img src="beta-correlation-scatter.png">
+          <br>
+          <p>Download as PDF</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
