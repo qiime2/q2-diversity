@@ -239,6 +239,8 @@ def beta_correlation(output_dir: str,
                      metadata: qiime2.MetadataCategory,
                      method: str='spearman',
                      permutations: int=999) -> None:
+    test_statistics = {'spearman': 'rho', 'pearson': 'r'}
+    alt_hypothesis = 'two-sided'
     try:
         metadata = pd.to_numeric(metadata.to_series(), errors='raise')
     except ValueError as e:
@@ -263,11 +265,16 @@ def beta_correlation(output_dir: str,
 
     metadata_distances = _metadata_distance(metadata)
     r, p, n = skbio.stats.distance.mantel(
-        distance_matrix, metadata_distances, method, permutations)
+        distance_matrix, metadata_distances, method=method,
+        permutations=permutations, alternative=alt_hypothesis, strict=True)
 
-    result = pd.Series([method.title(), n, permutations, r, p],
+    result = pd.Series([method.title(), n, permutations, alt_hypothesis,
+                        metadata.name, r, p],
                        index=['Method', 'Sample size', 'Permutations',
-                              'r statistic', 'p-value'],
+                              'Alternative hypothesis', 'Metadata category',
+                              '%s %s' % (method.title(),
+                                         test_statistics[method]),
+                              'p-value'],
                        name='Mantel test results')
     result_html = result.to_frame().to_html(classes=("table table-striped "
                                                      "table-hover"))

@@ -304,9 +304,9 @@ plugin.visualizers.register_function(
                 'permutations': Int,
                 'method': Str % Choices(beta_correlation_methods)},
     name=('Beta diversity correlation'),
-    description=('Apply the Mantel test to identify correlation between the '
-                 'distance matrix and a numeric sample metadata category. '
-                 'Sample metadata pairwise distances are computed '
+    description=('Apply a two-sided Mantel test to identify correlation '
+                 'between the distance matrix and a numeric sample metadata '
+                 'category. Sample metadata pairwise distances are computed '
                  'as the Euclidean distance between each pair of samples in '
                  'the metadata category.'),
     input_descriptions={

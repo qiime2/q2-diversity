@@ -457,7 +457,7 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         self.assertEqual(obs[1], exp_labels)
 
 
-class BetaCorelationTests(unittest.TestCase):
+class BetaCorrelationTests(unittest.TestCase):
 
     def test_metadata_distance_int(self):
         md = pd.Series([1, 2, 3], name='number',
@@ -508,8 +508,7 @@ class BetaCorelationTests(unittest.TestCase):
                             os.path.join(output_dir,
                                          'beta-correlation-scatter.png')))
             self.assertTrue('Mantel test results' in open(index_fp).read())
-            self.assertTrue('Spearman' in open(index_fp).read())
-            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertTrue('Spearman rho' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
 
     def test_warning_on_extra_metadata(self):
@@ -533,7 +532,7 @@ class BetaCorelationTests(unittest.TestCase):
                             os.path.join(output_dir,
                                          'beta-correlation-scatter.png')))
             self.assertTrue('Mantel test results' in open(index_fp).read())
-            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertTrue('Spearman rho' in open(index_fp).read())
             self.assertTrue('Warning' in open(index_fp).read())
 
     def test_error_on_missing_metadata(self):
@@ -596,8 +595,32 @@ class BetaCorelationTests(unittest.TestCase):
                             os.path.join(output_dir,
                                          'beta-correlation-scatter.png')))
             self.assertTrue('Mantel test results' in open(index_fp).read())
-            self.assertTrue('Pearson' in open(index_fp).read())
-            self.assertTrue('r statistic' in open(index_fp).read())
+            self.assertTrue('Pearson r' in open(index_fp).read())
+            self.assertFalse('Warning' in open(index_fp).read())
+
+    def test_basic_alt_permutations(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.MetadataCategory(
+            pd.Series([1, 2, 3], name='number',
+                      index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_correlation(output_dir, dm, md, permutations=42)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            # all expected plots are generated
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.pdf')))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'beta-correlation-scatter.png')))
+            self.assertTrue('Mantel test results' in open(index_fp).read())
+            self.assertTrue('<td>42</td>' in open(index_fp).read())
+            self.assertTrue('Spearman rho' in open(index_fp).read())
             self.assertFalse('Warning' in open(index_fp).read())
 
 
