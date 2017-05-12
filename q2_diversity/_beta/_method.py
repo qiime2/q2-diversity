@@ -31,6 +31,8 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
                       metric: str)-> skbio.DistanceMatrix:
     if metric not in phylogenetic_metrics():
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
+    if table.is_empty():
+        raise ValueError("The provided table object is empty")
 
     counts = table.matrix_data.toarray().astype(int).T
     sample_ids = table.ids(axis='sample')
@@ -53,6 +55,8 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 def beta(table: biom.Table, metric: str)-> skbio.DistanceMatrix:
     if metric not in non_phylogenetic_metrics():
         raise ValueError("Unknown metric: %s" % metric)
+    if table.is_empty():
+        raise ValueError("The provided table object is empty")
 
     counts = table.matrix_data.toarray().astype(int).T
     sample_ids = table.ids(axis='sample')

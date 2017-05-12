@@ -47,6 +47,12 @@ class AlphaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             alpha(table=t, metric='not-a-metric')
 
+    def test_alpha_empty_table(self):
+        t = biom.Table(np.array([]), [], [])
+
+        with self.assertRaisesRegex(ValueError, "empty"):
+            alpha(table=t, metric='observed_otus')
+
     def test_alpha_phylogenetic(self):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
                        ['O1', 'O2'],
@@ -88,6 +94,14 @@ class AlphaTests(unittest.TestCase):
         # followed by a ``phylogeny``
         with self.assertRaisesRegex(skbio.tree.MissingNodeError,
                                     'feature_ids.*phylogeny'):
+            alpha_phylogenetic(table=t, phylogeny=tree, metric='faith_pd')
+
+    def test_alpha_phylogenetic_empty_table(self):
+        t = biom.Table(np.array([]), [], [])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25):0.25, O3:0.75)root;'))
+
+        with self.assertRaisesRegex(ValueError, "empty"):
             alpha_phylogenetic(table=t, phylogeny=tree, metric='faith_pd')
 
 

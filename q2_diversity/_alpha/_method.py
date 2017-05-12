@@ -31,6 +31,8 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
                        metric: str) -> pd.Series:
     if metric not in phylogenetic_metrics():
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
+    if table.is_empty():
+        raise ValueError("The provided table object is empty")
 
     counts = table.matrix_data.toarray().astype(int).T
     sample_ids = table.ids(axis='sample')
@@ -54,6 +56,8 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 def alpha(table: biom.Table, metric: str) -> pd.Series:
     if metric not in non_phylogenetic_metrics():
         raise ValueError("Unknown metric: %s" % metric)
+    if table.is_empty():
+        raise ValueError("The provided table object is empty")
 
     counts = table.matrix_data.toarray().astype(int).T
     sample_ids = table.ids(axis='sample')

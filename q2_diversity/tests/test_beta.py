@@ -58,6 +58,12 @@ class BetaDiversityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             beta(table=t, metric='not-a-metric')
 
+    def test_beta_empty_table(self):
+        t = Table(np.array([]), [], [])
+
+        with self.assertRaisesRegex(ValueError, 'empty'):
+            beta(table=t, metric='braycurtis')
+
     def test_beta_phylogenetic(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
@@ -94,6 +100,15 @@ class BetaDiversityTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
             beta_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
+
+    def test_beta_phylogenetic_empty_table(self):
+        t = Table(np.array([]), [], [])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+
+        with self.assertRaisesRegex(ValueError, 'empty'):
+            beta_phylogenetic(table=t, phylogeny=tree,
+                              metric='unweighted_unifrac')
 
     def test_beta_phylogenetic_skbio_error_rewriting(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
