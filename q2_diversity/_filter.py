@@ -11,9 +11,9 @@ import qiime2
 
 
 def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
-                           sample_metadata: qiime2.Metadata,
+                           metadata: qiime2.Metadata,
                            where: str=None) -> skbio.DistanceMatrix:
-    ids_to_keep = sample_metadata.ids(where=where)
+    ids_to_keep = metadata.ids(where=where)
     # NOTE: there is no guaranteed ordering to output distance matrix because
     # `ids_to_keep` is a set, and `DistanceMatrix.filter` uses its iteration
     # order.
