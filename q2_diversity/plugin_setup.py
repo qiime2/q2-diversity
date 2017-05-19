@@ -23,7 +23,12 @@ plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
     website='https://github.com/qiime2/q2-diversity',
-    package='q2_diversity'
+    package='q2_diversity',
+    description=('This QIIME 2 plugin supports metrics for calculating '
+                 'community alpha and beta diversity, and statistics and '
+                 'visualizations for exploring community diversity in the '
+                 'context of sample metadata.'),
+    short_description='Plugin for exploring community diversity.'
 )
 
 plugin.methods.register_function(
