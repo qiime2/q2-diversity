@@ -43,7 +43,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     filtered_categories = []
     for category in categories:
         metadata_category = metadata.get_category(category).to_series()
-        metadata_category = metadata_category[alpha_diversity.index]
+        metadata_category = metadata_category.loc[alpha_diversity.index]
         metadata_category = metadata_category.replace(r'', np.nan).dropna()
 
         initial_data_length = alpha_diversity.shape[0]
@@ -150,7 +150,7 @@ def alpha_correlation(output_dir: str,
     filenames = []
     for category in categories:
         metadata_category = metadata_df[category]
-        metadata_category = metadata_category[alpha_diversity.index]
+        metadata_category = metadata_category.loc[alpha_diversity.index]
         metadata_category = metadata_category.dropna()
 
         # create a dataframe containing the data to be correlated, and drop
