@@ -12,13 +12,22 @@ import qiime2
 
 def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
                            metadata: qiime2.Metadata,
-                           where: str=None) -> skbio.DistanceMatrix:
+                           where: str=None,
+                           exclude_ids: bool=False) -> skbio.DistanceMatrix:
     ids_to_keep = metadata.ids(where=where)
     # NOTE: there is no guaranteed ordering to output distance matrix because
     # `ids_to_keep` is a set, and `DistanceMatrix.filter` uses its iteration
     # order.
     try:
-        return distance_matrix.filter(ids_to_keep, strict=False)
+        filtered = distance_matrix.filter(ids_to_keep, strict=False)
+        if exclude_ids is True:
+            ids_to_keep = set(distance_matrix.ids) - set(filtered.ids)
+            filtered = distance_matrix.filter(ids_to_keep, strict=False)
+        return filtered
     except skbio.stats.distance.DissimilarityMatrixError:
-        raise ValueError(
-            "All samples were filtered out of the distance matrix.")
+        if (exclude_ids and ids_to_keep and
+                not bool(set(ids_to_keep) & set(distance_matrix.ids))):
+            return distance_matrix
+        else:
+            raise ValueError("All samples were filtered out of the "
+                             "distance matrix.")

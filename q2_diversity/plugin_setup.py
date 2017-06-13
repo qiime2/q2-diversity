@@ -208,7 +208,8 @@ plugin.methods.register_function(
     },
     parameters={
         'metadata': Metadata,
-        'where': Str
+        'where': Str,
+        'exclude_ids': Bool
     },
     outputs=[
         ('filtered_distance_matrix', DistanceMatrix)
@@ -216,8 +217,10 @@ plugin.methods.register_function(
     name="Filter samples from a distance matrix.",
     description="Filter samples from a distance matrix, retaining only the "
                 "samples matching search criteria specified by "
-                "`metadata` and `where` parameters. See the filtering "
-                "tutorial on https://docs.qiime2.org for additional details.",
+                "`metadata` and `where` parameters (or retaining only the "
+                "samples not matching that criteria, if `exclude_ids` is "
+                "True). See the filtering tutorial on "
+                "https://docs.qiime2.org for additional details.",
     input_descriptions={
         'distance_matrix': 'Distance matrix to filter by sample.'
     },
@@ -227,7 +230,12 @@ plugin.methods.register_function(
         'where': 'SQLite WHERE clause specifying sample metadata criteria '
                  'that must be met to be included in the filtered distance '
                  'matrix. If not provided, all samples in `metadata` that are '
-                 'also in the input distance matrix will be retained.'
+                 'also in the input distance matrix will be retained.',
+        'exclude_ids': 'If `True`, returns the filtered distance matrix '
+                       'containing the set of samples which occur in the '
+                       'feature table but not in the metadata (or the '
+                       'filtered metadata, if invoked in conjunction with '
+                       '`where`).'
     },
     output_descriptions={
         'filtered_distance_matrix': 'Distance matrix filtered to include '
