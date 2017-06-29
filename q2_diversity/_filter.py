@@ -26,7 +26,7 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
         return filtered
     except skbio.stats.distance.DissimilarityMatrixError:
         if (exclude_ids and ids_to_keep and
-                not bool(set(ids_to_keep) & set(distance_matrix.ids))):
+                set(ids_to_keep).isdisjoint(distance_matrix.ids)):
             return distance_matrix
         else:
             raise ValueError("All samples were filtered out of the "
