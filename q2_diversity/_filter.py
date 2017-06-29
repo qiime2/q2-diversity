@@ -20,7 +20,7 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
     # order.
     try:
         filtered = distance_matrix.filter(ids_to_keep, strict=False)
-        if exclude_ids is True:
+        if exclude_ids:
             ids_to_keep = set(distance_matrix.ids) - set(filtered.ids)
             filtered = distance_matrix.filter(ids_to_keep, strict=False)
         return filtered
