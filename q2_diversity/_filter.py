@@ -19,15 +19,9 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
     # `ids_to_keep` is a set, and `DistanceMatrix.filter` uses its iteration
     # order.
     try:
-        filtered = distance_matrix.filter(ids_to_keep, strict=False)
         if exclude_ids:
-            ids_to_keep = set(distance_matrix.ids) - set(filtered.ids)
-            filtered = distance_matrix.filter(ids_to_keep, strict=False)
-        return filtered
+            ids_to_keep = set(distance_matrix.ids) - set(ids_to_keep)
+        return distance_matrix.filter(ids_to_keep, strict=False)
     except skbio.stats.distance.DissimilarityMatrixError:
-        if (exclude_ids and ids_to_keep and
-                set(ids_to_keep).isdisjoint(distance_matrix.ids)):
-            return distance_matrix
-        else:
-            raise ValueError("All samples were filtered out of the "
-                             "distance matrix.")
+        raise ValueError("All samples were filtered out of the "
+                         "distance matrix.")

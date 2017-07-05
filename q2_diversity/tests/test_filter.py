@@ -190,11 +190,10 @@ class TestFilterDistanceMatrix(unittest.TestCase):
                           index=['S1', 'S2', 'S3'])
         metadata = qiime2.Metadata(df)
 
-        with self.assertRaisesRegex(ValueError,
-                                    "Selection.*IDs.*failed.*query.*"):
-            filter_distance_matrix(dm, metadata,
-                                   where="SampleType='toe",
-                                   exclude_ids=True)
+        filtered = filter_distance_matrix(dm, metadata,
+                                          where="SampleType='toe'",
+                                          exclude_ids=True)
+        self.assertEqual(self._sorted(filtered), dm)
 
         # where filter one -> exclude one
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],

@@ -233,7 +233,7 @@ plugin.methods.register_function(
                  'also in the input distance matrix will be retained.',
         'exclude_ids': 'If `True`, returns the filtered distance matrix '
                        'containing the set of samples which occur in the '
-                       'feature table but not in the metadata (or the '
+                       'distance matrix but not in the metadata (or the '
                        'filtered metadata, if invoked in conjunction with '
                        '`where`).'
     },
