@@ -21,9 +21,9 @@ export function render(svg, data) {
   const yAxis = axisLeft();
 
   let pad = (maxX - minX) * 0.03;
-  if (minX % 1 === 0 && maxX % 1 === 0) {
+  if (Number.isInteger(minX) && Number.isInteger(maxX)) {
     pad = Math.max(Math.round(pad), 1);
-    const between = Math.max(3, Math.round((maxX - minX) + (2 * pad)));
+    const between = Math.max(3, (maxX - minX) + (2 * pad));
     xAxis.ticks(Math.min(between, 12), 'd');
   }
 
