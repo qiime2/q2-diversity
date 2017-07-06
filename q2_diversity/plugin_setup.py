@@ -33,7 +33,7 @@ plugin = Plugin(
 
 plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic,
-    inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling'),
+    inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics())},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
@@ -57,7 +57,7 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_diversity.beta,
-    inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling')},
+    inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics())},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
@@ -75,7 +75,7 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_diversity.alpha_phylogenetic,
-    inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling'),
+    inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
@@ -102,7 +102,7 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_diversity.alpha,
-    inputs={'table': FeatureTable[Frequency] % Properties('uniform-sampling')},
+    inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics())},
     outputs=[('alpha_diversity', SampleData[AlphaDiversity])],
     input_descriptions={
