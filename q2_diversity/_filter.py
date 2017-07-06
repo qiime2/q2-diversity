@@ -15,11 +15,11 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
                            where: str=None,
                            exclude_ids: bool=False) -> skbio.DistanceMatrix:
     ids_to_keep = metadata.ids(where=where)
+    if exclude_ids:
+        ids_to_keep = set(distance_matrix.ids) - set(ids_to_keep)
     # NOTE: there is no guaranteed ordering to output distance matrix because
     # `ids_to_keep` is a set, and `DistanceMatrix.filter` uses its iteration
     # order.
-    if exclude_ids:
-        ids_to_keep = set(distance_matrix.ids) - set(ids_to_keep)
     try:
         return distance_matrix.filter(ids_to_keep, strict=False)
     except skbio.stats.distance.DissimilarityMatrixError:
