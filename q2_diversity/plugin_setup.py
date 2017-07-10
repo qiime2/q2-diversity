@@ -225,17 +225,16 @@ plugin.methods.register_function(
         'distance_matrix': 'Distance matrix to filter by sample.'
     },
     parameter_descriptions={
-        'metadata': 'Sample metadata used in conjuction with `where` '
-                    'parameter to select samples to retain',
+        'metadata': 'Sample metadata used with `where` parameter when '
+                    'selecting samples to retain, or with `exclude_ids` '
+                    'when selecting samples to discard.',
         'where': 'SQLite WHERE clause specifying sample metadata criteria '
                  'that must be met to be included in the filtered distance '
                  'matrix. If not provided, all samples in `metadata` that are '
                  'also in the input distance matrix will be retained.',
-        'exclude_ids': 'If `True`, returns the filtered distance matrix '
-                       'containing the set of samples which occur in the '
-                       'distance matrix but not in the metadata (or the '
-                       'filtered metadata, if invoked in conjunction with '
-                       '`where`).'
+        'exclude_ids': 'If `True`, the samples selected by `metadata` or '
+                       '`where` parameters will be excluded from the filtered '
+                       'distance matrix instead of being retained.'
     },
     output_descriptions={
         'filtered_distance_matrix': 'Distance matrix filtered to include '
