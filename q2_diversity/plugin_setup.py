@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool)
+                           Metadata, Int, Bool, Set)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -350,4 +350,30 @@ plugin.visualizers.register_function(
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata category is '
                  'correlated with alpha diversity.')
+)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.alpha_rarefaction,
+    inputs={'feature_table': FeatureTable[Frequency]},
+    parameters={'metrics': Set[Str % Choices(alpha.non_phylogenetic_metrics())],
+                'min_depth': Int,
+                'max_depth': Int,
+                'steps': Int,
+                'iterations': Int,
+                'phylogeny': Phylogeny[Rooted]},
+    input_descriptions={
+        'feature_table': 'Feature table to be rarefied.'
+    },
+    parameter_descriptions={
+        'metrics': 'The metrics to be measured.',
+        'min_depth': 'The minimum sequencing depth to rarefy.',
+        'max_depth': 'The maximum sequencing depth to rarefy.',
+        'steps': 'The number of sequencing depths to rarefy.',
+        'iterations': 'The number of subsamples to rarefy at each step.',
+        'phylogeny': 'Optional phylogeny for phylogenetic metrics.'
+    },
+    name='Alpha rarefaction',
+    description=('Compute alpha diversity metrics for subsamples of a '
+                 'feature table at sequential sequencing depths, and '
+                 'create alpha rarefaction plots for the requested metrics')
 )

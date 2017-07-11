@@ -19,6 +19,8 @@ import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
 import q2templates
 
+from ._method import non_phylogenetic_metrics, alpha
+from q2_feature_table import rarefy
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 
@@ -193,3 +195,60 @@ def alpha_correlation(output_dir: str,
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_correlation_assets',
                                  'dist'),
                     os.path.join(output_dir, 'dist'))
+
+def alpha_rarefaction(output_dir: str,
+                      feature_table: pd.DataFrame,
+                      phylogeny: pd.DataFrame=None,
+                      metrics: set=None,
+                      min_depth: int=1,
+                      max_depth: int=100,
+                      steps: int=10,
+                      iterations: int=10) -> None:
+    
+    # having issues with strange json serialization warnings about metrics default
+    # having issues getting phylogeny to act optional in the artifact api
+    
+    # dictionary to hold the collated data
+    # key: metric
+    #   value: (A, B, C)
+    #       A: sequencing depth
+    #       B: iteration
+    #       C: vector:
+    #           sample-id   value
+
+    collated = { metric: [] for metric in metrics }
+
+    # later on I can add validation
+    # for now I assume relatively decent values and just make sure they're
+    # ints and in the right respective ranges
+
+    max_depth = min(int(max_depth), feature_table.nnz)
+    min_depth = int(min_depth)
+    step_size = max((max_depth - min_depth) / steps, 1)
+    
+    # iterate over steps many depths between min and max depth
+    for depth in range(min_depth, max_depth, step_size):
+        # re-run the math iterations many times for each depth
+        for itr in range(1, iterations):
+            # get the subsampled table at this depth
+            rarefied_table = rarefy(feature_table, depth)
+            # calculate each metric
+            for metric in metrics:
+                # for now, using try-except since some metrics require
+                # additional params and thus crash the code
+                # in the future I should probably validate that any
+                # additional args needed by a metric are indeed passed
+                # and provide a way to pass those values in the first place
+                try:
+                    # get the pandas series containing sample-id, metric value
+                    vector = alpha(rarefied_table, metric)
+                    # append it to the dictionary we're using
+                    collated[metric].append(depth, itr, vector)
+                except:
+                    pass
+                
+    # turn collated into a pandas dataframe
+    collated = pd.DataFrame.from_dict(collated, orient='index')
+
+    # calculate average values for each
+    
