@@ -355,7 +355,8 @@ plugin.visualizers.register_function(
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'feature_table': FeatureTable[Frequency]},
-    parameters={'metrics': Set[Str % Choices(alpha.non_phylogenetic_metrics())],
+    parameters={'metrics': Set[Str % Choices(
+                                alpha.non_phylogenetic_metrics())],
                 'min_depth': Int,
                 'max_depth': Int,
                 'steps': Int,

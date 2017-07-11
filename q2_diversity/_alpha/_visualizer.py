@@ -197,6 +197,7 @@ def alpha_correlation(output_dir: str,
                                  'dist'),
                     os.path.join(output_dir, 'dist'))
 
+
 def alpha_rarefaction(output_dir: str,
                       feature_table: pd.DataFrame,
                       phylogeny: pd.DataFrame=None,
@@ -206,15 +207,22 @@ def alpha_rarefaction(output_dir: str,
                       steps: int=10,
                       iterations: int=10) -> None:
 
-    collated = { m: [] for m in metrics }
+    warnings = []
+
+    for m in metrics:
+        if m not in non_phylogenetic_metrics:
+            raise ValueError("Bad situation with that metric there.")
+            # <--- obviously change this later
+
+    collated = {m: [] for m in metrics}
 
     max_depth = min(int(max_depth), feature_table.nnz)
     min_depth = int(min_depth)
     step_size = max((max_depth - min_depth) / steps, 1)
-    
+
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
-    
+
     for d, i in product(depth_range, iter_range):
 
         rt = rarefy(feature_table, d)
@@ -224,9 +232,27 @@ def alpha_rarefaction(output_dir: str,
                 vector = alpha(rt, m)
                 a = pd.Series([d, i], index=['depth', 'iter'])
                 collated[m].append(vector.append(a))
-            except:
+            except Exception as e:
+                warnings.append(str(e))
                 pass
 
     collated = dict((k, pd.DataFrame(v)) for k, v in collated.items())
 
-    
+    with open(os.path.join(output_dir, 'collated.jsonp'), 'w') as fh:
+        fh.write("load_data('collated',")
+        collated.to_csv(fh)
+        fh.write(",")
+        json.dump(warnings, fh)
+        fh.write(",")
+        json.dump({
+            'metrics': metrics,
+            'min_depth': min_depth,
+            'max_depth': max_depth,
+            'steps': steps,
+            'iterations': iterations}, fh)
+        fh.write(");")
+
+    # super hack-y, haven't tested yet
+    # I'll make a real template soon
+    with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
+        fh.write('<a href="index.html" download>')
