@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <script src='dist/vendor.bundle.js'></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid" id="main">
+  {% for metric in metrics %}
+  <a href='metric-{{ metric }}.csv'>{{ metric }}</a>
+  {% endfor %}
+</div>
+<script src='dist/bundle.js'></script>
+{% endblock %}

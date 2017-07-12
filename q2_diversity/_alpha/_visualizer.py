@@ -211,8 +211,10 @@ def alpha_rarefaction(output_dir: str,
 
     for m in metrics:
         if m not in non_phylogenetic_metrics():
-            raise ValueError("Bad situation with that metric there.")
-            # <--- obviously change this later
+            warnings.append("Warning: requested metric %s "
+                            "not a known metric." % m)
+
+    os.makedirs("%s/metrics" % output_dir)
 
     collated = {m: [] for m in metrics}
 
@@ -236,7 +238,12 @@ def alpha_rarefaction(output_dir: str,
 
     collated = dict((k, pd.DataFrame(v)) for k, v in collated.items())
     for (k, v) in collated.items():
-        escaped_metric = quote(k)
-        filename = 'metric-%s.csv' % escaped_metric
+        filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
             v.to_csv(fh, index=False)
+
+    index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
+    q2templates.render(index, output_dir, context={'metrics': metrics})
+
+    shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dst'),
+                    os.path.join(output_dir, 'dist'))

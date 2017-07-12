@@ -354,24 +354,24 @@ plugin.visualizers.register_function(
 
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
-    inputs={'feature_table': FeatureTable[Frequency]},
+    inputs={'feature_table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
     parameters={'metrics': Set[Str % Choices(
                                 alpha.non_phylogenetic_metrics())],
                 'min_depth': Int,
                 'max_depth': Int,
                 'steps': Int,
-                'iterations': Int,
-                'phylogeny': Phylogeny[Rooted]},
+                'iterations': Int},
     input_descriptions={
-        'feature_table': 'Feature table to be rarefied.'
+        'feature_table': 'Feature table to be rarefied.',
+        'phylogeny': 'Optional phylogeny for phylogenetic metrics.'
     },
     parameter_descriptions={
         'metrics': 'The metrics to be measured.',
         'min_depth': 'The minimum sequencing depth to rarefy.',
         'max_depth': 'The maximum sequencing depth to rarefy.',
         'steps': 'The number of sequencing depths to rarefy.',
-        'iterations': 'The number of subsamples to rarefy at each step.',
-        'phylogeny': 'Optional phylogeny for phylogenetic metrics.'
+        'iterations': 'The number of subsamples to rarefy at each step.'
     },
     name='Alpha rarefaction',
     description=('Compute alpha diversity metrics for subsamples of a '
