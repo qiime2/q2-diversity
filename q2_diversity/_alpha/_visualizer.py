@@ -210,7 +210,7 @@ def alpha_rarefaction(output_dir: str,
     warnings = []
 
     for m in metrics:
-        if m not in non_phylogenetic_metrics:
+        if m not in non_phylogenetic_metrics():
             raise ValueError("Bad situation with that metric there.")
             # <--- obviously change this later
 
@@ -224,9 +224,7 @@ def alpha_rarefaction(output_dir: str,
     iter_range = range(1, iterations)
 
     for d, i in product(depth_range, iter_range):
-
         rt = rarefy(feature_table, d)
-
         for m in metrics:
             try:
                 vector = alpha(rt, m)
@@ -237,22 +235,8 @@ def alpha_rarefaction(output_dir: str,
                 pass
 
     collated = dict((k, pd.DataFrame(v)) for k, v in collated.items())
-
-    with open(os.path.join(output_dir, 'collated.jsonp'), 'w') as fh:
-        fh.write("load_data('collated',")
-        collated.to_csv(fh)
-        fh.write(",")
-        json.dump(warnings, fh)
-        fh.write(",")
-        json.dump({
-            'metrics': metrics,
-            'min_depth': min_depth,
-            'max_depth': max_depth,
-            'steps': steps,
-            'iterations': iterations}, fh)
-        fh.write(");")
-
-    # super hack-y, haven't tested yet
-    # I'll make a real template soon
-    with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
-        fh.write('<a href="index.html" download>')
+    for (k, v) in collated.items():
+        escaped_metric = quote(k)
+        filename = 'metric-%s.csv' % escaped_metric
+        with open(os.path.join(output_dir, filename), 'w') as fh:
+            v.to_csv(fh)
