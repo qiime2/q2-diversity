@@ -247,7 +247,8 @@ def alpha_rarefaction(output_dir: str,
     for (k, v) in collated.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            pd.DataFrame(v).to_csv(fh)
+            df = pd.DataFrame(v).unstack('iter')
+            df.to_csv(fh, index=False)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir, context={'metrics': metrics})
