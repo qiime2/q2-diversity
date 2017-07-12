@@ -20,6 +20,7 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 import q2templates
 
 import biom
+import skbio
 from itertools import product
 from ._method import non_phylogenetic_metrics, alpha
 from q2_feature_table import rarefy
@@ -201,7 +202,7 @@ def alpha_correlation(output_dir: str,
 
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
-                      phylogeny: pd.DataFrame=None,
+                      phylogeny: skbio.TreeNode=None,
                       metrics: set=None,
                       min_depth: int=1,
                       max_depth: int=100,
@@ -217,8 +218,6 @@ def alpha_rarefaction(output_dir: str,
 
     os.makedirs("%s/metrics" % output_dir)
 
-    collated = {m: [] for m in metrics}
-
     max_depth = int(min(max_depth, feature_table.nnz))
     min_depth = int(min_depth)
     step_size = int(max((max_depth - min_depth) / steps, 1))
@@ -226,14 +225,17 @@ def alpha_rarefaction(output_dir: str,
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
 
+    axes = [feature_table['sample-id'], list(depth_range), list(iter_range)]
+    collated = {m: pd.DataFrame(index=axes) for m in metrics}
+
     for d, i in product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
             try:
-                vector = alpha(rt, m)
-                index = ['depth', 'iter']
+                vector = alpha(rt, m).transpose
+                index = ['sample-id', d, i]
                 a = pd.Series([d, i], index=index)
-                collated[m].append(vector.append(a))
+                collated[m].merge(vector.append(a))
             except Exception as e:
                 warnings.append(str(e))
                 pass
