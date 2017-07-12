@@ -19,6 +19,7 @@ import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
 import q2templates
 
+import biom
 from itertools import product
 from ._method import non_phylogenetic_metrics, alpha
 from q2_feature_table import rarefy
@@ -199,7 +200,7 @@ def alpha_correlation(output_dir: str,
 
 
 def alpha_rarefaction(output_dir: str,
-                      feature_table: pd.DataFrame,
+                      feature_table: biom.Table,
                       phylogeny: pd.DataFrame=None,
                       metrics: set=None,
                       min_depth: int=1,
@@ -218,9 +219,9 @@ def alpha_rarefaction(output_dir: str,
 
     collated = {m: [] for m in metrics}
 
-    max_depth = min(int(max_depth), feature_table.nnz)
+    max_depth = int(min(max_depth, feature_table.nnz))
     min_depth = int(min_depth)
-    step_size = max((max_depth - min_depth) / steps, 1)
+    step_size = int(max((max_depth - min_depth) / steps, 1))
 
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
@@ -230,7 +231,8 @@ def alpha_rarefaction(output_dir: str,
         for m in metrics:
             try:
                 vector = alpha(rt, m)
-                a = pd.Series([d, i], index=['depth', 'iter'])
+                index = ['depth', 'iter']
+                a = pd.Series([d, i], index=index)
                 collated[m].append(vector.append(a))
             except Exception as e:
                 warnings.append(str(e))
