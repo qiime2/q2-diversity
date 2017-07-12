@@ -225,26 +225,29 @@ def alpha_rarefaction(output_dir: str,
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
 
-    axes = [feature_table['sample-id'], list(depth_range), list(iter_range)]
-    collated = {m: pd.DataFrame(index=axes) for m in metrics}
+    idx = pd.MultiIndex.from_product([feature_table.ids(),
+                                      list(depth_range),
+                                      list(iter_range)],
+                                     names=['sample-id',
+                                            'depth', 'iter'])
+    collated = {k: idx for k in metrics}
 
+    # figure out how best to amoratize the following:
+    # min/25th percentile/median/75th percentile/max
     for d, i in product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
             try:
-                vector = alpha(rt, m).transpose
-                index = ['sample-id', d, i]
-                a = pd.Series([d, i], index=index)
-                collated[m].merge(vector.append(a))
+                vector = alpha(rt, m)
+                collated[m][vector.keys, d, i] = vector.values
             except Exception as e:
                 warnings.append(str(e))
                 pass
 
-    collated = dict((k, pd.DataFrame(v)) for k, v in collated.items())
     for (k, v) in collated.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            v.to_csv(fh, index=False)
+            pd.DataFrame(v).to_csv(fh)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir, context={'metrics': metrics})
