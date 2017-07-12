@@ -239,4 +239,4 @@ def alpha_rarefaction(output_dir: str,
         escaped_metric = quote(k)
         filename = 'metric-%s.csv' % escaped_metric
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            v.to_csv(fh)
+            v.to_csv(fh, index=False)
