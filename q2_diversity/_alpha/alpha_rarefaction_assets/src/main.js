@@ -1,1 +1,3 @@
-console.log('banana');
+import init from './init';
+
+init(0);

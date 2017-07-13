@@ -252,6 +252,9 @@ def alpha_rarefaction(output_dir: str,
 
         with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
             fh.write("load_data('%s'," % metric_name)
+            # instead of v.to_json, I need to do some sort of summary
+            # that only has the useful data for this view
+            # collated stats in other words
             v.to_json(fh, orient='split')
             fh.write(",")
             json.dump(warnings, fh)
