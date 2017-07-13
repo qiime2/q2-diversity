@@ -230,7 +230,7 @@ def alpha_rarefaction(output_dir: str,
                                       list(iter_range)],
                                      names=['sample-id',
                                             'depth', 'iter'])
-    collated = {k: idx for k in metrics}
+    collated = {k: pd.DataFrame(idx) for k in metrics}
 
     # figure out how best to amoratize the following:
     # min/25th percentile/median/75th percentile/max
@@ -247,8 +247,7 @@ def alpha_rarefaction(output_dir: str,
     for (k, v) in collated.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            df = pd.DataFrame(v).unstack('iter')
-            df.to_csv(fh, index=False)
+            v.to_csv(fh, index=False)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir, context={'metrics': metrics})
