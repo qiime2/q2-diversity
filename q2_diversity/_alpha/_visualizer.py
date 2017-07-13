@@ -225,12 +225,10 @@ def alpha_rarefaction(output_dir: str,
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
 
-    idx = pd.MultiIndex.from_product([feature_table.ids(),
-                                      list(depth_range),
-                                      list(iter_range)],
-                                     names=['sample-id',
-                                            'depth', 'iter'])
-    collated = {k: pd.DataFrame(idx) for k in metrics}
+    rows = feature_table.ids()
+    cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
+                                      names=['depth', 'iter'])
+    data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
 
     # figure out how best to amoratize the following:
     # min/25th percentile/median/75th percentile/max
@@ -238,13 +236,13 @@ def alpha_rarefaction(output_dir: str,
         rt = rarefy(feature_table, d)
         for m in metrics:
             try:
-                vector = alpha(rt, m)
-                collated[m][vector.keys, d, i] = vector.values
+                vector = alpha(table=rt, metric=m)
+                data[m][(d, i)] = vector
             except Exception as e:
                 warnings.append(str(e))
                 pass
 
-    for (k, v) in collated.items():
+    for (k, v) in data.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
             v.to_csv(fh, index=False)
