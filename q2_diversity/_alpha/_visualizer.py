@@ -245,9 +245,10 @@ def alpha_rarefaction(output_dir: str,
     for (k, v) in data.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            v.columns = ['-'.join([str(a) for a in col]).strip()
-                         for col in v.columns.values]
-            v.to_csv(fh, index_label='sample-id')
+            v = v.stack('depth')
+            # v.columns = ['-'.join([str(a) for a in col]).strip()
+            #              for col in v.columns.values]
+            v.to_csv(fh, index_label=['sample-id', 'depth'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir, context={'metrics': metrics})
