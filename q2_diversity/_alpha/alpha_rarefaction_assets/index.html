@@ -6,25 +6,18 @@
 
 {% block content %}
 
-<div class="container-fluid" id="main">
-  <h2>CSV Files</h2>
-  <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th>{{metrics|length}} Metrics Calculated</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for metric in metrics %}
-      <tr>
-        <th scope="row">
-        	<a href='metrics/metric-{{ metric }}.csv'>{{ metric }}</a>
-        </th>
-        <td id="kw-all-h"></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+<script>
+  var d = [];
+  function load_data(metricName, data) {
+    d.push({
+      metric: metricName,
+      data: data,
+    });
+  }
+</script>
+{% for filename in filenames %}
+<script src='{{ filename }}?callback=load_data'></script>
+{% endfor %}
+
 <script src='dist/bundle.js'></script>
 {% endblock %}

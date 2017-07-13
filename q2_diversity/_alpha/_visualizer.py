@@ -216,8 +216,6 @@ def alpha_rarefaction(output_dir: str,
             warnings.append("Warning: requested metric %s "
                             "not a known metric." % m)
 
-    os.makedirs("%s/metrics" % output_dir)
-
     max_depth = int(min(max_depth, feature_table.nnz))
     min_depth = int(min_depth)
     step_size = int(max((max_depth - min_depth) / steps, 1))
@@ -240,15 +238,29 @@ def alpha_rarefaction(output_dir: str,
                 warnings.append(str(e))
                 pass
 
+    filenames = []
     for (k, v) in data.items():
-        filename = 'metrics/metric-%s.csv' % quote(k)
+        metric_name = quote(k)
+        filename = 'metric-%s.csv' % metric_name
         with open(os.path.join(output_dir, filename), 'w') as fh:
             # I think move some collation stats into here probably
             v = v.stack('depth')
             v.to_csv(fh, index_label=['sample-id', 'depth'])
 
+        jsonp_filename = 'metric-%s.jsonp' % metric_name
+        filenames.append(jsonp_filename)
+
+        with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
+            fh.write("load_data('%s'," % metric_name)
+            v.to_json(fh, orient='split')
+            fh.write(",")
+            json.dump(warnings, fh)
+            fh.write(",")
+            fh.write(");")
+
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
-    q2templates.render(index, output_dir, context={'metrics': metrics})
+    q2templates.render(index, output_dir,
+                       context={'metrics': metrics, 'filenames': filenames})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dst'),
                     os.path.join(output_dir, 'dist'))
