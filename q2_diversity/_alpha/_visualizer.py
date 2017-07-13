@@ -230,8 +230,6 @@ def alpha_rarefaction(output_dir: str,
                                       names=['depth', 'iter'])
     data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
 
-    # figure out how best to amoratize the following:
-    # min/25th percentile/median/75th percentile/max
     for d, i in product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
@@ -245,9 +243,8 @@ def alpha_rarefaction(output_dir: str,
     for (k, v) in data.items():
         filename = 'metrics/metric-%s.csv' % quote(k)
         with open(os.path.join(output_dir, filename), 'w') as fh:
+            # I think move some collation stats into here probably
             v = v.stack('depth')
-            # v.columns = ['-'.join([str(a) for a in col]).strip()
-            #              for col in v.columns.values]
             v.to_csv(fh, index_label=['sample-id', 'depth'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
