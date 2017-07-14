@@ -32,8 +32,8 @@ export default function init(groupIndex) {
   // render(svg, preppedData);
 
   // CONTROLS
-  addDownloadLinks(controlsRow, data.metric);
   addMetricPicker(controlsRow, metrics, data.metric);
+  addDownloadLinks(controlsRow);
 
   // STATS
   // stats(body, data);
