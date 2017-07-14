@@ -1,9 +1,9 @@
 export default function addMetricPicker(row, metrics, selectedMetric) {
   const downloadDiv = row.append('div')
-    .attr('class', 'col-lg-2 form-group downloadCSV');
+    .attr('class', 'col-lg-2 form-group downloadTSV');
   const downloadHref = downloadDiv.append('a')
-      .attr('href', `metric-${selectedMetric}.csv`)
-      .text('Download CSV');
+      .attr('href', `metric-${selectedMetric}.tsv`)
+      .text('Download TSV');
 
   const grp = row.append('div').attr('class', 'col-lg-2 form-group metricPicker');
   grp.append('label').text('Metric');
@@ -11,7 +11,7 @@ export default function addMetricPicker(row, metrics, selectedMetric) {
     .attr('class', 'form-control')
     .on('change', function changeCategory() {
       const newMetric = metrics[this.selectedIndex];
-      downloadHref.attr('href', `metric-${newMetric}.csv`);
+      downloadHref.attr('href', `metric-${newMetric}.tsv`);
     })
     .selectAll('option')
     .data(metrics)

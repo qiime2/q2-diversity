@@ -1,14 +1,12 @@
 import {
-  select,
   scaleLinear,
   axisBottom,
   axisLeft,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
-import plotScatter from './scatter';
 
-export function render(svg, data) {
+export default function render(svg, data) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -37,16 +35,16 @@ export function render(svg, data) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  plotScatter(chart, data, x, y);
+  // renderPlot(chart, data, x, y, metric);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
 }
 
-export function stats(body, data) {
-  const { stats: { method, testStat, pVal, sampleSize } } = data;
-  select('#method').text(method);
-  select('#test-stat').text(testStat);
-  select('#p-val').html(pVal);
-  select('#sample-size').html(sampleSize);
-}
+// export function stats(body, data) {
+//   const { stats: { method, testStat, pVal, sampleSize } } = data;
+//   select('#method').text(method);
+//   select('#test-stat').text(testStat);
+//   select('#p-val').html(pVal);
+//   select('#sample-size').html(sampleSize);
+// }

@@ -241,11 +241,11 @@ def alpha_rarefaction(output_dir: str,
     filenames = []
     for (k, v) in data.items():
         metric_name = quote(k)
-        filename = 'metric-%s.csv' % metric_name
+        filename = 'metric-%s.tsv' % metric_name
         with open(os.path.join(output_dir, filename), 'w') as fh:
             # I think move some collation stats into here probably
             v = v.stack('depth')
-            v.to_csv(fh, index_label=['sample-id', 'depth'])
+            v.to_csv(fh, index_label=['sample-id', 'depth'], sep='\t')
 
         jsonp_filename = 'metric-%s.jsonp' % metric_name
         filenames.append(jsonp_filename)
