@@ -1,8 +1,8 @@
 /* global d */
 import { select } from 'd3';
 
-import setupData from './data';
-import render from './render'; // warning, stats
+// import setupData from './data';
+// import render from './render'; // warning, stats
 
 import addMetricPicker from './toolbar';
 
@@ -27,10 +27,10 @@ export default function init(groupIndex) {
   chart.append('text').attr('class', 'y label');
 
   // DATA
-  const preppedData = setupData(data, data.metric);
+  // const preppedData = setupData(data, data.metric);
 
   // PLOT
-  render(svg, preppedData, data.metric);
+  // render(svg, preppedData, data.metric);
 
   // CONTROLS
   addMetricPicker(controlsRow, metrics, data.metric);

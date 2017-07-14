@@ -11,9 +11,9 @@ export default function setupData(data, metric) {
   let minY = Infinity;
   let maxY = 0;
 
-  console.log(data.data);
+  console.log(data);
 
-  data.data.forEach((d) => {
+  data.data.data.forEach((d) => {
     console.log(d);
     const x = d.depth;
     const vals = d.slice(2);
