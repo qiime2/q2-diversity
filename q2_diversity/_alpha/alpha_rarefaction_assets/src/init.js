@@ -3,7 +3,7 @@ import { select } from 'd3';
 
 // import setupData from './data';
 // import { render, warnings, stats } from './render';
-import { addDownloadLinks, addMetricPicker } from './toolbar';
+import addMetricPicker from './toolbar';
 
 
 export default function init(groupIndex) {
@@ -33,7 +33,6 @@ export default function init(groupIndex) {
 
   // CONTROLS
   addMetricPicker(controlsRow, metrics, data.metric);
-  addDownloadLinks(controlsRow);
 
   // STATS
   // stats(body, data);

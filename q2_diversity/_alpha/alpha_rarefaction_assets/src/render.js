@@ -8,7 +8,6 @@ import {
 import { setupXLabel, setupYLabel } from './axis';
 import plotScatter from './scatter';
 
-
 export function render(svg, data) {
   const height = 400;
   const width = 1000;
