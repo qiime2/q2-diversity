@@ -358,6 +358,7 @@ plugin.visualizers.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metrics': Set[Str % Choices(
                                 alpha.non_phylogenetic_metrics())],
+                'metadata': Metadata,
                 'min_depth': Int,
                 'max_depth': Int,
                 'steps': Int,
@@ -368,6 +369,7 @@ plugin.visualizers.register_function(
     },
     parameter_descriptions={
         'metrics': 'The metrics to be measured.',
+        'metadata': 'The feature metadata.',
         'min_depth': 'The minimum sequencing depth to rarefy.',
         'max_depth': 'The maximum sequencing depth to rarefy.',
         'steps': 'The number of sequencing depths to rarefy.',
