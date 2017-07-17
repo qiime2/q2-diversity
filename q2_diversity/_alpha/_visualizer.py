@@ -227,6 +227,7 @@ def alpha_rarefaction(output_dir: str,
     rows = feature_table.ids()
     cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
                                       names=['depth', 'iter'])
+    
     data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
 
     for d, i in product(depth_range, iter_range):
@@ -242,22 +243,49 @@ def alpha_rarefaction(output_dir: str,
     filenames = []
     for (k, v) in data.items():
         metric_name = quote(k)
-        filename = 'metric-%s.tsv' % metric_name
+        filename = 'metric-%s.csv' % metric_name
         with open(os.path.join(output_dir, filename), 'w') as fh:
             # I think move some collation stats into here probably
             v = v.stack('depth')
-            v.to_csv(fh, index_label=['sample-id', 'depth'], sep='\t')
+            v.to_csv(fh, index_label=['sample-id', 'depth'])
 
-        jsonp_filename = 'metric-%s.jsonp' % metric_name
-        filenames.append(jsonp_filename)
+        jsonp_filename = '%s.jsonp' % metric_name
+        if metadata == None:
+            filenames.append(jsonp_filename)
 
-        with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
-            fh.write("load_data('%s'," % metric_name)
-            v.to_json(fh, orient='split')
-            fh.write(",")
-            json.dump(warnings, fh)
-            fh.write(",")
-            fh.write(");")
+            # TODO: calculate five figure summary <-----
+            
+            with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
+                fh.write("load_data('%s'," % metric_name)
+                v.to_json(fh, orient='split')
+                fh.write(",")
+                json.dump(warnings, fh)
+                fh.write(",")
+                fh.write(");")
+        else:
+            metadata_df = metadata.to_dataframe()
+            categories = metadata_df.columns
+            start = iterations + 1
+            v['sum']= v.iloc[:, -start:].sum(axis=1)
+            print("--------------------------  sum  -----------------------")
+            print(v)
+            print("----------------------------------------------------")
+            # for category in categories:
+            #     category_name = quote(category)
+            #     jsonp_filename = '%s-%s.csv' % (category_name, metric_name)
+
+            #     metadata_category = metadata_df[category]
+            #     metadata_category = metadata_category.loc[v.index.levels[0]]
+            #     metadata_category = metadata_category.dropna()
+
+                # create a dataframe containing the data to be correlated, and drop
+                # any samples that have no data in either column
+                # df = pd.concat([metadata_category, v.unsta['sample-id']], axis=1, join='inner')
+                # print("--------------------------  df  -----------------------")
+                # print(df)
+                # print("----------------------------------------------------")
+                # TODO: calculate five figure summary <-----
+
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
