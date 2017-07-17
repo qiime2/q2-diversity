@@ -265,6 +265,7 @@ def alpha_rarefaction(output_dir: str,
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
+            category_df = pd.DataFrame(np.NaN, categories, list(depth_range))
             for category in categories:
                 category_name = quote(category)
                 # jsonp_filename = '%s-%s.csv' % (category_name, metric_name)
@@ -272,19 +273,28 @@ def alpha_rarefaction(output_dir: str,
                 metadata_category = metadata_df[category]
                 metadata_category = metadata_category.loc[v.index.levels[0]]
                 metadata_category = metadata_category.dropna()
-
-                # create a dataframe containing the data to be correlated, and drop
-                # any samples that have no data in either column
-                df = v.copy()
-                df[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
-                # start = iterations + 1
-                # df['sum'] = df.iloc[:, -start:].sum(axis=1)
-                # df['min'] = df.iloc[:, -start:].min(axis=1)
-                # df['max'] = df.iloc[:, -start:].max(axis=1)
+                v[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
+                # cat_dict = {}
+                # for _, row in v.iterrows():
+                #     cat = metadata_category[row.name[0]]
+                #     cat_dict[cat]
+                # values = [((metadata_category[row.name[0]],
+                #                            row.iloc[-start:].min(axis=1),
+                #                            row.iloc[-start:].min(axis=1),
+                #                            row.iloc[-start:].max(axis=1))
+                #                           for _, row in v.iterrows()])
+                # 3-tuple: (category value, 25th, min, median, 75th, max)
+                # v[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
                 
-                print("--------------------------  sum  -----------------------")
-                print(df)
-                print("----------------------------------------------------")
+                # start = iterations + 1
+                # group_['sum'] = group.iloc[:, -start:].sum(axis=1)
+                # group_['min'] = group.iloc[:, -start:].min(axis=1)
+                # group_['max'] = group.iloc[:, -start:].max(axis=1)
+                # print("--------------------------  sum  -----------------------")
+                # print('axes: ', group_.axes)
+                # group_ = group_.drop(list(iter_range), axis=1,)
+                # print(group)
+                # print("----------------------------------------------------")
 
                 # create a dataframe containing the data to be correlated, and drop
                 # any samples that have no data in either column
