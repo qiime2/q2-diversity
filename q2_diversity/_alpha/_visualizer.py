@@ -125,7 +125,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         os.path.join(TEMPLATES, 'alpha_group_significance_assets', 'dist'),
         os.path.join(output_dir, 'dist'))
 
-
+scipy.stats.spearmanr
 _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
                           'pearson': scipy.stats.pearsonr}
 
@@ -265,18 +265,26 @@ def alpha_rarefaction(output_dir: str,
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
-            start = iterations + 1
-            v['sum']= v.iloc[:, -start:].sum(axis=1)
-            print("--------------------------  sum  -----------------------")
-            print(v)
-            print("----------------------------------------------------")
-            # for category in categories:
-            #     category_name = quote(category)
-            #     jsonp_filename = '%s-%s.csv' % (category_name, metric_name)
+            for category in categories:
+                category_name = quote(category)
+                # jsonp_filename = '%s-%s.csv' % (category_name, metric_name)
 
-            #     metadata_category = metadata_df[category]
-            #     metadata_category = metadata_category.loc[v.index.levels[0]]
-            #     metadata_category = metadata_category.dropna()
+                metadata_category = metadata_df[category]
+                metadata_category = metadata_category.loc[v.index.levels[0]]
+                metadata_category = metadata_category.dropna()
+
+                # create a dataframe containing the data to be correlated, and drop
+                # any samples that have no data in either column
+                df = v.copy()
+                df[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
+                # start = iterations + 1
+                # df['sum'] = df.iloc[:, -start:].sum(axis=1)
+                # df['min'] = df.iloc[:, -start:].min(axis=1)
+                # df['max'] = df.iloc[:, -start:].max(axis=1)
+                
+                print("--------------------------  sum  -----------------------")
+                print(df)
+                print("----------------------------------------------------")
 
                 # create a dataframe containing the data to be correlated, and drop
                 # any samples that have no data in either column
