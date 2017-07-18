@@ -208,6 +208,33 @@ def get_stats(group):
             'max': group.max()}
 
 
+def categorical_df(category, metadata_df, v, iterations, metric_name):
+
+    metadata_category = metadata_df[category]
+    metadata_category = metadata_category.loc[v.index.levels[0]]
+    metadata_category = metadata_category.dropna()
+
+    v[category] = [metadata_category[row.name[0]]
+                   for _, row in v.iterrows()]
+
+    vc = v.groupby([category, 'depth'])
+
+    for name, group in vc:
+        gr = group.iloc[:, 0:iterations-1]
+        depth_ = gr.index.tolist()[0][1]
+        try:
+            print("Depth: ", depth_,
+                  "Metric: ", metric_name,
+                  "Category: ", category,
+                  "Stats:\n", get_stats(gr.sum(axis=0)))
+        except Exception as e:
+            # NOTE: THIS IS A PROBLEM WITH CONFIDENCE RANGES, WHICH MAY ALSO
+            # BE A PROBLEM IN OTHER METHODS & VISUALIZERS.  THIS NEEDS TO BE
+            # ADDRESSED AT SOME POINT.
+            print("Probably error from tuple or other non int output. "
+                  "Error: %s" % str(e))
+
+
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
                       phylogeny: skbio.TreeNode=None,
@@ -274,29 +301,8 @@ def alpha_rarefaction(output_dir: str,
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
             for category in categories:
-                metadata_category = metadata_df[category]
-                metadata_category = metadata_category.loc[v.index.levels[0]]
-                metadata_category = metadata_category.dropna()
-                v[category] = [metadata_category[row.name[0]]
-                               for _, row in v.iterrows()]
-                # print(v.iloc[:, 0:iterations-1])
-                vc = v.groupby([category, 'depth'])
-                for name, group in vc:
-                    gr = group.iloc[:, 0:iterations-1]
-                    depth_ = gr.index.tolist()[0][1]
-                    # print("Depth: %s, Metric: %s, Category: %s\n" %
-                          # (depth_, metric_name, category))
-                    try:
-                        print("Depth: ", depth_,
-                              "Metric: ", metric_name,
-                              "Category: ", category,
-                              "Stats:\n", get_stats(gr.sum(axis=0)))
-                    except Exception as e:
-                        print("Probably error from tuple or other non int output. Error: %s" % str(e))
-                # [[:, 0:iterations-1]]
-                # vc = vc.apply(get_stats).unstack()
-                # print(vc)
-                # TODO: make not broken, and stick in jsonp <-----
+                categorical_df(category, metadata_df, v, iterations,
+                               metric_name)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
