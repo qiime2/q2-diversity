@@ -125,7 +125,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         os.path.join(TEMPLATES, 'alpha_group_significance_assets', 'dist'),
         os.path.join(output_dir, 'dist'))
 
-scipy.stats.spearmanr
+
 _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
                           'pearson': scipy.stats.pearsonr}
 
@@ -200,6 +200,14 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
+def get_stats(group):
+    return {'min': group.min(),
+            'tf': group.quantile(q=0.25),
+            'median': group.median(),
+            'sf': group.quantile(q=0.75),
+            'max': group.max()}
+
+
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
                       phylogeny: skbio.TreeNode=None,
@@ -227,7 +235,7 @@ def alpha_rarefaction(output_dir: str,
     rows = feature_table.ids()
     cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
                                       names=['depth', 'iter'])
-    
+
     data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
 
     for d, i in product(depth_range, iter_range):
@@ -250,11 +258,11 @@ def alpha_rarefaction(output_dir: str,
             v.to_csv(fh, index_label=['sample-id', 'depth'])
 
         jsonp_filename = '%s.jsonp' % metric_name
-        if metadata == None:
+        if metadata is None:
             filenames.append(jsonp_filename)
 
             # TODO: calculate five figure summary <-----
-            
+
             with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
                 fh.write("load_data('%s'," % metric_name)
                 v.to_json(fh, orient='split')
@@ -265,45 +273,17 @@ def alpha_rarefaction(output_dir: str,
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
-            category_df = pd.DataFrame(np.NaN, categories, list(depth_range))
             for category in categories:
-                category_name = quote(category)
-                # jsonp_filename = '%s-%s.csv' % (category_name, metric_name)
-
                 metadata_category = metadata_df[category]
                 metadata_category = metadata_category.loc[v.index.levels[0]]
                 metadata_category = metadata_category.dropna()
-                v[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
-                # cat_dict = {}
-                # for _, row in v.iterrows():
-                #     cat = metadata_category[row.name[0]]
-                #     cat_dict[cat]
-                # values = [((metadata_category[row.name[0]],
-                #                            row.iloc[-start:].min(axis=1),
-                #                            row.iloc[-start:].min(axis=1),
-                #                            row.iloc[-start:].max(axis=1))
-                #                           for _, row in v.iterrows()])
-                # 3-tuple: (category value, 25th, min, median, 75th, max)
-                # v[category_name] = [metadata_category[row.name[0]] for _, row in v.iterrows()]
-                
-                # start = iterations + 1
-                # group_['sum'] = group.iloc[:, -start:].sum(axis=1)
-                # group_['min'] = group.iloc[:, -start:].min(axis=1)
-                # group_['max'] = group.iloc[:, -start:].max(axis=1)
-                # print("--------------------------  sum  -----------------------")
-                # print('axes: ', group_.axes)
-                # group_ = group_.drop(list(iter_range), axis=1,)
-                # print(group)
-                # print("----------------------------------------------------")
+                v[category] = [metadata_category[row.name[0]]
+                               for _, row in v.iterrows()]
+                print(v.iloc[:, 0:iterations-1])
+                # vc = v.groupby([category, 'depth'])[[:, 1:iterations]]
+                # vc = vc.apply(get_stats).unstack()
 
-                # create a dataframe containing the data to be correlated, and drop
-                # any samples that have no data in either column
-                # df = pd.concat([metadata_category, v.unsta['sample-id']], axis=1, join='inner')
-                # print("--------------------------  df  -----------------------")
-                # print(df)
-                # print("----------------------------------------------------")
-                # TODO: calculate five figure summary <-----
-
+                # TODO: make not broken, and stick in jsonp <-----
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
