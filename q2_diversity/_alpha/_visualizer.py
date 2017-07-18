@@ -279,10 +279,23 @@ def alpha_rarefaction(output_dir: str,
                 metadata_category = metadata_category.dropna()
                 v[category] = [metadata_category[row.name[0]]
                                for _, row in v.iterrows()]
-                print(v.iloc[:, 0:iterations-1])
-                # vc = v.groupby([category, 'depth'])[[:, 1:iterations]]
+                # print(v.iloc[:, 0:iterations-1])
+                vc = v.groupby([category, 'depth'])
+                for name, group in vc:
+                    gr = group.iloc[:, 0:iterations-1]
+                    depth_ = gr.index.tolist()[0][1]
+                    # print("Depth: %s, Metric: %s, Category: %s\n" %
+                          # (depth_, metric_name, category))
+                    try:
+                        print("Depth: ", depth_,
+                              "Metric: ", metric_name,
+                              "Category: ", category,
+                              "Stats:\n", get_stats(gr.sum(axis=0)))
+                    except Exception as e:
+                        print("Probably error from tuple or other non int output. Error: %s" % str(e))
+                # [[:, 0:iterations-1]]
                 # vc = vc.apply(get_stats).unstack()
-
+                # print(vc)
                 # TODO: make not broken, and stick in jsonp <-----
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
