@@ -253,6 +253,8 @@ def alpha_rarefaction(output_dir: str,
                       steps: int=10,
                       iterations: int=10) -> None:
     warnings = []
+    filenames = []
+    categories = []
     for m in metrics:
         if m not in non_phylogenetic_metrics():
             warnings.append("Warning: requested metric %s "
@@ -283,7 +285,6 @@ def alpha_rarefaction(output_dir: str,
                 warnings.append(str(e))
                 pass
 
-    filenames = []
     for (k, v) in data.items():
         metric_name = quote(k)
         filename = 'metric-%s.csv' % metric_name
@@ -312,7 +313,11 @@ def alpha_rarefaction(output_dir: str,
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
-                       context={'metrics': metrics, 'filenames': filenames})
+                       context={'metrics': list(metrics),
+                                'filenames': filenames,
+                                'categories': list(categories)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dst'),
                     os.path.join(output_dir, 'dist'))
+
+    print('filenames: ', filenames)

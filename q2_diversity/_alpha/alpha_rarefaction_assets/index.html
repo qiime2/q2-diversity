@@ -11,17 +11,32 @@
 </div>
 
 <script>
-  var d = [];
-  function load_data(metricName, data) {
-    d.push({
-      metric: metricName,
-      data: data,
-    });
-  }
+  	var d = [];
+  	var categories = {{ categories | safe }};
+	var metrics = {{ metrics | safe }};
+	var filenames = {{ filenames | safe }};
+	console.log('categories: ', categories);
+	console.log('metrics: ', metrics);
+	console.log('filenames: ', filenames);
+	// metrics.forEach(function(m) {
+	// 	if (categories === []) {
+	// 		var filename = string.concat("metric-", m, ".jsonp");
+	// 		load_data(m, '', filename);
+	// 	} else {
+	// 		categories.forEach(function(c) {
+	// 			var filename = string.concat(m, "-", c, ".jsonp");
+	// 			load_data(m, '', filename);
+	// 		});
+	// 	}
+	// });
+  	function load_data(metricName, categoryName, data) {
+    	d.push({
+      		metric: metricName,
+      		category: categoryName,
+      		data: data,
+    	});
+  	}
 </script>
-{% for filename in filenames %}
-<script src='{{ filename }}?callback=load_data'></script>
-{% endfor %}
 
 <script src='dist/bundle.js'></script>
 {% endblock %}

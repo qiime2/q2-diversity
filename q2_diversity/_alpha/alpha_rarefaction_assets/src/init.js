@@ -1,15 +1,17 @@
 /* global d */
+/* global categories */
+/* global metrics */
+
 import { select } from 'd3';
 
 // import setupData from './data';
 // import render from './render'; // warning, stats
 
-import addMetricPicker from './toolbar';
+import { addMetricPicker, addCategoryPicker } from './toolbar';
 
 
 export default function init(groupIndex) {
   const data = d[groupIndex];
-  const metrics = d.map(d => d.metric);
 
   // DOM
   const body = select('#main');
@@ -34,6 +36,7 @@ export default function init(groupIndex) {
 
   // CONTROLS
   addMetricPicker(controlsRow, metrics, data.metric);
+  addCategoryPicker(controlsRow, categories, data.category);
 
   // STATS
   // stats(body, data);
