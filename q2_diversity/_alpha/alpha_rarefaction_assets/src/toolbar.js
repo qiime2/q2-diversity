@@ -1,3 +1,5 @@
+/* global d */
+
 export default function addMetricPicker(row, metrics, selectedMetric) {
   const downloadDiv = row.append('div')
     .attr('class', 'col-lg-2 form-group downloadCSV');
@@ -12,6 +14,7 @@ export default function addMetricPicker(row, metrics, selectedMetric) {
     .on('change', function changeCategory() {
       const newMetric = metrics[this.selectedIndex];
       downloadHref.attr('href', `metric-${newMetric}.csv`);
+      console.log(d);
     })
     .selectAll('option')
     .data(metrics)

@@ -215,17 +215,21 @@ def get_stats(group):
 
 
 def categorical_df(category, metadata_df, v, iterations):
-    rows = []
     metadata_category = metadata_df[category]
     metadata_category = metadata_category.loc[v.index.levels[0]]
     metadata_category = metadata_category.dropna()
     v[category] = [metadata_category[row.name[0]]
                    for _, row in v.iterrows()]
     vc = v.groupby([category, 'depth'])
-    for name, group in vc:
+    return non_categorical_df(vc, iterations)
+
+
+def non_categorical_df(v, iterations):
+    rows = []
+    for name, group in v:
         gr = group.iloc[:, 0:iterations-1]
         depth = gr.index.tolist()[0][1]
-        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})   
+        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})
     return pd.DataFrame(rows)
 
 
@@ -290,10 +294,10 @@ def alpha_rarefaction(output_dir: str,
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-
-            # TODO: calculate five figure summary <-----
-
-            write_jsonp(output_dir, jsonp_filename, metric_name, v, warnings)
+            vc = v.groupby(['depth'])
+            n_df = non_categorical_df(vc, iterations)
+            write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
+                        warnings)
             filenames.append(jsonp_filename)
 
         else:
@@ -301,9 +305,8 @@ def alpha_rarefaction(output_dir: str,
             categories = metadata_df.columns
             for category in categories:
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category)
-                c_df = categorical_df(category, metadata_df, v, 
-                                                iterations)
-                write_jsonp(output_dir, jsonp_filename, metric_name, 
+                c_df = categorical_df(category, metadata_df, v, iterations)
+                write_jsonp(output_dir, jsonp_filename, metric_name,
                             c_df, warnings)
                 filenames.append(jsonp_filename)
 
