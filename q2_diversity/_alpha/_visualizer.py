@@ -201,38 +201,42 @@ def alpha_correlation(output_dir: str,
 
 
 def get_stats(group):
-    return {'min': group.min(),
-            'tf': group.quantile(q=0.25),
-            'median': group.median(),
-            'sf': group.quantile(q=0.75),
-            'max': group.max()}
+    try:
+        return {'min': group.min(),
+                'tf': group.quantile(q=0.25),
+                'median': group.median(),
+                'sf': group.quantile(q=0.75),
+                'max': group.max()}
+    except:
+        # NOTE: THIS IS A PROBLEM WITH CONFIDENCE RANGES, WHICH MAY ALSO
+        # BE A PROBLEM IN OTHER METHODS & VISUALIZERS.  THIS NEEDS TO BE
+        # ADDRESSED AT SOME POINT.
+        return {}
 
 
-def categorical_df(category, metadata_df, v, iterations, metric_name):
-
+def categorical_df(category, metadata_df, v, iterations):
+    rows = []
     metadata_category = metadata_df[category]
     metadata_category = metadata_category.loc[v.index.levels[0]]
     metadata_category = metadata_category.dropna()
-
     v[category] = [metadata_category[row.name[0]]
                    for _, row in v.iterrows()]
-
     vc = v.groupby([category, 'depth'])
-
     for name, group in vc:
         gr = group.iloc[:, 0:iterations-1]
-        depth_ = gr.index.tolist()[0][1]
-        try:
-            print("Depth: ", depth_,
-                  "Metric: ", metric_name,
-                  "Category: ", category,
-                  "Stats:\n", get_stats(gr.sum(axis=0)))
-        except Exception as e:
-            # NOTE: THIS IS A PROBLEM WITH CONFIDENCE RANGES, WHICH MAY ALSO
-            # BE A PROBLEM IN OTHER METHODS & VISUALIZERS.  THIS NEEDS TO BE
-            # ADDRESSED AT SOME POINT.
-            print("Probably error from tuple or other non int output. "
-                  "Error: %s" % str(e))
+        depth = gr.index.tolist()[0][1]
+        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})   
+    return pd.DataFrame(rows)
+
+
+def write_jsonp(output_dir, filename, metric, data, warnings):
+    with open(os.path.join(output_dir, filename), 'w') as fh:
+        fh.write("load_data('%s'," % metric)
+        data.to_json(fh, orient='split')
+        fh.write(",")
+        json.dump(warnings, fh)
+        fh.write(",")
+        fh.write(");")
 
 
 def alpha_rarefaction(output_dir: str,
@@ -244,17 +248,17 @@ def alpha_rarefaction(output_dir: str,
                       max_depth: int=100,
                       steps: int=10,
                       iterations: int=10) -> None:
-
     warnings = []
-
     for m in metrics:
         if m not in non_phylogenetic_metrics():
             warnings.append("Warning: requested metric %s "
                             "not a known metric." % m)
 
+    # TODO: replace these casts with input validation
     max_depth = int(min(max_depth, feature_table.nnz))
     min_depth = int(min_depth)
     step_size = int(max((max_depth - min_depth) / steps, 1))
+    # -----------------------------------------------
 
     depth_range = range(min_depth, max_depth, step_size)
     iter_range = range(1, iterations)
@@ -262,7 +266,6 @@ def alpha_rarefaction(output_dir: str,
     rows = feature_table.ids()
     cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
                                       names=['depth', 'iter'])
-
     data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
 
     for d, i in product(depth_range, iter_range):
@@ -272,6 +275,7 @@ def alpha_rarefaction(output_dir: str,
                 vector = alpha(table=rt, metric=m)
                 data[m][(d, i)] = vector
             except Exception as e:
+                # see NOTE in get_stats() regarding confidence intervals
                 warnings.append(str(e))
                 pass
 
@@ -284,25 +288,24 @@ def alpha_rarefaction(output_dir: str,
             v = v.stack('depth')
             v.to_csv(fh, index_label=['sample-id', 'depth'])
 
-        jsonp_filename = '%s.jsonp' % metric_name
         if metadata is None:
-            filenames.append(jsonp_filename)
+            jsonp_filename = '%s.jsonp' % metric_name
 
             # TODO: calculate five figure summary <-----
 
-            with open(os.path.join(output_dir, jsonp_filename), 'w') as fh:
-                fh.write("load_data('%s'," % metric_name)
-                v.to_json(fh, orient='split')
-                fh.write(",")
-                json.dump(warnings, fh)
-                fh.write(",")
-                fh.write(");")
+            write_jsonp(output_dir, jsonp_filename, metric_name, v, warnings)
+            filenames.append(jsonp_filename)
+
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
             for category in categories:
-                categorical_df(category, metadata_df, v, iterations,
-                               metric_name)
+                jsonp_filename = "%s-%s.jsonp" % (metric_name, category)
+                c_df = categorical_df(category, metadata_df, v, 
+                                                iterations)
+                write_jsonp(output_dir, jsonp_filename, metric_name, 
+                            c_df, warnings)
+                filenames.append(jsonp_filename)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
