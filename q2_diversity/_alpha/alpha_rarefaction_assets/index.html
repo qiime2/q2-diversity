@@ -15,25 +15,21 @@
   	var categories = {{ categories | safe }};
 	var metrics = {{ metrics | safe }};
 	var filenames = {{ filenames | safe }};
-	console.log('categories: ', categories);
-	console.log('metrics: ', metrics);
-	console.log('filenames: ', filenames);
-	// metrics.forEach(function(m) {
-	// 	if (categories === []) {
-	// 		var filename = string.concat("metric-", m, ".jsonp");
-	// 		load_data(m, '', filename);
-	// 	} else {
-	// 		categories.forEach(function(c) {
-	// 			var filename = string.concat(m, "-", c, ".jsonp");
-	// 			load_data(m, '', filename);
-	// 		});
-	// 	}
-	// });
-  	function load_data(metricName, categoryName, data) {
+	metrics.forEach(function(m) {
+		if (categories.length === 0) {
+			var filename = "metric-".concat(m, ".jsonp");
+		} else {
+			categories.forEach(function(c) {
+				var filename = m.concat("-", c, ".jsonp");
+				load_data(m, c, filename);
+			});
+		}
+	});
+  	function load_data(metricName, categoryName, fileName) {
     	d.push({
       		metric: metricName,
       		category: categoryName,
-      		data: data,
+      		data: fileName,
     	});
   	}
 </script>

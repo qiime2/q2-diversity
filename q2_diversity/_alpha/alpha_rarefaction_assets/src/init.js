@@ -12,7 +12,7 @@ import { addMetricPicker, addCategoryPicker } from './toolbar';
 
 export default function init(groupIndex) {
   const data = d[groupIndex];
-
+  console.log('data: ', data);
   // DOM
   const body = select('#main');
   const plotRow = body.insert('div', ':first-child').attr('class', 'viz row');
@@ -36,7 +36,9 @@ export default function init(groupIndex) {
 
   // CONTROLS
   addMetricPicker(controlsRow, metrics, data.metric);
-  addCategoryPicker(controlsRow, categories, data.category);
+  if (categories.length > 0) {
+    addCategoryPicker(controlsRow, categories, data.category);
+  }
 
   // STATS
   // stats(body, data);

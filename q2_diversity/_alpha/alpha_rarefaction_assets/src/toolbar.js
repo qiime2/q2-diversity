@@ -1,6 +1,4 @@
 /* global d */
-/* global categories */
-/* global metrics */
 
 export function addMetricPicker(row, metrics, selectedMetric) {
   // const downloadDiv = row.append('div')
@@ -37,7 +35,7 @@ export function addCategoryPicker(row, categories, selectedCategory) {
       console.log('selected category: ', newCategory);
     })
     .selectAll('option')
-    .data(metrics)
+    .data(categories)
     .enter()
       .append('option')
       .attr('value', d => d)
