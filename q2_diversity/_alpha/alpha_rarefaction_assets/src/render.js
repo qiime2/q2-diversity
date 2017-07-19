@@ -2,9 +2,26 @@ import {
   scaleLinear,
   axisBottom,
   axisLeft,
+  line,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
+
+function renderPlot(svg, data, x, y) {
+  const chart = svg.select('g');
+  chart.selectAll('.path').remove();
+  // define the line
+  const depthIndex = data.data.columns.indexOf('depth');
+  const medianIndex = data.data.columns.indexOf('median');
+  const valueline = line()
+    .x(d => x(d[depthIndex]))
+    .y(d => y(d[medianIndex]));
+  chart.append('path')
+    .data([data.data.data])
+    .attr('class', 'line')
+    .attr('fill', 'none')
+    .attr('d', valueline);
+}
 
 export default function render(svg, data) {
   const height = 400;
@@ -35,7 +52,7 @@ export default function render(svg, data) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  // renderPlot(chart, data, x, y, metric);
+  renderPlot(svg, data, x, y);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

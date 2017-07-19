@@ -286,7 +286,7 @@ def alpha_rarefaction(output_dir: str,
 
     for (k, v) in data.items():
         metric_name = quote(k)
-        filename = 'metric-%s.csv' % metric_name
+        filename = '%s.csv' % metric_name
         with open(os.path.join(output_dir, filename), 'w') as fh:
             # I think move some collation stats into here probably
             v = v.stack('depth')
@@ -299,15 +299,17 @@ def alpha_rarefaction(output_dir: str,
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)
-
+            filename = '%s.csv' % metric_name
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
             for category in categories:
-                jsonp_filename = "%s-%s.jsonp" % (metric_name, category)
-                c_df = categorical_df(category, metadata_df, v, iterations)
+                category_name = quote(category)
+                jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
+                c_df = categorical_df(category_name, metadata_df, v,
+                                      iterations)
                 write_jsonp(output_dir, jsonp_filename, metric_name,
-                            c_df, warnings, category)
+                            c_df, warnings, category_name)
                 filenames.append(jsonp_filename)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')

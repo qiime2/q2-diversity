@@ -1,7 +1,6 @@
-import {
-  max,
-  min,
-} from 'd3';
+/* global d */
+
+import render from './render'; // warning, stats
 
 export default function setupData(data, metric) {
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
@@ -10,21 +9,19 @@ export default function setupData(data, metric) {
   let maxX = 0;
   let minY = Infinity;
   let maxY = 0;
-  console.log(data);
   const depthIndex = data.columns.indexOf('depth');
   const minIndex = data.columns.indexOf('min');
   const maxIndex = data.columns.indexOf('max');
   data.data.forEach((d) => {
-    console.log('evaluating d: depth - ', d[depthIndex], ', min - ', d[minIndex], ', max - ', d[maxIndex]);
     const x = d[depthIndex];
-    minX = min(x, minX);
-    maxX = max(x, maxX);
-    minY = min(d[minIndex], minY);
-    maxY = max(d[maxIndex], maxY);
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (d[minIndex] < minY) minY = d[minIndex];
+    if (d[maxIndex] > maxY) maxY = d[maxIndex];
   });
 
   return {
-    data: data.data.data,
+    data,
     xAxisLabel,
     yAxisLabel,
     minX,
@@ -32,6 +29,13 @@ export default function setupData(data, metric) {
     minY,
     maxY,
   };
+}
+
+function updateData(metric, category, svg, href) {
+  href.attr('href', `${metric}.csv`);
+  const data = d[(metric, category)];
+  const preppedData = setupData(data, metric);
+  render(svg, preppedData);
 }
 
 let curState = null;
@@ -42,15 +46,27 @@ class State {
     }
     this.category = '';
     this.metric = '';
+    this.svg = null;
+    this.href = null;
     return curState;
+  }
+  initialize(metric, category, row, svg) {
+    // CONTROLS
+    const downloadDiv = row.append('div')
+      .attr('class', 'col-lg-2 form-group downloadCSV');
+    this.href = downloadDiv.append('a')
+        .attr('href', '')
+        .text('Download CSV');
+    this.svg = svg;
+    updateData(metric, category, this.svg, this.href);
   }
   setCategory(c) {
     this.category = c;
-    console.log('set to: ', this.category);
+    updateData(this.metric, this.category, this.svg, this.href);
   }
   setMetric(m) {
     this.metric = m;
-    console.log('set to: ', this.metric);
+    updateData(this.metric, this.category, this.svg, this.href);
   }
   getCategory() {
     return this.category;
