@@ -233,13 +233,12 @@ def non_categorical_df(v, iterations):
     return pd.DataFrame(rows)
 
 
-def write_jsonp(output_dir, filename, metric, data, warnings):
+def write_jsonp(output_dir, filename, metric, data, warnings, category):
     with open(os.path.join(output_dir, filename), 'w') as fh:
-        fh.write("load_data('%s'," % metric)
+        fh.write("load_data('%s', '%s'," % (metric, category))
         data.to_json(fh, orient='split')
         fh.write(",")
         json.dump(warnings, fh)
-        fh.write(",")
         fh.write(");")
 
 
@@ -298,7 +297,7 @@ def alpha_rarefaction(output_dir: str,
             vc = v.groupby(['depth'])
             n_df = non_categorical_df(vc, iterations)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
-                        warnings)
+                        warnings, '')
             filenames.append(jsonp_filename)
 
         else:
@@ -308,7 +307,7 @@ def alpha_rarefaction(output_dir: str,
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category)
                 c_df = categorical_df(category, metadata_df, v, iterations)
                 write_jsonp(output_dir, jsonp_filename, metric_name,
-                            c_df, warnings)
+                            c_df, warnings, category)
                 filenames.append(jsonp_filename)
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')

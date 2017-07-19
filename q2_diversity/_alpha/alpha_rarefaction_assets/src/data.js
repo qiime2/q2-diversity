@@ -10,19 +10,17 @@ export default function setupData(data, metric) {
   let maxX = 0;
   let minY = Infinity;
   let maxY = 0;
-
   console.log(data);
-
-  data.data.data.forEach((d) => {
-    console.log(d);
-    const x = d.depth;
-    const vals = d.slice(2);
-    const yMax = max(vals);
-    const yMin = min(vals);
+  const depthIndex = data.columns.indexOf('depth');
+  const minIndex = data.columns.indexOf('min');
+  const maxIndex = data.columns.indexOf('max');
+  data.data.forEach((d) => {
+    console.log('evaluating d: depth - ', d[depthIndex], ', min - ', d[minIndex], ', max - ', d[maxIndex]);
+    const x = d[depthIndex];
     minX = min(x, minX);
     maxX = max(x, maxX);
-    minY = min(yMin, minY);
-    maxY = max(yMax, maxY);
+    minY = min(d[minIndex], minY);
+    maxY = max(d[maxIndex], maxY);
   });
 
   return {

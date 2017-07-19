@@ -11,29 +11,19 @@
 </div>
 
 <script>
-  	var d = [];
+  	var d = {};
   	var categories = {{ categories | safe }};
 	var metrics = {{ metrics | safe }};
-	var filenames = {{ filenames | safe }};
-	metrics.forEach(function(m) {
-		if (categories.length === 0) {
-			var filename = m.concat(".jsonp");
-			load_data(m, '', filename);
+	function load_data(metric, category, data) {
+		if (category) {
+			d[(metric,category)] = data;
 		} else {
-			categories.forEach(function(c) {
-				var filename = m.concat("-", c, ".jsonp");
-				load_data(m, c, filename);
-			});
+			d[metric] = data;
 		}
-	});
-  	function load_data(metricName, categoryName, fileName) {
-    	d.push({
-      		metric: metricName,
-      		category: categoryName,
-      		data: fileName,
-    	});
   	}
 </script>
-
+{% for filename in filenames %}
+<script src='{{ filename }}?callback=load_data'></script>
+{% endfor %}
 <script src='dist/bundle.js'></script>
 {% endblock %}
