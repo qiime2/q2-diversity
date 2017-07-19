@@ -1,5 +1,7 @@
 /* global d */
 
+import { state } from './data';
+
 export function addMetricPicker(row, metrics, selectedMetric) {
   // const downloadDiv = row.append('div')
   //   .attr('class', 'col-lg-2 form-group downloadCSV');
@@ -13,7 +15,7 @@ export function addMetricPicker(row, metrics, selectedMetric) {
     .on('change', function changeCategory() {
       const newMetric = metrics[this.selectedIndex];
       // downloadHref.attr('href', `metric-${newMetric}.csv`);
-      console.log('selected metric: ', newMetric);
+      state.setMetric(newMetric);
     })
     .selectAll('option')
     .data(metrics)
@@ -32,7 +34,7 @@ export function addCategoryPicker(row, categories, selectedCategory) {
     .attr('class', 'form-control')
     .on('change', function changeCategory() {
       const newCategory = categories[this.selectedIndex];
-      console.log('selected category: ', newCategory);
+      state.setCategory(newCategory);
     })
     .selectAll('option')
     .data(categories)

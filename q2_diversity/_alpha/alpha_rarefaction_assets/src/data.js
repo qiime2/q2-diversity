@@ -35,3 +35,30 @@ export default function setupData(data, metric) {
     maxY,
   };
 }
+
+let curState = null;
+class State {
+  constructor() {
+    if (!curState) {
+      curState = this;
+    }
+    this.category = '';
+    this.metric = '';
+    return curState;
+  }
+  setCategory(c) {
+    this.category = c;
+    console.log('set to: ', this.category);
+  }
+  setMetric(m) {
+    this.metric = m;
+    console.log('set to: ', this.metric);
+  }
+  getCategory() {
+    return this.category;
+  }
+  getMetric() {
+    return this.metric;
+  }
+}
+export const state = new State();
