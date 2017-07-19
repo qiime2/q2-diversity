@@ -17,7 +17,8 @@
 	var filenames = {{ filenames | safe }};
 	metrics.forEach(function(m) {
 		if (categories.length === 0) {
-			var filename = "metric-".concat(m, ".jsonp");
+			var filename = m.concat(".jsonp");
+			load_data(m, '', filename);
 		} else {
 			categories.forEach(function(c) {
 				var filename = m.concat("-", c, ".jsonp");
