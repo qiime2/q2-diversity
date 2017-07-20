@@ -11,6 +11,7 @@ import biom
 import skbio
 import skbio.diversity
 import skbio.tree
+import sklearn.metrics
 
 
 # We should consider moving these functions to scikit-bio. They're part of
@@ -28,7 +29,7 @@ def non_phylogenetic_metrics():
 
 
 def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
-                      metric: str)-> skbio.DistanceMatrix:
+                      metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:
     if metric not in phylogenetic_metrics():
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
     if table.is_empty():
@@ -39,11 +40,15 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
     feature_ids = table.ids(axis='observation')
 
     try:
-        results = skbio.diversity.beta_diversity(metric=metric,
-                                                 counts=counts,
-                                                 ids=sample_ids,
-                                                 otu_ids=feature_ids,
-                                                 tree=phylogeny)
+        results = skbio.diversity.beta_diversity(
+            metric=metric,
+            counts=counts,
+            ids=sample_ids,
+            otu_ids=feature_ids,
+            tree=phylogeny,
+            pairwise_func=sklearn.metrics.pairwise_distances,
+            n_jobs=n_jobs
+        )
     except skbio.tree.MissingNodeError as e:
         message = str(e).replace('otu_ids', 'feature_ids')
         message = message.replace('tree', 'phylogeny')
@@ -52,7 +57,7 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
     return results
 
 
-def beta(table: biom.Table, metric: str)-> skbio.DistanceMatrix:
+def beta(table: biom.Table, metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:
     if metric not in non_phylogenetic_metrics():
         raise ValueError("Unknown metric: %s" % metric)
     if table.is_empty():
@@ -64,5 +69,7 @@ def beta(table: biom.Table, metric: str)-> skbio.DistanceMatrix:
     return skbio.diversity.beta_diversity(
         metric=metric,
         counts=counts,
-        ids=sample_ids
+        ids=sample_ids,
+        pairwise_func=sklearn.metrics.pairwise_distances,
+        n_jobs=n_jobs
     )

@@ -19,6 +19,16 @@ from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults
 
 
+sklearn_n_jobs_description = (
+    'The number of jobs to use for the computation. This works  by breaking '
+    'down the pairwise matrix into n_jobs even  slices and computing them in'
+    'parallel. If -1 all CPUs are  used. If 1 is given, no parallel computing'
+    'code is used at  all, which is useful for debugging. For n_jobs below -1,'
+    '(n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all  CPUs but one'
+    'are used.'
+)
+
+
 plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
@@ -35,7 +45,8 @@ plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
+                'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -47,7 +58,8 @@ plugin.methods.register_function(
                       'present in this tree.')
     },
     parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.'
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
@@ -58,14 +70,16 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_diversity.beta,
     inputs={'table': FeatureTable[Frequency]},
-    parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
+                'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
                   'diversity should be computed.')
     },
     parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.'
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
@@ -142,7 +156,8 @@ plugin.methods.register_function(
         'phylogeny': Phylogeny[Rooted]
     },
     parameters={
-        'sampling_depth': Int
+        'sampling_depth': Int,
+        'n_jobs': Int
     },
     outputs=[
         ('faith_pd_vector', SampleData[AlphaDiversity]),
@@ -168,8 +183,10 @@ plugin.methods.register_function(
                       'present in this tree.')
     },
     parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'rarefied to prior to computing diversity metrics.')
+        'sampling_depth': 'The total frequency that each sample should be '
+                          'rarefied to prior to computing diversity metrics.',
+        'n_jobs': '%s (beta/beta_phylogenetic methods only)' %
+                  sklearn_n_jobs_description
     },
     output_descriptions={
         'faith_pd_vector': 'Vector of Faith PD values by sample.',
