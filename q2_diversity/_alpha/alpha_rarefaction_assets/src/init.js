@@ -10,10 +10,7 @@ import { addMetricPicker, addCategoryPicker } from './toolbar';
 
 export default function init() {
   const metric = metrics[0];
-  let category = categories[0];
-  if (!category) {
-    category = '';
-  }
+  const category = categories[0];
   // DOM
   const body = select('#main');
   const plotRow = body.insert('div', ':first-child').attr('class', 'viz row');

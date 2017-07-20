@@ -16,9 +16,10 @@
 	var metrics = {{ metrics | safe }};
 	function load_data(metric, category, data) {
 		if (category) {
-			d[(metric,category)] = data;
+			d[metric] = {};
+			d[metric][category] = data;
 		} else {
-			d[(metric,'')] = data;
+			d[metric] = data;
 		}
   	}
 </script>

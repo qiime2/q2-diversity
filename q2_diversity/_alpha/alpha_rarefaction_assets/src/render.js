@@ -3,6 +3,7 @@ import {
   axisBottom,
   axisLeft,
   line,
+  curveCardinal,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
@@ -10,27 +11,47 @@ import { setupXLabel, setupYLabel } from './axis';
 function renderPlot(svg, data, x, y) {
   const chart = svg.select('g');
   chart.selectAll('path').remove();
-  // define the line
+  chart.selectAll('dot').remove();
+
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('median');
+
   const valueline = line()
     .x(d => x(d[depthIndex]))
-    .y(d => y(d[medianIndex]));
+    .y(d => y(d[medianIndex]))
+    .curve(curveCardinal);
+
+  const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])];
+
+  console.log('renderPlot data: ', data);
+
   chart.append('path')
-    .data([data.data.data])
+    .data(points)
     .attr('class', 'line')
     .style('fill', 'none')
     .style('stroke', 'blue')
     .attr('d', valueline);
+
+  chart.selectAll('dot')
+      .data(points)
+    .enter()
+      .append('circle')
+        .attr('cx', d => x(d[depthIndex]))
+        .attr('cy', d => y(d[medianIndex]))
+        .attr('r', 4)
+        .style('stroke', 'green');
 }
 
 export default function render(svg, data) {
+  console.log('render data: ', data);
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
   const chart = svg.select('g');
 
   const { xAxisLabel, yAxisLabel, minX, maxX, minY, maxY } = data;
+
+  console.log('render data (2): ', data);
 
   const xAxis = axisBottom();
   const yAxis = axisLeft();

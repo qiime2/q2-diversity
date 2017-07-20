@@ -33,7 +33,10 @@ export default function setupData(data, metric) {
 
 function updateData(metric, category, svg, href) {
   href.attr('href', `${metric}.csv`);
-  const data = d[(metric, category)];
+  let data = d[metric];
+  if (category) {
+    data = d[metric][category];
+  }
   const preppedData = setupData(data, metric);
   render(svg, preppedData);
 }
@@ -58,6 +61,8 @@ class State {
         .attr('href', '')
         .text('Download CSV');
     this.svg = svg;
+    this.metric = metric;
+    this.category = category;
     updateData(metric, category, this.svg, this.href);
   }
   setCategory(c) {
