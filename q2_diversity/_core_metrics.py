@@ -15,22 +15,22 @@ from q2_diversity import (alpha, alpha_phylogenetic, beta, beta_phylogenetic,
 from q2_feature_table import rarefy
 
 
-core_output = (pd.Series,
-               pd.Series,
-               pd.Series,
-               pd.Series,
-               skbio.DistanceMatrix,
-               skbio.DistanceMatrix,
-               skbio.DistanceMatrix,
-               skbio.DistanceMatrix,
-               skbio.OrdinationResults,
-               skbio.OrdinationResults,
-               skbio.OrdinationResults,
-               skbio.OrdinationResults)
+_core_output = (pd.Series,
+                pd.Series,
+                pd.Series,
+                pd.Series,
+                skbio.DistanceMatrix,
+                skbio.DistanceMatrix,
+                skbio.DistanceMatrix,
+                skbio.DistanceMatrix,
+                skbio.OrdinationResults,
+                skbio.OrdinationResults,
+                skbio.OrdinationResults,
+                skbio.OrdinationResults)
 
 
 def core_metrics(table: biom.Table, phylogeny: skbio.TreeNode,
-                 sampling_depth: int, n_jobs: int=1) -> core_output:
+                 sampling_depth: int, n_jobs: int=1) -> _core_output:
     rarefied_table = rarefy(table=table, sampling_depth=sampling_depth)
 
     faith_pd_vector = alpha_phylogenetic(
