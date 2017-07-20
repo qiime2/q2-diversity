@@ -9,7 +9,7 @@ import { setupXLabel, setupYLabel } from './axis';
 
 function renderPlot(svg, data, x, y) {
   const chart = svg.select('g');
-  chart.selectAll('.path').remove();
+  chart.selectAll('path').remove();
   // define the line
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('median');
@@ -19,7 +19,8 @@ function renderPlot(svg, data, x, y) {
   chart.append('path')
     .data([data.data.data])
     .attr('class', 'line')
-    .attr('fill', 'none')
+    .style('fill', 'none')
+    .style('stroke', 'blue')
     .attr('d', valueline);
 }
 
