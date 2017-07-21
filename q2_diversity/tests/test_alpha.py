@@ -325,3 +325,15 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaisesRegex(ValueError, 'Only numeric'):
                 alpha_group_significance(output_dir, alpha_div, md)
+
+    def test_alpha_group_significance_single_quote(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'a or b': ['a', "b'", 'b']},
+                         index=['sample1', 'sample2', 'sample3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_group_significance(output_dir, alpha_div, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue("\'" in open(index_fp).read())
