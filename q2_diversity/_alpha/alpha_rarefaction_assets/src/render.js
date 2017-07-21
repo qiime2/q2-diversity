@@ -2,56 +2,68 @@ import {
   scaleLinear,
   axisBottom,
   axisLeft,
-  line,
-  curveCardinal,
+  // line,
+  // curveCardinal,
+  // scaleOrdinal,
+  // keys,
+  // schemeCategory10,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
 
-function renderPlot(svg, data, x, y) {
-  const chart = svg.select('g');
-  chart.selectAll('path').remove();
-  chart.selectAll('dot').remove();
+// function renderPlot(svg, data, x, y) {
+  // const chart = svg.select('g');
+  // chart.selectAll('path').remove();
+  // chart.selectAll('dot').remove();
 
-  const depthIndex = data.data.columns.indexOf('depth');
-  const medianIndex = data.data.columns.indexOf('median');
+  // const depthIndex = data.data.columns.indexOf('depth');
+  // const medianIndex = data.data.columns.indexOf('median');
+  // // const sampleIdIndex = data.data.columns.indexOf('sample-id');
 
-  const valueline = line()
-    .x(d => x(d[depthIndex]))
-    .y(d => y(d[medianIndex]))
-    .curve(curveCardinal);
+  // const valueline = line()
+  //   .x(d => x(d[depthIndex]))
+  //   .y(d => y(d[medianIndex]))
+  //   .curve(curveCardinal);
 
-  const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])];
+  // const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])];
 
-  console.log('renderPlot data: ', data);
+  // const color = scaleOrdinal(schemeCategory10)
+  //   .domain(keys(data[sampleIdIndex]).filter());
 
-  chart.append('path')
-    .data(points)
-    .attr('class', 'line')
-    .style('fill', 'none')
-    .style('stroke', 'blue')
-    .attr('d', valueline);
+  // chart.append('path')
+  //   .data(points)
+  //   .attr('class', 'line')
+  //   .style('fill', 'none')
+  //   .style('stroke', 'blue')
+  //   .attr('d', valueline);
 
-  chart.selectAll('dot')
-      .data(points)
-    .enter()
-      .append('circle')
-        .attr('cx', d => x(d[depthIndex]))
-        .attr('cy', d => y(d[medianIndex]))
-        .attr('r', 4)
-        .style('stroke', 'green');
-}
+  // chart.selectAll('dot')
+  //     .data(points)
+  //   .enter()
+  //     .append('circle')
+  //       .attr('cx', d => x(d[depthIndex]))
+  //       .attr('cy', d => y(d[medianIndex]))
+  //       .attr('r', 4)
+  //       .style('stroke', 'green');
+
+  // const samples = chart.selectAll('.sample')
+  //     .data(points)
+  //   .enter().append('g')
+  //     .attr('class', 'sample');
+
+  // samples.append('path')
+  //     .attr('class', 'line')
+  //     .attr('d', d => valueline(d.values));
+      // .style('stroke', d => color(d[sampleIdIndex]));
+// }
 
 export default function render(svg, data) {
-  console.log('render data: ', data);
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
   const chart = svg.select('g');
 
   const { xAxisLabel, yAxisLabel, minX, maxX, minY, maxY } = data;
-
-  console.log('render data (2): ', data);
 
   const xAxis = axisBottom();
   const yAxis = axisLeft();
@@ -74,7 +86,7 @@ export default function render(svg, data) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y);
+  // renderPlot(svg, data, x, y);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

@@ -220,8 +220,12 @@ def categorical_df(category, metadata_df, v, iterations):
     metadata_category = metadata_category.dropna()
     v[category] = [metadata_category[row.name[0]]
                    for _, row in v.iterrows()]
-    vc = v.groupby([category, 'depth'])
-    return non_categorical_df(vc, iterations)
+    rows = []
+    for name, group in v.groupby([category, 'depth']):
+        gr = group.iloc[:, 0:iterations-1]
+        depth = gr.index.tolist()[0][1]
+        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})
+    return pd.DataFrame(rows)
 
 
 def non_categorical_df(v, iterations):
@@ -229,7 +233,9 @@ def non_categorical_df(v, iterations):
     for name, group in v:
         gr = group.iloc[:, 0:iterations-1]
         depth = gr.index.tolist()[0][1]
-        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})
+        rows.append({**{'sample-id': gr.index.get_level_values(0)[0]},
+                     **{'depth': depth},
+                     **get_stats(gr.sum(axis=0))})
     return pd.DataFrame(rows)
 
 
@@ -294,12 +300,11 @@ def alpha_rarefaction(output_dir: str,
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-            vc = v.groupby(['depth'])
+            vc = v.groupby([v.index.get_level_values(0), 'depth'])
             n_df = non_categorical_df(vc, iterations)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)
-            filename = '%s.csv' % metric_name
         else:
             metadata_df = metadata.to_dataframe()
             categories = metadata_df.columns
