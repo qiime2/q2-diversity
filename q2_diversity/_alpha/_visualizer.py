@@ -102,7 +102,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                 table = kw_H_pairwise.to_html(classes="table table-striped "
                                               "table-hover")
                 table = table.replace('border="1"', 'border="0"')
-                fh.write(table.replace('\n', ''))
+                fh.write(table.replace('\n', '').replace("'", "\\'"))
                 fh.write("','%s', '%s');" % (quote(pairwise_fn), metric_name))
         else:
             filtered_categories.append(category)
