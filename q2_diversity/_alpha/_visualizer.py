@@ -224,7 +224,8 @@ def categorical_df(category, metadata_df, v, iterations):
     for name, group in v.groupby([category, 'depth']):
         gr = group.iloc[:, 0:iterations-1]
         depth = gr.index.tolist()[0][1]
-        rows.append({**{'depth': depth}, **get_stats(gr.sum(axis=0))})
+        rows.append({**{'depth': depth}, **{category: name[0]},
+                     **get_stats(gr.sum(axis=0))})
     return pd.DataFrame(rows)
 
 

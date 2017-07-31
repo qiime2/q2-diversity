@@ -8,24 +8,26 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
-function renderPlot(svg, data, x, y) {
+function renderPlot(svg, data, x, y, category) {
   const chart = svg.select('g');
 
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('median');
-  const sampleIdIndex = data.data.columns.indexOf('sample-id');
-  console.log(data);
+  let groupIndex = data.data.columns.indexOf('sample-id');
+  if (groupIndex === -1) {
+    groupIndex = data.data.columns.indexOf(category);
+  }
 
   // const valueline = line()
   //   .x(d => x(d[depthIndex]))
   //   .y(d => y(d[medianIndex]))
   //   .curve(curveCardinal);
 
-  const points = [data.data.data.sort((a, b) => a[0] - b[0])][0];
-  const ids = Array.from(points, d => d[0]);
-  const setIds = new Set(ids);
+  const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])][0];
+  const groups = Array.from(points, d => d[groupIndex]);
+  const setGroups = new Set(groups);
   const color = scaleOrdinal(schemeCategory10)
-    .domain(setIds);
+    .domain(setGroups);
   // chart.append('path')
   //   .data(points)
   //   .attr('class', 'line')
@@ -40,8 +42,8 @@ function renderPlot(svg, data, x, y) {
         .attr('cx', d => x(d[depthIndex]))
         .attr('cy', d => y(d[medianIndex]))
         .attr('r', 4)
-        .style('stroke', d => color(d[sampleIdIndex]))
-        .style('fill', d => color(d[sampleIdIndex]));
+        .style('stroke', d => color(d[groupIndex]))
+        .style('fill', d => color(d[groupIndex]));
 
   // const samples = chart.selectAll('.sample')
   //     .data(points)
@@ -54,7 +56,7 @@ function renderPlot(svg, data, x, y) {
   //     .style('stroke', d => color(d[sampleIdIndex]));
 }
 
-export default function render(svg, data) {
+export default function render(svg, data, category) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -83,7 +85,7 @@ export default function render(svg, data) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y);
+  renderPlot(svg, data, x, y, category);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

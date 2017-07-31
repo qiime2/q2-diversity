@@ -38,7 +38,7 @@ function updateData(metric, category, svg, href) {
     data = d[metric][category];
   }
   const preppedData = setupData(data, metric);
-  render(svg, preppedData);
+  render(svg, preppedData, category);
 }
 
 let curState = null;
