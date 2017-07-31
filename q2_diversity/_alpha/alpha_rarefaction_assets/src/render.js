@@ -34,8 +34,7 @@ function renderPlot(svg, data, x, y, category) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  chart.selectAll('g').selectAll('g').selectAll('text').remove();
-  chart.selectAll('g').selectAll('.legend').remove();
+  chart.selectAll('.legend').remove();
   const legend = chart.append('g')
     .attr('class', 'legend')
     .attr('x', 0)
