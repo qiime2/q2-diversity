@@ -3,7 +3,6 @@
 import render from './render'; // warning, stats
 
 export default function setupData(data, metric) {
-  console.log('setupData: ', data);
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
 
   let minX = Infinity;
@@ -37,7 +36,6 @@ function updateData(metric, category, svg, href) {
   let data = d[metric];
   if (category) {
     data = d[metric][category];
-    console.log('metric: ', metric, ' category: ', category, 'd', d);
   }
   const preppedData = setupData(data, metric);
   render(svg, preppedData);
