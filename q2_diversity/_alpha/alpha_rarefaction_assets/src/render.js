@@ -13,8 +13,6 @@ import { setupXLabel, setupYLabel } from './axis';
 
 function renderPlot(svg, data, x, y) {
   const chart = svg.select('g');
-  chart.selectAll('path').remove();
-  chart.selectAll('dot').remove();
 
   // const depthIndex = data.data.columns.indexOf('depth');
   // const medianIndex = data.data.columns.indexOf('median');
@@ -36,7 +34,7 @@ function renderPlot(svg, data, x, y) {
   //   .style('fill', 'none')
   //   .style('stroke', 'blue')
   //   .attr('d', valueline);
-
+  chart.selectAll('circle').remove();
   chart.selectAll('dot')
       .data(points)
     .enter()
