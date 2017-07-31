@@ -37,7 +37,7 @@ function updateData(metric, category, svg, href) {
   let data = d[metric];
   if (category) {
     data = d[metric][category];
-    console.log('metric: ', metric, ' category: ', category, 'data[metric]', d[metric]);
+    console.log('metric: ', metric, ' category: ', category, 'd', d);
   }
   const preppedData = setupData(data, metric);
   render(svg, preppedData);

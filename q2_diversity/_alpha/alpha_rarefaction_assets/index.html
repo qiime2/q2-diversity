@@ -16,7 +16,9 @@
 	var metrics = {{ metrics | safe }};
 	function load_data(metric, category, data) {
 		if (category) {
-			d[metric] = {};
+			if (!d[metric]) {
+				d[metric] = {};
+			}
 			d[metric][category] = data;
 		} else {
 			d[metric] = data;

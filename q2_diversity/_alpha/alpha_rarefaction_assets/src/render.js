@@ -11,21 +11,21 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
-// function renderPlot(svg, data, x, y) {
-  // const chart = svg.select('g');
-  // chart.selectAll('path').remove();
-  // chart.selectAll('dot').remove();
+function renderPlot(svg, data, x, y) {
+  const chart = svg.select('g');
+  chart.selectAll('path').remove();
+  chart.selectAll('dot').remove();
 
   // const depthIndex = data.data.columns.indexOf('depth');
   // const medianIndex = data.data.columns.indexOf('median');
-  // // const sampleIdIndex = data.data.columns.indexOf('sample-id');
+  // const sampleIdIndex = data.data.columns.indexOf('sample-id');
 
   // const valueline = line()
   //   .x(d => x(d[depthIndex]))
   //   .y(d => y(d[medianIndex]))
   //   .curve(curveCardinal);
 
-  // const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])];
+  const points = [data.data.data.sort((a, b) => a[0] - b[0])][0];
 
   // const color = scaleOrdinal(schemeCategory10)
   //   .domain(keys(data[sampleIdIndex]).filter());
@@ -37,14 +37,14 @@ import { setupXLabel, setupYLabel } from './axis';
   //   .style('stroke', 'blue')
   //   .attr('d', valueline);
 
-  // chart.selectAll('dot')
-  //     .data(points)
-  //   .enter()
-  //     .append('circle')
-  //       .attr('cx', d => x(d[depthIndex]))
-  //       .attr('cy', d => y(d[medianIndex]))
-  //       .attr('r', 4)
-  //       .style('stroke', 'green');
+  chart.selectAll('dot')
+      .data(points)
+    .enter()
+      .append('circle')
+        .attr('cx', d => x(d[0]))
+        .attr('cy', d => y(d[3]))
+        .attr('r', 4)
+        .style('stroke', 'green');
 
   // const samples = chart.selectAll('.sample')
   //     .data(points)
@@ -54,8 +54,8 @@ import { setupXLabel, setupYLabel } from './axis';
   // samples.append('path')
   //     .attr('class', 'line')
   //     .attr('d', d => valueline(d.values));
-      // .style('stroke', d => color(d[sampleIdIndex]));
-// }
+  //     .style('stroke', d => color(d[sampleIdIndex]));
+}
 
 export default function render(svg, data) {
   const height = 400;
@@ -86,7 +86,7 @@ export default function render(svg, data) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  // renderPlot(svg, data, x, y);
+  renderPlot(svg, data, x, y);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
