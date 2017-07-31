@@ -2,6 +2,8 @@ import {
   scaleLinear,
   axisBottom,
   axisLeft,
+  scaleOrdinal,
+  schemeCategory10,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
@@ -12,6 +14,7 @@ function renderPlot(svg, data, x, y) {
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('median');
   const sampleIdIndex = data.data.columns.indexOf('sample-id');
+  console.log(data);
 
   // const valueline = line()
   //   .x(d => x(d[depthIndex]))
@@ -19,11 +22,10 @@ function renderPlot(svg, data, x, y) {
   //   .curve(curveCardinal);
 
   const points = [data.data.data.sort((a, b) => a[0] - b[0])][0];
-
-  // const color = scaleOrdinal(schemeCategory10);
-  const ids = Array.from(data.data.data[0], d => d[sampleIdIndex]);
+  const ids = Array.from(points, d => d[0]);
   const setIds = new Set(ids);
-  console.log('groups: ', setIds, 'ids: ', ids);
+  const color = scaleOrdinal(schemeCategory10)
+    .domain(setIds);
   // chart.append('path')
   //   .data(points)
   //   .attr('class', 'line')
@@ -38,7 +40,8 @@ function renderPlot(svg, data, x, y) {
         .attr('cx', d => x(d[depthIndex]))
         .attr('cy', d => y(d[medianIndex]))
         .attr('r', 4)
-        .style('stroke', 'blue');
+        .style('stroke', d => color(d[sampleIdIndex]))
+        .style('fill', d => color(d[sampleIdIndex]));
 
   // const samples = chart.selectAll('.sample')
   //     .data(points)
