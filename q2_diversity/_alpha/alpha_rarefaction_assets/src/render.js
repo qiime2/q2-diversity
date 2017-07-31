@@ -18,22 +18,11 @@ function renderPlot(svg, data, x, y, category) {
     groupIndex = data.data.columns.indexOf(category);
   }
 
-  // const valueline = line()
-  //   .x(d => x(d[depthIndex]))
-  //   .y(d => y(d[medianIndex]))
-  //   .curve(curveCardinal);
-
   const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])][0];
-  const groups = Array.from(points, d => d[groupIndex]);
-  const setGroups = new Set(groups);
+  const setGroups = new Set(Array.from(points, d => d[groupIndex]));
   const color = scaleOrdinal(schemeCategory10)
     .domain(setGroups);
-  // chart.append('path')
-  //   .data(points)
-  //   .attr('class', 'line')
-  //   .style('fill', 'none')
-  //   .style('stroke', 'blue')
-  //   .attr('d', valueline);
+
   chart.selectAll('circle').remove();
   chart.selectAll('dot')
       .data(points)
@@ -45,15 +34,26 @@ function renderPlot(svg, data, x, y, category) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  // const samples = chart.selectAll('.sample')
-  //     .data(points)
-  //   .enter().append('g')
-  //     .attr('class', 'sample');
-
-  // samples.append('path')
-  //     .attr('class', 'line')
-  //     .attr('d', d => valueline(d.values));
-  //     .style('stroke', d => color(d[sampleIdIndex]));
+  chart.selectAll('g').selectAll('g').selectAll('text').remove();
+  chart.selectAll('g').selectAll('.legend').remove();
+  const legend = chart.append('g')
+    .attr('class', 'legend')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('overflow', 'scroll')
+    .style('border', '3px solid black')
+    .attr('height', 100)
+    .attr('width', 110);
+  legend.selectAll('g')
+        .data(Array.from(setGroups))
+      .enter()
+        .append('text')
+          .attr('x', 25)
+          .attr('y', (d, i) => (i * 25) + 8)
+          .attr('height', 15)
+          .attr('width', 100)
+          .style('fill', d => color(d))
+          .text(d => d);
 }
 
 export default function render(svg, data, category) {
