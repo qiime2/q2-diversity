@@ -261,10 +261,19 @@ def alpha_rarefaction(output_dir: str,
     warnings = []
     filenames = []
     categories = []
+    _metrics = []
     for m in metrics:
         if m not in non_phylogenetic_metrics():
             warnings.append("Warning: requested metric %s "
                             "not a known metric." % m)
+        elif m in [ 'osd', 'lladser_ci', 'strong', 'esty_ci',
+                  'kempton_taylor_q', 'chao1_ci' ]:
+            warnings.append("Warning: requested metric %s "
+                            "not an integer-valued metric."
+                            % m)
+        else:
+            _metrics.append(m)
+    metrics = _metrics
 
     # TODO: replace these casts with input validation
     max_depth = int(min(max_depth, feature_table.nnz))
@@ -308,6 +317,7 @@ def alpha_rarefaction(output_dir: str,
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
+            metadata_df = metadata_df.select_dtypes(exclude=[np.number])
             categories = metadata_df.columns
             for category in categories:
                 category_name = quote(category)

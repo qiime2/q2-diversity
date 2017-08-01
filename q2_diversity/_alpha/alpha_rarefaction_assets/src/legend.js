@@ -1,3 +1,3 @@
-export default function plotLegend(legend) {
-  legend.style('fill', 'green');
+export default function plotLegend() {
+  console.log('banana');
 }

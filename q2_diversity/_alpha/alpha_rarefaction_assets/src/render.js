@@ -17,7 +17,6 @@ function renderPlot(svg, data, x, y, category) {
   if (groupIndex === -1) {
     groupIndex = data.data.columns.indexOf(category);
   }
-
   const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])][0];
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
   const color = scaleOrdinal(schemeCategory10)
@@ -33,10 +32,9 @@ function renderPlot(svg, data, x, y, category) {
         .attr('r', 4)
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
-  // const setArray = Array.from(setGroups);
 }
 
-export default function render(svg, data, category, legend) {
+export default function render(svg, data, category) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -62,9 +60,6 @@ export default function render(svg, data, category, legend) {
 
   chart.attr('transform', `translate(${margin.left},${margin.top})`);
 
-  // legend.attr('transform', `translate(${margin.left + width},${margin.top})`)
-  //   .style('fill', 'lightBlue');
-
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
@@ -72,15 +67,4 @@ export default function render(svg, data, category, legend) {
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
-
-  // legend.attr('width', width + margin.left + margin.right)
-  //   .attr('height', height + margin.bottom + margin.top);
 }
-
-// export function stats(body, data) {
-//   const { stats: { method, testStat, pVal, sampleSize } } = data;
-//   select('#method').text(method);
-//   select('#test-stat').text(testStat);
-//   select('#p-val').html(pVal);
-//   select('#sample-size').html(sampleSize);
-// }
