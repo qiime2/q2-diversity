@@ -25,9 +25,10 @@ export default function init() {
   chart.append('g').attr('class', 'y axis');
   chart.append('text').attr('class', 'x label');
   chart.append('text').attr('class', 'y label');
+  const legend = svgRow.append('div').attr('class', 'col-lg-12').append('svg');
 
   // D3
-  state.initialize(metric, category, controlsRow, svg);
+  state.initialize(metric, category, controlsRow, svg, legend);
   addMetricPicker(controlsRow, metrics, metric);
   if (categories.length > 0) {
     addCategoryPicker(controlsRow, categories, category);

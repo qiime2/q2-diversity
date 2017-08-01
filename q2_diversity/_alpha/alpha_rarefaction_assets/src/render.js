@@ -33,30 +33,10 @@ function renderPlot(svg, data, x, y, category) {
         .attr('r', 4)
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
-
-  chart.selectAll('foreignObject').remove();
-  const legend = chart.append('foreignObject')
-    .attr('class', 'legendBox')
-    .style('outline', '1px solid tomato')
-    .style('width', '110px')
-    .style('height', '130px')
-    .style('float', 'left')
-    .style('position', 'relative')
-    .style('clear', 'both')
-    .append('xhtml:div')
-      .style('position', 'absolute')
-      .style('overflow', 'auto')
-      .style('width', '100%')
-      .style('height', '100%')
-      .append('xhtml:ul');
-  for (const value of Array.from(setGroups)) {
-    legend.append('xhtml:li')
-      .style('color', color(value))
-      .text(value);
-  }
+  // const setArray = Array.from(setGroups);
 }
 
-export default function render(svg, data, category) {
+export default function render(svg, data, category, legend) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -82,6 +62,9 @@ export default function render(svg, data, category) {
 
   chart.attr('transform', `translate(${margin.left},${margin.top})`);
 
+  // legend.attr('transform', `translate(${margin.left + width},${margin.top})`)
+  //   .style('fill', 'lightBlue');
+
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
@@ -89,6 +72,9 @@ export default function render(svg, data, category) {
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
+
+  // legend.attr('width', width + margin.left + margin.right)
+  //   .attr('height', height + margin.bottom + margin.top);
 }
 
 // export function stats(body, data) {
