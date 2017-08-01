@@ -34,37 +34,29 @@ function renderPlot(svg, data, x, y, category) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  chart.selectAll('g').selectAll('.scroll').remove();
-  const legend = chart.append('svg')
-    .attr('class', 'scroll')
-    .attr('width', 100)
-    .attr('height', 100)
-    // .style('width', '100px')
-    // .style('height', '100px')
-    .style('overflow-y', 'auto');
-  const key = legend.append('g')
-    .attr('x', 5)
-    .attr('y', 5)
-    .attr('height', 100)
-    .attr('width', 100);
+  chart.selectAll('foreignObject').remove();
+  const legend = chart.append('foreignObject')
+    .attr('class', 'legendBox')
+    .style('outline', '1px solid tomato')
+    .style('width', '110px')
+    .style('height', '130px')
+    .style('float', 'left')
+    .style('overflow', 'auto')
+    .append('svg')
+      .style('width', '100px')
+      .style('height', '500px')
+      .style('outline', '1px solid blue')
+      .style('float', 'left')
+      .style('margin', '5px');
+  const key = legend.append('g');
   key.selectAll('g')
     .data(Array.from(setGroups))
     .enter()
       .append('text')
-        .attr('x', 0)
-        .attr('y', (d, i) => (i * 15))
-        .attr('height', 15)
-        .attr('width', 100)
-        .style('height', '15px')
-        .style('width', '100px')
+        .attr('y', (d, i) => (i * 15) + 15)
         .style('stroke', d => color(d))
         .style('fill', d => color(d))
         .text(d => d);
-  chart.append('rect')
-    .attr('width', 100)
-    .attr('height', 100)
-    .style('fill', 'none')
-    .style('stroke', 'lightBlue');
 }
 
 export default function render(svg, data, category) {
