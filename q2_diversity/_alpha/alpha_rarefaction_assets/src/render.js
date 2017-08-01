@@ -34,15 +34,18 @@ function renderPlot(svg, data, x, y, category) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  chart.selectAll('.legend').remove();
-  const legend = chart.append('g')
+  chart.selectAll('.legendBox').remove();
+  const legendBox = chart.append('rect')
+      .attr('width', 100)
+      .attr('height', 300)
+      .attr('stroke', 'lightBlue');
+  const legend = legendBox.append('g')
     .attr('class', 'legend')
     .attr('x', 0)
     .attr('y', 0)
     .attr('overflow', 'scroll')
-    .style('border', '3px solid black')
     .attr('height', 100)
-    .attr('width', 110);
+    .attr('width', 410);
   legend.selectAll('g')
         .data(Array.from(setGroups))
       .enter()
@@ -52,6 +55,7 @@ function renderPlot(svg, data, x, y, category) {
           .attr('height', 15)
           .attr('width', 100)
           .style('fill', d => color(d))
+          .style('overflow', 'auto')
           .text(d => d);
 }
 
