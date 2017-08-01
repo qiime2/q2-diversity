@@ -41,22 +41,19 @@ function renderPlot(svg, data, x, y, category) {
     .style('width', '110px')
     .style('height', '130px')
     .style('float', 'left')
-    .style('overflow', 'auto')
-    .append('svg')
-      .style('width', '100px')
-      .style('height', '500px')
-      .style('outline', '1px solid blue')
-      .style('float', 'left')
-      .style('margin', '5px');
-  const key = legend.append('g');
-  key.selectAll('g')
-    .data(Array.from(setGroups))
-    .enter()
-      .append('text')
-        .attr('y', (d, i) => (i * 15) + 15)
-        .style('stroke', d => color(d))
-        .style('fill', d => color(d))
-        .text(d => d);
+    .style('position', 'relative')
+    .style('clear', 'both')
+    .append('xhtml:div')
+      .style('position', 'absolute')
+      .style('overflow', 'auto')
+      .style('width', '100%')
+      .style('height', '100%')
+      .append('xhtml:ul');
+  for (const value of Array.from(setGroups)) {
+    legend.append('xhtml:li')
+      .style('color', color(value))
+      .text(value);
+  }
 }
 
 export default function render(svg, data, category) {
