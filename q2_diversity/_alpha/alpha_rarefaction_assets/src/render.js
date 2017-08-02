@@ -34,28 +34,34 @@ function renderPlot(svg, data, x, y, category) {
         .style('fill', d => color(d[groupIndex]));
 
   chart.selectAll('.legend').remove();
-
+  const legend = chart.append('svg')
+    .attr('x', 1020)
+    .attr('width', 400)
+    .attr('height', 400)
+    .attr('viewBox', '0 0 400 400')
+    .style('overflow', 'auto')
+    .attr('class', 'legend');
   for (const [i, entry] of Array.from(setGroups).entries()) {
     const ly = (i * 20);
     const c = color(entry);
-    chart.append('rect')
+    legend.append('rect')
       .attr('class', 'legend')
-      .attr('x', 1050)
+      .attr('x', 0)
       .attr('y', ly - 2.5)
       .attr('width', 15)
       .attr('height', 5)
       .style('stroke', 'darkGrey')
       .style('fill', 'white');
-    chart.append('circle')
+    legend.append('circle')
       .attr('class', 'legend')
-      .attr('cx', 1080)
+      .attr('cx', 30)
       .attr('cy', ly)
       .attr('r', 5)
       .style('stroke', 'darkGrey')
       .style('fill', c);
-    chart.append('text')
+    legend.append('text')
       .attr('class', 'legend')
-      .attr('x', 1090)
+      .attr('x', 60)
       .attr('y', ly + 5)
       .style('font', '10px sans-serif')
       .text(entry);
