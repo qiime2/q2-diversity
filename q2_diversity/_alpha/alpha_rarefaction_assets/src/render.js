@@ -9,25 +9,30 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
+// toggle visibility of dots in the chart for a group
 function toggleDots(entry) {
   // toggle the dots on the chart
   console.log(entry);
 }
 
+// toggle visibility of a line in the chart for a group
 function toggleLine(entry) {
   // toggle the line in the entry
   console.log(entry);
 }
 
+// used to toggle the color of the item in the legend
 function toggleColor(d, shape, c) {
   const clickedLegend = select(`#id${shape}${d}`);
   const isSelected = (clickedLegend.style('fill') !== 'white');
   clickedLegend.style('fill', isSelected ? 'white' : c);
 }
 
+// add a key to the legend
 function appendLegendKey(legend, i, entry, ly, c) {
+  // line toggle in the legend
   legend.append('rect')
-      .attr('id', d => `idrect${d}`)
+      .attr('id', `idrect${entry}`)
       .attr('class', 'legend')
       .attr('x', 0)
       .attr('y', ly - 2.5)
@@ -35,22 +40,24 @@ function appendLegendKey(legend, i, entry, ly, c) {
       .attr('height', 5)
       .style('stroke', 'darkGrey')
       .style('fill', 'white')
-      .on('click', (d) => {
-        toggleColor(d, 'rect', c);
+      .on('click', () => {
+        toggleColor(entry, 'rect', c);
         toggleLine(entry);
       });
+  // dot toggle in the legend
   legend.append('circle')
-      .attr('id', d => `idcircle${d}`)
+      .attr('id', `idcircle${entry}`)
       .attr('class', 'legend')
       .attr('cx', 30)
       .attr('cy', ly)
       .attr('r', 5)
       .style('stroke', 'darkGrey')
       .style('fill', c)
-      .on('click', (d) => {
-        toggleColor(d, 'circle', c);
+      .on('click', () => {
+        toggleColor(entry, 'circle', c);
         toggleDots(entry);
       });
+  // text for key in the legend
   legend.append('text')
       .attr('class', 'legend')
       .attr('x', 40)
