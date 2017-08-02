@@ -9,6 +9,30 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
+function appendLegendKey(legend, i, entry, ly, c) {
+  legend.append('rect')
+      .attr('class', 'legend')
+      .attr('x', 0)
+      .attr('y', ly - 2.5)
+      .attr('width', 15)
+      .attr('height', 5)
+      .style('stroke', 'darkGrey')
+      .style('fill', 'white');
+  legend.append('circle')
+      .attr('class', 'legend')
+      .attr('cx', 30)
+      .attr('cy', ly)
+      .attr('r', 5)
+      .style('stroke', 'darkGrey')
+      .style('fill', c);
+  legend.append('text')
+      .attr('class', 'legend')
+      .attr('x', 40)
+      .attr('y', ly + 5)
+      .style('font', '10px sans-serif')
+      .text(entry);
+}
+
 function renderPlot(svg, data, x, y, category, legend) {
   const chart = svg.select('g');
 
@@ -38,32 +62,14 @@ function renderPlot(svg, data, x, y, category, legend) {
   const arrGroups = Array.from(setGroups);
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
+  const legendBox = select(legend.node().parentNode);
+  appendLegendKey(legendBox, 0, 'Select All', 10, 'black');
   for (const [i, entry] of arrGroups.entries()) {
-    ly = i * 20;
+    ly = (i + 1.5) * 20;
     const c = color(entry);
-    legend.append('rect')
-      .attr('class', 'legend')
-      .attr('x', 0)
-      .attr('y', ly - 2.5)
-      .attr('width', 15)
-      .attr('height', 5)
-      .style('stroke', 'darkGrey')
-      .style('fill', 'white');
-    legend.append('circle')
-      .attr('class', 'legend')
-      .attr('cx', 30)
-      .attr('cy', ly)
-      .attr('r', 5)
-      .style('stroke', 'darkGrey')
-      .style('fill', c);
-    legend.append('text')
-      .attr('class', 'legend')
-      .attr('x', 40)
-      .attr('y', ly + 5)
-      .style('font', '10px sans-serif')
-      .text(entry);
+    appendLegendKey(legend, i + 1, entry, ly, c);
   }
-  select(legend.node().parentNode).attr('viewBox', `0 0 200 ${ly + 10}`);
+  legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
 
 export default function render(svg, data, category, legend) {
