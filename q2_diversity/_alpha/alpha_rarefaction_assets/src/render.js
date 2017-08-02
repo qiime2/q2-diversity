@@ -4,11 +4,12 @@ import {
   axisLeft,
   scaleOrdinal,
   schemeCategory10,
+  select,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
 
-function renderPlot(svg, data, x, y, category) {
+function renderPlot(svg, data, x, y, category, legend) {
   const chart = svg.select('g');
 
   const depthIndex = data.data.columns.indexOf('depth');
@@ -33,20 +34,12 @@ function renderPlot(svg, data, x, y, category) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  chart.selectAll('.legend').remove();
+  legend.selectAll('.legend').remove();
   const arrGroups = Array.from(setGroups);
-  const legend = chart.append('svg')
-    .attr('x', 1020)
-    .attr('y', 0)
-    .attr('width', 400)
-    .attr('height', arrGroups.length * 20)
-    .attr('viewBox', '0 0 400 400')
-    .style('overflow-y', 'scroll')
-    .attr('class', 'legend')
-    .append('g');
+  legend.attr('height', arrGroups.length * 20);
   let ly = 0;
   for (const [i, entry] of arrGroups.entries()) {
-    ly = (i - 1) * 20;
+    ly = i * 20;
     const c = color(entry);
     legend.append('rect')
       .attr('class', 'legend')
@@ -70,9 +63,10 @@ function renderPlot(svg, data, x, y, category) {
       .style('font', '10px sans-serif')
       .text(entry);
   }
+  select(legend.node().parentNode).attr('viewBox', `0 0 200 ${ly + 10}`);
 }
 
-export default function render(svg, data, category) {
+export default function render(svg, data, category, legend) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -101,7 +95,7 @@ export default function render(svg, data, category) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y, category);
+  renderPlot(svg, data, x, y, category, legend);
 
   svg.attr('width', 1400 + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

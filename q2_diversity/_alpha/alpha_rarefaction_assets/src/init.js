@@ -16,17 +16,26 @@ export default function init() {
   const plotRow = body.insert('div', ':first-child').attr('class', 'viz row');
   const plotDiv = plotRow.append('div').attr('class', 'col-lg-12');
   const controlsRow = plotDiv.append('div').attr('class', 'controls row');
-  const svgRow = plotDiv.append('div').attr('class', 'plot row');
-  const svgCol = svgRow.append('div').attr('class', 'col-lg-12');
+  const svgCol = plotRow.append('div').attr('class', 'col-lg-10');
   const svg = svgCol.append('svg');
   const chart = svg.append('g');
-  body.insert('h1', ':first-child').text('Alpha Rarefaction');
   chart.append('g').attr('class', 'x axis');
   chart.append('g').attr('class', 'y axis');
   chart.append('text').attr('class', 'x label');
   chart.append('text').attr('class', 'y label');
+  const legend = plotRow.append('div')
+                       .attr('class', 'col-lg-2')
+                       .style('height', '450px')
+                       .style('float', 'left')
+                       .style('overflow-y', 'scroll')
+                       .style('overflow-x', 'auto')
+                       .append('svg')
+                       .attr('viewBox', '0 0 200 1000')
+                       .attr('class', 'legend')
+                       .append('g');
+  body.insert('h1', ':first-child').text('Alpha Rarefaction');
   // D3
-  state.initialize(metric, category, controlsRow, svg);
+  state.initialize(metric, category, controlsRow, svg, legend);
   addMetricPicker(controlsRow, metrics, metric);
   if (categories.length > 0) {
     addCategoryPicker(controlsRow, categories, category);
