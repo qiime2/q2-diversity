@@ -33,15 +33,31 @@ function renderPlot(svg, data, x, y, category, legend) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  legend.selectAll('text')
-    .remove();
-  legend.selectAll('key')
-      .data(Array.from(setGroups))
-    .enter()
-      .append('text')
-        .attr('y', (d, i) => (i * 15) + 15)
-        .attr('x', 10)
-        .text(d => d);
+  legend.selectAll('text').remove();
+  legend.selectAll('circle').remove();
+  legend.selectAll('rect').remove();
+
+  for (const [i, entry] of Array.from(setGroups).entries()) {
+    const ly = (i * 20) + 15;
+    const c = color(entry);
+    legend.append('rect')
+      .attr('x', 0)
+      .attr('y', ly)
+      .attr('width', 15)
+      .attr('height', 5)
+      .style('stroke', 'darkGrey')
+      .style('fill', 'white');
+    legend.append('circle')
+      .attr('cx', 30)
+      .attr('cy', ly)
+      .attr('r', 5)
+      .style('stroke', 'darkGrey')
+      .style('fill', c);
+    legend.append('text')
+      .attr('y', ly)
+      .attr('x', 40)
+      .text(entry);
+  }
 }
 
 export default function render(svg, data, category, legend) {

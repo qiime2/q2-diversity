@@ -69,11 +69,11 @@ class State {
   }
   setCategory(c) {
     this.category = c;
-    updateData(this.metric, this.category, this.svg, this.href);
+    updateData(this.metric, this.category, this.svg, this.href, this.legend);
   }
   setMetric(m) {
     this.metric = m;
-    updateData(this.metric, this.category, this.svg, this.href);
+    updateData(this.metric, this.category, this.svg, this.href, this.legend);
   }
   getCategory() {
     return this.category;

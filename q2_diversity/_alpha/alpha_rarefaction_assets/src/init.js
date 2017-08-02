@@ -31,7 +31,7 @@ export default function init() {
     .attr('id', 'legendContainer')
     .style('height', chart.height)
     .style('border', '2px solid cyan')
-    .style('x', '1200px')
+    .style('x', '1500px')
     .append('svg')
       .append('g');
 
