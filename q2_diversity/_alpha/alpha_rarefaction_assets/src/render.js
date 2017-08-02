@@ -57,6 +57,7 @@ function renderPlot(svg, data, x, y, category) {
       .attr('class', 'legend')
       .attr('x', 1090)
       .attr('y', ly + 5)
+      .style('font', '10px sans-serif')
       .text(entry);
   }
 }
