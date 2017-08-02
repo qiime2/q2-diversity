@@ -34,15 +34,19 @@ function renderPlot(svg, data, x, y, category) {
         .style('fill', d => color(d[groupIndex]));
 
   chart.selectAll('.legend').remove();
+  const arrGroups = Array.from(setGroups);
   const legend = chart.append('svg')
     .attr('x', 1020)
+    .attr('y', 0)
     .attr('width', 400)
-    .attr('height', 400)
+    .attr('height', arrGroups.length * 20)
     .attr('viewBox', '0 0 400 400')
-    .style('overflow', 'auto')
-    .attr('class', 'legend');
-  for (const [i, entry] of Array.from(setGroups).entries()) {
-    const ly = (i * 20);
+    .style('overflow-y', 'scroll')
+    .attr('class', 'legend')
+    .append('g');
+  let ly = 0;
+  for (const [i, entry] of arrGroups.entries()) {
+    ly = (i - 1) * 20;
     const c = color(entry);
     legend.append('rect')
       .attr('class', 'legend')
@@ -61,7 +65,7 @@ function renderPlot(svg, data, x, y, category) {
       .style('fill', c);
     legend.append('text')
       .attr('class', 'legend')
-      .attr('x', 60)
+      .attr('x', 40)
       .attr('y', ly + 5)
       .style('font', '10px sans-serif')
       .text(entry);
