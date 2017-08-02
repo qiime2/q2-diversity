@@ -31,14 +31,14 @@ export default function setupData(data, metric) {
   };
 }
 
-function updateData(metric, category, svg, href, legend) {
+function updateData(metric, category, svg, href) {
   href.attr('href', `${metric}.csv`);
   let data = d[metric];
   if (category) {
     data = d[metric][category];
   }
   const preppedData = setupData(data, metric);
-  render(svg, preppedData, category, legend);
+  render(svg, preppedData, category);
 }
 
 let curState = null;
@@ -51,10 +51,9 @@ class State {
     this.metric = '';
     this.svg = null;
     this.href = null;
-    this.legend = null;
     return curState;
   }
-  initialize(metric, category, row, svg, legend) {
+  initialize(metric, category, row, svg) {
     // CONTROLS
     const downloadDiv = row.append('div')
       .attr('class', 'col-lg-2 form-group downloadCSV');
@@ -64,16 +63,15 @@ class State {
     this.svg = svg;
     this.metric = metric;
     this.category = category;
-    this.legend = legend;
-    updateData(metric, category, this.svg, this.href, this.legend);
+    updateData(metric, category, this.svg, this.href);
   }
   setCategory(c) {
     this.category = c;
-    updateData(this.metric, this.category, this.svg, this.href, this.legend);
+    updateData(this.metric, this.category, this.svg, this.href);
   }
   setMetric(m) {
     this.metric = m;
-    updateData(this.metric, this.category, this.svg, this.href, this.legend);
+    updateData(this.metric, this.category, this.svg, this.href);
   }
   getCategory() {
     return this.category;

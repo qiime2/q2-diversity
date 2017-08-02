@@ -8,7 +8,7 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
-function renderPlot(svg, data, x, y, category, legend) {
+function renderPlot(svg, data, x, y, category) {
   const chart = svg.select('g');
 
   const depthIndex = data.data.columns.indexOf('depth');
@@ -33,34 +33,35 @@ function renderPlot(svg, data, x, y, category, legend) {
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
 
-  legend.selectAll('text').remove();
-  legend.selectAll('circle').remove();
-  legend.selectAll('rect').remove();
+  chart.selectAll('.legend').remove();
 
   for (const [i, entry] of Array.from(setGroups).entries()) {
-    const ly = (i * 20) + 15;
+    const ly = (i * 20);
     const c = color(entry);
-    legend.append('rect')
-      .attr('x', 0)
-      .attr('y', ly)
+    chart.append('rect')
+      .attr('class', 'legend')
+      .attr('x', 1050)
+      .attr('y', ly - 2.5)
       .attr('width', 15)
       .attr('height', 5)
       .style('stroke', 'darkGrey')
       .style('fill', 'white');
-    legend.append('circle')
-      .attr('cx', 30)
+    chart.append('circle')
+      .attr('class', 'legend')
+      .attr('cx', 1080)
       .attr('cy', ly)
       .attr('r', 5)
       .style('stroke', 'darkGrey')
       .style('fill', c);
-    legend.append('text')
-      .attr('y', ly)
-      .attr('x', 40)
+    chart.append('text')
+      .attr('class', 'legend')
+      .attr('x', 1090)
+      .attr('y', ly + 5)
       .text(entry);
   }
 }
 
-export default function render(svg, data, category, legend) {
+export default function render(svg, data, category) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -89,8 +90,8 @@ export default function render(svg, data, category, legend) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y, category, legend);
+  renderPlot(svg, data, x, y, category);
 
-  svg.attr('width', width + margin.left + margin.right)
+  svg.attr('width', 1400 + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
 }
