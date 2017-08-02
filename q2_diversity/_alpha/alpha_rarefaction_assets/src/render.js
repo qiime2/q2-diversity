@@ -22,17 +22,23 @@ function toggleLine(entry) {
 }
 
 // used to toggle the color of the item in the legend
-function toggleColor(d, shape, c) {
-  const clickedLegend = select(`#id${shape}${d}`);
+function toggleColor(entry, shape, c, color, entries) {
+  const clickedLegend = select(`#id${shape}${entry.replace(' ', '-')}`);
   const isSelected = (clickedLegend.style('fill') !== 'white');
-  clickedLegend.style('fill', isSelected ? 'white' : c);
+  const newColor = isSelected ? 'white' : c;
+  clickedLegend.style('fill', newColor);
+  if (entry === 'Select All') {
+    for (const e of entries) {
+      select(`#id${shape}${e.replace(' ', '-')}`).style('fill', isSelected ? 'white' : color(e));
+    }
+  }
 }
 
 // add a key to the legend
-function appendLegendKey(legend, i, entry, ly, c) {
+function appendLegendKey(legend, i, entry, ly, c, color, entries) {
   // line toggle in the legend
   legend.append('rect')
-      .attr('id', `idrect${entry}`)
+      .attr('id', `idrect${entry.replace(' ', '-')}`)
       .attr('class', 'legend')
       .attr('x', 0)
       .attr('y', ly - 2.5)
@@ -41,12 +47,12 @@ function appendLegendKey(legend, i, entry, ly, c) {
       .style('stroke', 'darkGrey')
       .style('fill', 'white')
       .on('click', () => {
-        toggleColor(entry, 'rect', c);
+        toggleColor(entry, 'rect', c, color, entries);
         toggleLine(entry);
       });
   // dot toggle in the legend
   legend.append('circle')
-      .attr('id', `idcircle${entry}`)
+      .attr('id', `idcircle${entry.replace(' ', '-')}`)
       .attr('class', 'legend')
       .attr('cx', 30)
       .attr('cy', ly)
@@ -54,7 +60,7 @@ function appendLegendKey(legend, i, entry, ly, c) {
       .style('stroke', 'darkGrey')
       .style('fill', c)
       .on('click', () => {
-        toggleColor(entry, 'circle', c);
+        toggleColor(entry, 'circle', c, color, entries);
         toggleDots(entry);
       });
   // text for key in the legend
@@ -66,6 +72,7 @@ function appendLegendKey(legend, i, entry, ly, c) {
       .text(entry);
 }
 
+// re-render chart and legend whenever selection changes
 function renderPlot(svg, data, x, y, category, legend) {
   const chart = svg.select('g');
 
@@ -96,15 +103,16 @@ function renderPlot(svg, data, x, y, category, legend) {
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
   const legendBox = select(legend.node().parentNode);
-  appendLegendKey(legendBox, 0, 'Select All', 10, 'black');
+  appendLegendKey(legendBox, 0, 'Select All', 10, 'black', color, arrGroups);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 1.5) * 20;
     const c = color(entry);
-    appendLegendKey(legend, i + 1, entry, ly, c);
+    appendLegendKey(legend, i + 1, entry, ly, c, color, arrGroups);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
 
+// re-render chart edges, exis, formatting, etc. when selection changes
 export default function render(svg, data, category, legend) {
   const height = 400;
   const width = 1000;
