@@ -8,7 +8,7 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
-function renderPlot(svg, data, x, y, category) {
+function renderPlot(svg, data, x, y, category, legend) {
   const chart = svg.select('g');
 
   const depthIndex = data.data.columns.indexOf('depth');
@@ -32,9 +32,19 @@ function renderPlot(svg, data, x, y, category) {
         .attr('r', 4)
         .style('stroke', d => color(d[groupIndex]))
         .style('fill', d => color(d[groupIndex]));
+
+  legend.selectAll('text')
+    .remove();
+  legend.selectAll('key')
+      .data(Array.from(setGroups))
+    .enter()
+      .append('text')
+        .attr('y', (d, i) => (i * 15) + 15)
+        .attr('x', 10)
+        .text(d => d);
 }
 
-export default function render(svg, data, category) {
+export default function render(svg, data, category, legend) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -63,7 +73,7 @@ export default function render(svg, data, category) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y, category);
+  renderPlot(svg, data, x, y, category, legend);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

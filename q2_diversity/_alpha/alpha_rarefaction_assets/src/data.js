@@ -31,14 +31,14 @@ export default function setupData(data, metric) {
   };
 }
 
-function updateData(metric, category, svg, href) {
+function updateData(metric, category, svg, href, legend) {
   href.attr('href', `${metric}.csv`);
   let data = d[metric];
   if (category) {
     data = d[metric][category];
   }
   const preppedData = setupData(data, metric);
-  render(svg, preppedData, category);
+  render(svg, preppedData, category, legend);
 }
 
 let curState = null;
@@ -51,9 +51,10 @@ class State {
     this.metric = '';
     this.svg = null;
     this.href = null;
+    this.legend = null;
     return curState;
   }
-  initialize(metric, category, row, svg) {
+  initialize(metric, category, row, svg, legend) {
     // CONTROLS
     const downloadDiv = row.append('div')
       .attr('class', 'col-lg-2 form-group downloadCSV');
@@ -63,7 +64,8 @@ class State {
     this.svg = svg;
     this.metric = metric;
     this.category = category;
-    updateData(metric, category, this.svg, this.href);
+    this.legend = legend;
+    updateData(metric, category, this.svg, this.href, this.legend);
   }
   setCategory(c) {
     this.category = c;
