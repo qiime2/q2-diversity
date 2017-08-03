@@ -100,20 +100,22 @@ function renderPlot(svg, data, x, y, category, legend) {
     .domain(setGroups);
   const arrGroups = Array.from(setGroups);
 
-  legend.selectAll('.legend').remove();
-  legend.attr('height', arrGroups.length * 20);
-  let ly = 0;
   const legendBox = select(legend.node().parentNode);
-  appendLegendKey(legendBox, 0, 'Select All', 10, 'black',
-                  color, arrGroups, chart);
 
+  legend.selectAll('.legend').remove();
+  legendBox.selectAll('.legend').remove();
   chart.selectAll('.circle').remove();
   chart.selectAll('.line').remove();
+
+  legend.attr('height', arrGroups.length * 20);
+  let ly = 0;
 
   const valueline = line()
     .x(d => x(d[depthIndex]))
     .y(d => y(d[medianIndex]));
 
+  appendLegendKey(legendBox, 0, 'Select All', 10, 'black',
+                  color, arrGroups, chart);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 1.5) * 20;
     appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
