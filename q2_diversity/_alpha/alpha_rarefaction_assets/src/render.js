@@ -5,25 +5,22 @@ import {
   scaleOrdinal,
   schemeCategory20,
   select,
+  line,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
 
 // toggle visibility of dots in the chart for a group
-function toggleDots(chart, isSelected, value) {
+function toggleShape(chart, isSelected, value, shape) {
   // toggle the dots on the chart
   const opacity = isSelected ? 0 : 1;
-  console.log('selectAll(', `.dot${value.replace(' ', '-')}`, ') ',
-              'results: ', chart.selectAll(`.dot${value.replace(' ', '-')}`),
-              'from data: ', chart.selectAll('circle'));
-  chart.selectAll(`.dot${value.replace(' ', '-')}`)
-    .style('opacity', opacity);
-}
-
-// toggle visibility of a line in the chart for a group
-function toggleLine(entry, isSelected) {
-  // toggle the line in the entry
-  console.log(entry, isSelected);
+  if (value === 'Select All') {
+    chart.selectAll(`.${shape}`)
+      .style('opacity', opacity);
+  } else {
+    chart.selectAll(`.${shape}${value.replace(' ', '-')}`)
+      .style('opacity', opacity);
+  }
 }
 
 // used to toggle the color of the item in the legend
@@ -54,7 +51,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .style('fill', 'white')
       .on('click', () => {
         const b = toggleColor(entry, 'rect', c, color, entries);
-        toggleLine(entry, b);
+        toggleShape(chart, b, entry, 'line');
       });
   // dot toggle in the legend
   legend.append('circle')
@@ -67,7 +64,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .style('fill', c)
       .on('click', () => {
         const b = toggleColor(entry, 'circle', c, color, entries);
-        toggleDots(chart, b, entry);
+        toggleShape(chart, b, entry, 'circle');
       });
   // text for key in the legend
   legend.append('text')
@@ -92,31 +89,46 @@ function renderPlot(svg, data, x, y, category, legend) {
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
   const color = scaleOrdinal(schemeCategory20)
     .domain(setGroups);
-
-  chart.selectAll('circle').remove();
-  chart.selectAll('dot')
-      .data(points)
-    .enter()
-      .append('circle')
-        .attr('cx', d => x(d[depthIndex]))
-        .attr('cy', d => y(d[medianIndex]))
-        .attr('r', 4)
-        .style('stroke', d => color(d[groupIndex]))
-        .style('fill', d => color(d[groupIndex]))
-        .attr('class', d => `dot${d[groupIndex].replace(' ', '-')}`);
+  const arrGroups = Array.from(setGroups);
 
   legend.selectAll('.legend').remove();
-  const arrGroups = Array.from(setGroups);
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
   const legendBox = select(legend.node().parentNode);
   appendLegendKey(legendBox, 0, 'Select All', 10, 'black',
                   color, arrGroups, chart);
+
+  chart.selectAll('.circle').remove();
+  chart.selectAll('.line').remove();
+
+  const valueline = line()
+    .x(d => x(d[depthIndex]))
+    .y(d => y(d[medianIndex]));
+
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 1.5) * 20;
-    const c = color(entry);
-    appendLegendKey(legend, i + 1, entry, ly, c, color,
+    appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
                     arrGroups, chart);
+    const subset = points.filter(d => d[groupIndex] === entry)
+                    .sort((a, b) => a[depthIndex] - b[depthIndex]);
+    console.log(subset);
+    const curColor = color(subset);
+    chart.append('path')
+        .attr('d', valueline(subset))
+        .style('stroke', curColor)
+        .style('opacity', 0)
+        .style('fill', 'none')
+        .attr('class', `line${entry.replace(' ', '-')} line`);
+    chart.selectAll('dot')
+        .data(subset)
+      .enter()
+        .append('circle')
+          .attr('cx', d => x(d[depthIndex]))
+          .attr('cy', d => y(d[medianIndex]))
+          .attr('r', 4)
+          .style('stroke', curColor)
+          .style('fill', curColor)
+          .attr('class', d => `circle${d[groupIndex].replace(' ', '-')} circle`);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
