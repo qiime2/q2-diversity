@@ -10,28 +10,37 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
+// deterministic encoding
+function encode(value) {
+  let ret = 'c';
+  for (let h = 0; h < value.length; h += 1) {
+    ret = `${ret}${value.charCodeAt(h)}x`;
+  }
+  return ret;
+}
+
 // toggle visibility of dots in the chart for a group
-function toggleShape(chart, isSelected, value, shape) {
+function toggleShape(entry, shape, chart, isSelected) {
   // toggle the dots on the chart
   const opacity = isSelected ? 0 : 1;
-  if (value === 'Select All') {
+  if (entry === 'Select All') {
     chart.selectAll(`.${shape}`)
       .style('opacity', opacity);
   } else {
-    chart.selectAll(`.${shape}${value.replace(' ', '-')}`)
+    chart.selectAll(`.${shape}${encode(entry)}`)
       .style('opacity', opacity);
   }
 }
 
 // used to toggle the color of the item in the legend
 function toggleColor(entry, shape, c, color, entries) {
-  const clickedLegend = select(`#id${shape}${entry.replace(' ', '-')}`);
+  const clickedLegend = select(`#id${shape}${encode(entry)}`);
   const isSelected = (clickedLegend.style('fill') !== 'white');
   const newColor = isSelected ? 'white' : c;
   clickedLegend.style('fill', newColor);
   if (entry === 'Select All') {
     for (const e of entries) {
-      select(`#id${shape}${e.replace(' ', '-')}`).style('fill', isSelected ? 'white' : color(e));
+      select(`#id${shape}${encode(e)}`).style('fill', isSelected ? 'white' : color(e));
     }
   }
   return isSelected;
@@ -41,7 +50,7 @@ function toggleColor(entry, shape, c, color, entries) {
 function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
   // line toggle in the legend
   legend.append('rect')
-      .attr('id', `idrect${entry.replace(' ', '-')}`)
+      .attr('id', `idrect${encode(entry)}`)
       .attr('class', 'legend')
       .attr('x', 0)
       .attr('y', ly - 2.5)
@@ -51,11 +60,11 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .style('fill', 'white')
       .on('click', () => {
         const b = toggleColor(entry, 'rect', c, color, entries);
-        toggleShape(chart, b, entry, 'line');
+        toggleShape(entry, 'line', chart, b);
       });
   // dot toggle in the legend
   legend.append('circle')
-      .attr('id', `idcircle${entry.replace(' ', '-')}`)
+      .attr('id', `idcircle${encode(entry)}`)
       .attr('class', 'legend')
       .attr('cx', 30)
       .attr('cy', ly)
@@ -64,7 +73,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .style('fill', c)
       .on('click', () => {
         const b = toggleColor(entry, 'circle', c, color, entries);
-        toggleShape(chart, b, entry, 'circle');
+        toggleShape(entry, 'circle', chart, b);
       });
   // text for key in the legend
   legend.append('text')
@@ -111,14 +120,13 @@ function renderPlot(svg, data, x, y, category, legend) {
                     arrGroups, chart);
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
-    console.log(subset);
     const curColor = color(subset);
     chart.append('path')
         .attr('d', valueline(subset))
         .style('stroke', curColor)
         .style('opacity', 0)
         .style('fill', 'none')
-        .attr('class', `line${entry.replace(' ', '-')} line`);
+        .attr('class', `line${encode(entry)} line`);
     chart.selectAll('dot')
         .data(subset)
       .enter()
@@ -128,7 +136,7 @@ function renderPlot(svg, data, x, y, category, legend) {
           .attr('r', 4)
           .style('stroke', curColor)
           .style('fill', curColor)
-          .attr('class', d => `circle${d[groupIndex].replace(' ', '-')} circle`);
+          .attr('class', d => `circle${encode(d[groupIndex])} circle`);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
