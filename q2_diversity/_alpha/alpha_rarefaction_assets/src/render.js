@@ -3,22 +3,27 @@ import {
   axisBottom,
   axisLeft,
   scaleOrdinal,
-  schemeCategory10,
+  schemeCategory20,
   select,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
 
 // toggle visibility of dots in the chart for a group
-function toggleDots(entry) {
+function toggleDots(chart, isSelected, value) {
   // toggle the dots on the chart
-  console.log(entry);
+  const opacity = isSelected ? 0 : 1;
+  console.log('selectAll(', `.dot${value.replace(' ', '-')}`, ') ',
+              'results: ', chart.selectAll(`.dot${value.replace(' ', '-')}`),
+              'from data: ', chart.selectAll('circle'));
+  chart.selectAll(`.dot${value.replace(' ', '-')}`)
+    .style('opacity', opacity);
 }
 
 // toggle visibility of a line in the chart for a group
-function toggleLine(entry) {
+function toggleLine(entry, isSelected) {
   // toggle the line in the entry
-  console.log(entry);
+  console.log(entry, isSelected);
 }
 
 // used to toggle the color of the item in the legend
@@ -32,10 +37,11 @@ function toggleColor(entry, shape, c, color, entries) {
       select(`#id${shape}${e.replace(' ', '-')}`).style('fill', isSelected ? 'white' : color(e));
     }
   }
+  return isSelected;
 }
 
 // add a key to the legend
-function appendLegendKey(legend, i, entry, ly, c, color, entries) {
+function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
   // line toggle in the legend
   legend.append('rect')
       .attr('id', `idrect${entry.replace(' ', '-')}`)
@@ -47,8 +53,8 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries) {
       .style('stroke', 'darkGrey')
       .style('fill', 'white')
       .on('click', () => {
-        toggleColor(entry, 'rect', c, color, entries);
-        toggleLine(entry);
+        const b = toggleColor(entry, 'rect', c, color, entries);
+        toggleLine(entry, b);
       });
   // dot toggle in the legend
   legend.append('circle')
@@ -60,8 +66,8 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries) {
       .style('stroke', 'darkGrey')
       .style('fill', c)
       .on('click', () => {
-        toggleColor(entry, 'circle', c, color, entries);
-        toggleDots(entry);
+        const b = toggleColor(entry, 'circle', c, color, entries);
+        toggleDots(chart, b, entry);
       });
   // text for key in the legend
   legend.append('text')
@@ -84,7 +90,7 @@ function renderPlot(svg, data, x, y, category, legend) {
   }
   const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])][0];
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
-  const color = scaleOrdinal(schemeCategory10)
+  const color = scaleOrdinal(schemeCategory20)
     .domain(setGroups);
 
   chart.selectAll('circle').remove();
@@ -96,18 +102,21 @@ function renderPlot(svg, data, x, y, category, legend) {
         .attr('cy', d => y(d[medianIndex]))
         .attr('r', 4)
         .style('stroke', d => color(d[groupIndex]))
-        .style('fill', d => color(d[groupIndex]));
+        .style('fill', d => color(d[groupIndex]))
+        .attr('class', d => `dot${d[groupIndex].replace(' ', '-')}`);
 
   legend.selectAll('.legend').remove();
   const arrGroups = Array.from(setGroups);
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
   const legendBox = select(legend.node().parentNode);
-  appendLegendKey(legendBox, 0, 'Select All', 10, 'black', color, arrGroups);
+  appendLegendKey(legendBox, 0, 'Select All', 10, 'black',
+                  color, arrGroups, chart);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 1.5) * 20;
     const c = color(entry);
-    appendLegendKey(legend, i + 1, entry, ly, c, color, arrGroups);
+    appendLegendKey(legend, i + 1, entry, ly, c, color,
+                    arrGroups, chart);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
@@ -144,6 +153,6 @@ export default function render(svg, data, category, legend) {
 
   renderPlot(svg, data, x, y, category, legend);
 
-  svg.attr('width', 1400 + margin.left + margin.right)
+  svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);
 }
