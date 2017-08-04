@@ -10,38 +10,29 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 
-// deterministic encoding
-// TODO: scrap this for some better solution, likely in the python
-function encode(value) {
-  let ret = 'c';
-  for (let h = 0; h < value.length; h += 1) {
-    ret = `${ret}${value.charCodeAt(h)}x`;
-  }
-  return ret;
-}
-
 // toggle visibility of dots or ines in the chart for a group
 function toggleShape(entry, shape, chart, isSelected) {
   // toggle the dots on the chart
   const opacity = isSelected ? 0 : 1;
-  if (entry === 'Select All') {
+  if (entry === 'Select%20All') {
     chart.selectAll(`.${shape}`)
       .style('opacity', opacity);
   } else {
-    chart.selectAll(`.${shape}${encode(entry)}`)
+    chart.selectAll(`[id="id${shape}${entry}"]`)
       .style('opacity', opacity);
   }
 }
 
 // used to toggle the color of the key in the legend
 function toggleColor(entry, shape, c, color, entries) {
-  const clickedLegend = select(`#id${shape}${encode(entry)}`);
+  const clickedLegend = select(`[id="id${shape}${entry}"]`);
   const isSelected = (clickedLegend.style('fill') !== 'white');
   const newColor = isSelected ? 'white' : c;
   clickedLegend.style('fill', newColor);
-  if (entry === 'Select All') {
+  console.log(clickedLegend, clickedLegend.style('fill'), newColor, entry);
+  if (entry === 'Select%20All') {
     for (const e of entries) {
-      select(`#id${shape}${encode(e)}`).style('fill', isSelected ? 'white' : color(e));
+      select(`[id="id${shape}${e}"]`).style('fill', isSelected ? 'white' : color(e));
     }
   }
   return isSelected;
@@ -51,7 +42,7 @@ function toggleColor(entry, shape, c, color, entries) {
 function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
   // line toggle in the legend
   legend.append('rect')
-      .attr('id', `idrect${encode(entry)}`)
+      .attr('id', `idrect${entry}`)
       .attr('class', 'legend')
       .attr('x', 0)
       .attr('y', ly - 2.5)
@@ -65,7 +56,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       });
   // dot toggle in the legend
   legend.append('circle')
-      .attr('id', `idcircle${encode(entry)}`)
+      .attr('id', `iddot${entry}`)
       .attr('class', 'legend')
       .attr('cx', 30)
       .attr('cy', ly)
@@ -73,7 +64,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .style('stroke', 'darkGrey')
       .style('fill', c)
       .on('click', () => {
-        const b = toggleColor(entry, 'circle', c, color, entries);
+        const b = toggleColor(entry, 'dot', c, color, entries);
         toggleShape(entry, 'circle', chart, b);
       });
   // text for key in the legend
@@ -82,7 +73,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
       .attr('x', 40)
       .attr('y', ly + 5)
       .style('font', '10px sans-serif')
-      .text(entry);
+      .text(decodeURI(entry));
 }
 
 // re-render chart and legend whenever selection changes
@@ -115,7 +106,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     .x(d => x(d[depthIndex]))
     .y(d => y(d[medianIndex]));
 
-  appendLegendKey(legendTitle, 0, 'Select All', 10, 'black',
+  appendLegendKey(legendTitle, 0, 'Select%20All', 10, 'black',
                   color, arrGroups, chart);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
@@ -131,7 +122,8 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
         .style('stroke', curColor)
         .style('opacity', subset.lineOpacity)
         .style('fill', 'none')
-        .attr('class', `line${encode(entry)} line`);
+        .attr('class', 'line')
+        .attr('id', `idline${entry}`);
     chart.selectAll('dot')
         .data(subset)
       .enter()
@@ -142,7 +134,8 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
           .style('stroke', curColor)
           .style('opacity', subset.dotOpacity)
           .style('fill', curColor)
-          .attr('class', d => `circle${encode(d[groupIndex])} circle`);
+          .attr('class', 'circle')
+          .attr('id', d => `idcircle${d[groupIndex]}`);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
