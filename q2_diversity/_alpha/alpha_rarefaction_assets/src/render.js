@@ -119,15 +119,17 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
                   color, arrGroups, chart);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
-    appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
-                    arrGroups, chart);
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
+    subset.lineOpacity = 0;
+    subset.dotOpacity = 1;
+    appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
+                    arrGroups, chart);
     const curColor = color(subset);
     chart.append('path')
         .attr('d', valueline(subset))
         .style('stroke', curColor)
-        .style('opacity', 0)
+        .style('opacity', subset.lineOpacity)
         .style('fill', 'none')
         .attr('class', `line${encode(entry)} line`);
     chart.selectAll('dot')
@@ -138,6 +140,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
           .attr('cy', d => y(d[medianIndex]))
           .attr('r', 4)
           .style('stroke', curColor)
+          .style('opacity', subset.dotOpacity)
           .style('fill', curColor)
           .attr('class', d => `circle${encode(d[groupIndex])} circle`);
   }
