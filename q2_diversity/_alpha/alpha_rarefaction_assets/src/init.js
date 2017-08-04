@@ -19,10 +19,13 @@ export default function init() {
   // within controls row we have controls
   const controlsDiv = controlsRow.append('div').attr('class', 'col-lg-12');
   // within plot row we have plot and legend
-  const plotCol = plotRow.append('div').attr('class', 'col-lg-9');
+  const plotCol = plotRow.append('div')
+                    .attr('class', 'col-lg-9')
+                    .style('min-width', '1120px')
+                    .style('max-width', '1120px');
   const legendCol = plotRow.append('div')
                       .style('height', '470px')
-                      .attr('class', 'col-lg-3');
+                      .attr('class', 'col-lg-2');
   // within plot col we have plot svg
   const plotSvg = plotCol.append('svg')
                     .attr('viewBox', '0 0 1120 470');
@@ -37,8 +40,11 @@ export default function init() {
   const legendTitle = legendCol.append('div')
                         .style('height', '25px')
                         .style('width', '300px')
+                        .style('overflow-y', 'hidden')
+                        .style('overflow-x', 'auto')
                         .append('svg')
-                          .attr('viewBox', '0 0 300 25')
+                          .attr('viewBox', '0 0 200 20')
+                          .attr('class', 'legendTitleSvg')
                           .append('g')
                             .attr('class', 'legendTitle');
   const legendBox = legendCol.append('div')
