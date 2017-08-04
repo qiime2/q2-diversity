@@ -1,12 +1,8 @@
 /* global categories */
 /* global metrics */
-
 import { select } from 'd3';
-
 import state from './state';
-
 import { addMetricPicker, addCategoryPicker } from './toolbar';
-
 
 export default function init() {
   const metric = metrics[0];

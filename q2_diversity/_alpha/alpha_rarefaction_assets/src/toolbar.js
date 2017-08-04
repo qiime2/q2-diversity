@@ -1,5 +1,4 @@
 /* global d */
-
 import state from './state';
 
 export function addMetricPicker(row, metrics, selectedMetric) {

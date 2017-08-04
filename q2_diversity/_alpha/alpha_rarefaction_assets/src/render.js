@@ -9,8 +9,8 @@ import {
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
-
 import appendLegendKey from './legend';
+import { curData } from './data';
 
 // re-render chart and legend whenever selection changes
 function renderPlot(svg, data, x, y, category, legend, legendTitle) {
@@ -48,6 +48,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
+    curData.appendSeries(entry, subset);
     subset.lineOpacity = 0;
     subset.dotOpacity = 1;
     appendLegendKey(legend, i + 1, entry, ly, color(entry), color,

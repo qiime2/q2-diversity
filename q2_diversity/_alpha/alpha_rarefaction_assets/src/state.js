@@ -1,5 +1,5 @@
 /* global d */
-import setupData from './data';
+import { setupData } from './data';
 import render from './render';
 
 function updateData(metric, category, svg, href, legend, legendTitle) {

@@ -1,4 +1,4 @@
-export default function setupData(data, metric) {
+export function setupData(data, metric) {
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
   let minX = Infinity;
   let maxX = 0;
@@ -25,3 +25,28 @@ export default function setupData(data, metric) {
     maxY,
   };
 }
+
+let data = null;
+class Data {
+  constructor() {
+    if (!data) {
+      data = this;
+    }
+    this.series = {};
+    return data;
+  }
+  appendSeries(name, series) {
+    this.series[name] = series;
+    this.series[name].dots = false;
+    this.series[name].line = false;
+    console.log('append series: ', name, series);
+  }
+  toggle(name, dots, line) {
+    this.series[name].dots = dots;
+    this.series[name].line = line;
+  }
+  getSeries(name) {
+    return this.series[name];
+  }
+}
+export const curData = new Data();
