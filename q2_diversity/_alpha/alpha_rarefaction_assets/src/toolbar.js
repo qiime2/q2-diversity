@@ -1,6 +1,6 @@
 /* global d */
 
-import { state } from './data';
+import state from './state';
 
 export function addMetricPicker(row, metrics, selectedMetric) {
   const grp = row.append('div').attr('class', 'col-lg-2 form-group metricPicker');

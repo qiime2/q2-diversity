@@ -3,7 +3,7 @@
 
 import { select } from 'd3';
 
-import { state } from './data';
+import state from './state';
 
 import { addMetricPicker, addCategoryPicker } from './toolbar';
 
