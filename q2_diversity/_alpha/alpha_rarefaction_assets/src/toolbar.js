@@ -22,7 +22,7 @@ export function addMetricPicker(row, metrics, selectedMetric) {
 }
 
 export function addCategoryPicker(row, categories, selectedCategory) {
-  const grp = row.append('div').attr('class', 'col-lg-2 form-group categoryPicker');
+  const grp = row.append('div').attr('class', 'col-lg-3 form-group categoryPicker');
   grp.append('label').text('Sample Metadata Column');
   grp.append('select')
     .attr('class', 'form-control')

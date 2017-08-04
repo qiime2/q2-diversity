@@ -11,6 +11,7 @@ import {
 import { setupXLabel, setupYLabel } from './axis';
 
 // deterministic encoding
+// TODO: scrap this for some better solution, likely in the python
 function encode(value) {
   let ret = 'c';
   for (let h = 0; h < value.length; h += 1) {
@@ -19,7 +20,7 @@ function encode(value) {
   return ret;
 }
 
-// toggle visibility of dots in the chart for a group
+// toggle visibility of dots or ines in the chart for a group
 function toggleShape(entry, shape, chart, isSelected) {
   // toggle the dots on the chart
   const opacity = isSelected ? 0 : 1;
@@ -32,7 +33,7 @@ function toggleShape(entry, shape, chart, isSelected) {
   }
 }
 
-// used to toggle the color of the item in the legend
+// used to toggle the color of the key in the legend
 function toggleColor(entry, shape, c, color, entries) {
   const clickedLegend = select(`#id${shape}${encode(entry)}`);
   const isSelected = (clickedLegend.style('fill') !== 'white');
@@ -85,7 +86,7 @@ function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
 }
 
 // re-render chart and legend whenever selection changes
-function renderPlot(svg, data, x, y, category, legend) {
+function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   const chart = svg.select('g');
 
   const depthIndex = data.data.columns.indexOf('depth');
@@ -103,7 +104,7 @@ function renderPlot(svg, data, x, y, category, legend) {
   const legendBox = select(legend.node().parentNode);
 
   legend.selectAll('.legend').remove();
-  legendBox.selectAll('.legend').remove();
+  legendTitle.selectAll('.legend').remove();
   chart.selectAll('.circle').remove();
   chart.selectAll('.line').remove();
 
@@ -114,10 +115,10 @@ function renderPlot(svg, data, x, y, category, legend) {
     .x(d => x(d[depthIndex]))
     .y(d => y(d[medianIndex]));
 
-  appendLegendKey(legendBox, 0, 'Select All', 10, 'black',
+  appendLegendKey(legendTitle, 0, 'Select All', 10, 'black',
                   color, arrGroups, chart);
   for (const [i, entry] of arrGroups.entries()) {
-    ly = (i + 1.5) * 20;
+    ly = (i + 0.5) * 20;
     appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
                     arrGroups, chart);
     const subset = points.filter(d => d[groupIndex] === entry)
@@ -144,7 +145,7 @@ function renderPlot(svg, data, x, y, category, legend) {
 }
 
 // re-render chart edges, exis, formatting, etc. when selection changes
-export default function render(svg, data, category, legend) {
+export default function render(svg, data, category, legend, legendTitle) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
@@ -173,7 +174,7 @@ export default function render(svg, data, category, legend) {
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
   setupYLabel(svg, height, yAxisLabel, yAxis);
 
-  renderPlot(svg, data, x, y, category, legend);
+  renderPlot(svg, data, x, y, category, legend, legendTitle);
 
   svg.attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.bottom + margin.top);

@@ -11,33 +11,51 @@ import { addMetricPicker, addCategoryPicker } from './toolbar';
 export default function init() {
   const metric = metrics[0];
   const category = categories[0];
-  // DOM
+  // body
   const body = select('#main');
+  // controls row, plot row. Order matters here.
   const plotRow = body.insert('div', ':first-child').attr('class', 'viz row');
-  const plotDiv = plotRow.append('div').attr('class', 'col-lg-12');
-  const controlsRow = plotDiv.append('div').attr('class', 'controls row');
-  const svgCol = plotRow.append('div').attr('class', 'col-lg-10');
-  const svg = svgCol.append('svg');
-  const chart = svg.append('g');
+  const controlsRow = body.insert('div', ':first-child').attr('class', 'viz row');
+  // within controls row we have controls
+  const controlsDiv = controlsRow.append('div').attr('class', 'col-lg-12');
+  // within plot row we have plot and legend
+  const plotCol = plotRow.append('div').attr('class', 'col-lg-9');
+  const legendCol = plotRow.append('div')
+                      .style('height', '470px')
+                      .attr('class', 'col-lg-3');
+  // within plot col we have plot svg
+  const plotSvg = plotCol.append('svg')
+                    .attr('viewBox', '0 0 1120 470');
+  // within plot svg we have chart g
+  const chart = plotSvg.append('g');
+  // within chart g we have x axis, y axis, & axis labels
   chart.append('g').attr('class', 'x axis');
   chart.append('g').attr('class', 'y axis');
   chart.append('text').attr('class', 'x label');
   chart.append('text').attr('class', 'y label');
-  const legend = plotRow.append('div')
-                       .attr('class', 'col-lg-2')
-                       .style('height', '450px')
-                       .style('float', 'left')
-                       .style('overflow-y', 'scroll')
-                       .style('overflow-x', 'auto')
-                       .append('svg')
-                       .attr('viewBox', '0 0 200 1000')
-                       .attr('class', 'legend')
-                       .append('g');
+  // within legendCol we have legend title and legend box
+  const legendTitle = legendCol.append('div')
+                        .style('height', '25px')
+                        .style('width', '300px')
+                        .append('svg')
+                          .attr('viewBox', '0 0 300 25')
+                          .append('g')
+                            .attr('class', 'legendTitle');
+  const legendBox = legendCol.append('div')
+                    .style('height', '445px')
+                    .style('width', '300px')
+                    .style('overflow-y', 'scroll')
+                    .style('overflow-x', 'auto')
+                    .attr('class', 'legendBoxDiv')
+                    .append('svg')
+                      .attr('viewBox', '0 0 300 445')
+                      .attr('class', 'legendBoxSvg')
+                      .append('g');
   body.insert('h1', ':first-child').text('Alpha Rarefaction');
   // D3
-  state.initialize(metric, category, controlsRow, svg, legend);
-  addMetricPicker(controlsRow, metrics, metric);
+  state.initialize(metric, category, controlsDiv, plotSvg, legendBox, legendTitle);
+  addMetricPicker(controlsDiv, metrics, metric);
   if (categories.length > 0) {
-    addCategoryPicker(controlsRow, categories, category);
+    addCategoryPicker(controlsDiv, categories, category);
   }
 }
