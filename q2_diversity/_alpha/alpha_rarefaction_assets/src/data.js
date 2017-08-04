@@ -37,8 +37,8 @@ class Data {
   }
   appendSeries(name, series) {
     this.series[name] = series;
-    this.series[name].dots = false;
-    this.series[name].line = false;
+    this.series[name].dots = 0;
+    this.series[name].line = 0;
     console.log('append series: ', name, series);
   }
   toggle(name, dots, line) {
@@ -47,6 +47,12 @@ class Data {
   }
   getSeries(name) {
     return this.series[name];
+  }
+  dots(name) {
+    return this.series[name].dots;
+  }
+  line(name) {
+    return this.series[name].line;
   }
 }
 export const curData = new Data();

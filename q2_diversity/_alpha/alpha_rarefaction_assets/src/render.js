@@ -49,27 +49,26 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
     curData.appendSeries(entry, subset);
-    subset.lineOpacity = 0;
-    subset.dotOpacity = 1;
+    curData.toggle(entry, 1, 0);
     appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
                     arrGroups, chart);
     const curColor = color(subset);
     chart.append('path')
-        .attr('d', valueline(subset))
+        .attr('d', valueline(curData.getSeries(entry)))
         .style('stroke', curColor)
-        .style('opacity', subset.lineOpacity)
+        .style('opacity', curData.line(entry))
         .style('fill', 'none')
         .attr('class', 'line')
         .attr('id', `idline${entry}`);
     chart.selectAll('dot')
-        .data(subset)
+        .data(curData.getSeries(entry))
       .enter()
         .append('circle')
           .attr('cx', d => x(d[depthIndex]))
           .attr('cy', d => y(d[medianIndex]))
           .attr('r', 4)
           .style('stroke', curColor)
-          .style('opacity', subset.dotOpacity)
+          .style('opacity', curData.dots(entry))
           .style('fill', curColor)
           .attr('class', 'circle')
           .attr('id', d => `idcircle${d[groupIndex]}`);
