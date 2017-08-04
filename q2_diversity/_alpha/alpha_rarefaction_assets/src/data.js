@@ -4,7 +4,6 @@ import render from './render'; // warning, stats
 
 export default function setupData(data, metric) {
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
-
   let minX = Infinity;
   let maxX = 0;
   let minY = Infinity;
