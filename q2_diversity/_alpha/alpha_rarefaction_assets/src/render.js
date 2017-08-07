@@ -45,7 +45,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   const all = 'Select%20All';
   appendSeries(all, [], 'black');
   toggle(all, null, 'white');
-  appendLegendKey(legendTitle, all, 10, 'black', color);
+  appendLegendKey(legendTitle, all, 10, color);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
@@ -53,14 +53,13 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     const curColor = color(entry);
     appendSeries(entry, subset, curColor);
     toggle(entry, null, 'white');
-    appendLegendKey(legend, entry, ly, curColor, color);
+    appendLegendKey(legend, entry, ly, color);
     chart.append('path')
         .attr('d', valueline(curData[entry]))
         .attr('stroke', curColor)
         .attr('opacity', curData[entry].lineOpacity)
         .attr('fill', 'none')
-        .attr('class', 'line')
-        .attr('id', `idline${entry}`);
+        .attr('class', `line ${entry}`);
     chart.selectAll('dot')
         .data(curData[entry])
       .enter()
@@ -71,8 +70,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
           .attr('stroke', curColor)
           .attr('opacity', curData[entry].dotsOpacity)
           .attr('fill', curColor)
-          .attr('class', 'circle')
-          .attr('id', d => `idcircle${d[groupIndex]}`);
+          .attr('class', `circle ${entry}`);
   }
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }

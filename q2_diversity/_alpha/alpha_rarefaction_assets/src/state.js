@@ -59,6 +59,9 @@ class State {
   getMetric() {
     return this.metric;
   }
+  getSvg() {
+    return this.svg;
+  }
 }
 const state = new State();
 export { state as default };

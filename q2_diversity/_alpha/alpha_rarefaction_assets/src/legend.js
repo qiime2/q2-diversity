@@ -1,7 +1,7 @@
 import { select } from 'd3';
 import { curData, toggle } from './data';
 
-export default function appendLegendKey(legend, entry, ly, c, color) {
+export default function appendLegendKey(legend, entry, ly, color) {
   // line toggle in the legend
   const all = 'Select%20All';
   const rect = legend.append('rect')
@@ -24,7 +24,8 @@ export default function appendLegendKey(legend, entry, ly, c, color) {
       }
     }
     const fullColor = entry === all ? 'black' : color(entry);
-    toggle(entry, null, becomeFull ? fullColor : 'white');
+    const newColor = becomeFull ? fullColor : 'white';
+    toggle(entry, null, newColor);
     rect.attr('fill', curData[entry].line);
   });
   // dot toggle in the legend
@@ -47,7 +48,8 @@ export default function appendLegendKey(legend, entry, ly, c, color) {
       }
     }
     const fullColor = entry === all ? 'black' : color(entry);
-    toggle(entry, becomeFull ? fullColor : 'white', null);
+    const newColor = becomeFull ? fullColor : 'white';
+    toggle(entry, newColor, null);
     dot.attr('fill', curData[entry].dots);
   });
   // text for key in the legend

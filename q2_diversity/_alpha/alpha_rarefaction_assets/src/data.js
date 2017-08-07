@@ -1,3 +1,5 @@
+import state from './state';
+
 export function setupData(data, metric) {
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
   let minX = Infinity;
@@ -39,10 +41,18 @@ export function toggle(name, dots, line) {
   if (dots !== null) {
     curData[name].dots = dots;
     curData[name].dotsOpacity = dots === 'white' ? 0 : 1;
+    // update chart
+    state.getSvg()
+      .selectAll(`[class="circle ${name}"]`)
+      .attr('opacity', curData[name].dotsOpacity);
   }
   if (line !== null) {
     curData[name].line = line;
     curData[name].lineOpacity = line === 'white' ? 0 : 1;
+    // update chart
+    state.getSvg()
+      .selectAll(`[class="line ${name}"]`)
+      .attr('opacity', curData[name].lineOpacity);
   }
 }
 export { curData };
