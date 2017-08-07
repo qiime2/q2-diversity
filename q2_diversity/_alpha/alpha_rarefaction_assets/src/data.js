@@ -26,33 +26,31 @@ export function setupData(data, metric) {
   };
 }
 
-let data = null;
-class Data {
-  constructor() {
-    if (!data) {
-      data = this;
-    }
-    this.series = {};
-    return data;
+
+const curData = {};
+export function appendSeries(name, series, curColor) {
+  curData[name] = series;
+  curData[name].dotsOpacity = 1;
+  curData[name].lineOpacity = 0;
+  curData[name].dots = curColor;
+  curData[name].line = 'white';
+}
+export function toggle(name, dots, line) {
+  console.log('toggle: ', name, dots, line);
+  if (dots !== null) {
+    curData[name].dots = dots;
+    curData[name].dotsOpacity = dots === 'white' ? 0 : 1;
   }
-  appendSeries(name, series) {
-    this.series[name] = series;
-    this.series[name].dots = 0;
-    this.series[name].line = 0;
-    console.log('append series: ', name, series);
-  }
-  toggle(name, dots, line) {
-    this.series[name].dots = dots;
-    this.series[name].line = line;
-  }
-  getSeries(name) {
-    return this.series[name];
-  }
-  dots(name) {
-    return this.series[name].dots;
-  }
-  line(name) {
-    return this.series[name].line;
+  if (line !== null) {
+    curData[name].line = line;
+    curData[name].lineOpacity = line === 'white' ? 0 : 1;
   }
 }
-export const curData = new Data();
+// bool dots, bool line, color is function mapping entry -> color
+export function toggleAll(dots, line, color) {
+  console.log('toggleAll: ', dots, line, color);
+  for (const key of curData) {
+    toggle(key, dots ? color(key) : null, line ? color(key) : null);
+  }
+}
+export { curData };

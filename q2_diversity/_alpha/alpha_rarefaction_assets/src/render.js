@@ -10,7 +10,7 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 import appendLegendKey from './legend';
-import { curData } from './data';
+import { curData, appendSeries } from './data';
 
 // re-render chart and legend whenever selection changes
 function renderPlot(svg, data, x, y, category, legend, legendTitle) {
@@ -42,33 +42,31 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     .x(d => x(d[depthIndex]))
     .y(d => y(d[medianIndex]));
 
-  appendLegendKey(legendTitle, 0, 'Select%20All', 10, 'black',
-                  color, arrGroups, chart);
+  appendSeries('Select%20All', [], 'black');
+  appendLegendKey(legendTitle, 'Select%20All', 10, 'black', color);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
-    curData.appendSeries(entry, subset);
-    curData.toggle(entry, 1, 0);
-    appendLegendKey(legend, i + 1, entry, ly, color(entry), color,
-                    arrGroups, chart);
-    const curColor = color(subset);
+    const curColor = color(entry);
+    appendSeries(entry, subset, curColor);
+    appendLegendKey(legend, entry, ly, curColor, color);
     chart.append('path')
-        .attr('d', valueline(curData.getSeries(entry)))
+        .attr('d', valueline(curData[entry]))
         .style('stroke', curColor)
-        .style('opacity', curData.line(entry))
-        .style('fill', 'none')
+        .style('opacity', curData[entry].lineOpacity)
+        .style('fill', curColor)
         .attr('class', 'line')
         .attr('id', `idline${entry}`);
     chart.selectAll('dot')
-        .data(curData.getSeries(entry))
+        .data(curData[entry])
       .enter()
         .append('circle')
           .attr('cx', d => x(d[depthIndex]))
           .attr('cy', d => y(d[medianIndex]))
           .attr('r', 4)
           .style('stroke', curColor)
-          .style('opacity', curData.dots(entry))
+          .style('opacity', curData[entry].dotsOpacity)
           .style('fill', curColor)
           .attr('class', 'circle')
           .attr('id', d => `idcircle${d[groupIndex]}`);

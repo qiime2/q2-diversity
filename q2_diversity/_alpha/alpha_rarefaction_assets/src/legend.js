@@ -1,33 +1,6 @@
-import { select } from 'd3';
+import { curData, toggle, toggleAll } from './data';
 
-// toggle visibility of dots or ines in the chart for a group
-function toggleShape(entry, shape, chart, isSelected) {
-  // toggle the dots on the chart
-  const opacity = isSelected ? 0 : 1;
-  if (entry === 'Select%20All') {
-    chart.selectAll(`.${shape}`)
-      .style('opacity', opacity);
-  } else {
-    chart.selectAll(`[id="id${shape}${entry}"]`)
-      .style('opacity', opacity);
-  }
-}
-
-// used to toggle the color of the key in the legend
-function toggleColor(entry, shape, c, color, entries) {
-  const clickedLegend = select(`[id="id${shape}${entry}"]`);
-  const isSelected = (clickedLegend.style('fill') !== 'white');
-  const newColor = isSelected ? 'white' : c;
-  clickedLegend.style('fill', newColor);
-  if (entry === 'Select%20All') {
-    for (const e of entries) {
-      select(`[id="id${shape}${e}"]`).style('fill', isSelected ? 'white' : color(e));
-    }
-  }
-  return isSelected;
-}
-
-export default function appendLegendKey(legend, i, entry, ly, c, color, entries, chart) {
+export default function appendLegendKey(legend, entry, ly, c, color) {
   // line toggle in the legend
   legend.append('rect')
       .attr('id', `idrect${entry}`)
@@ -37,10 +10,15 @@ export default function appendLegendKey(legend, i, entry, ly, c, color, entries,
       .attr('width', 15)
       .attr('height', 5)
       .style('stroke', 'darkGrey')
-      .style('fill', 'white')
+      .style('fill', () => curData[entry].line)
       .on('click', () => {
-        const b = toggleColor(entry, 'rect', c, color, entries);
-        toggleShape(entry, 'line', chart, b);
+        const newColor = curData[entry].line === c ? 'white' : c;
+        if (entry === 'Select%20All') {
+          toggleAll(false, true, color);
+        } else {
+          toggle(entry, null, newColor);
+          this.style('fill', () => curData[entry].line);
+        }
       });
   // dot toggle in the legend
   legend.append('circle')
@@ -50,10 +28,15 @@ export default function appendLegendKey(legend, i, entry, ly, c, color, entries,
       .attr('cy', ly)
       .attr('r', 5)
       .style('stroke', 'darkGrey')
-      .style('fill', c)
+      .style('fill', () => curData[entry].dots)
       .on('click', () => {
-        const b = toggleColor(entry, 'dot', c, color, entries);
-        toggleShape(entry, 'circle', chart, b);
+        const newColor = curData[entry].dots === c ? 'white' : c;
+        if (entry === 'Select%20All') {
+          toggleAll(true, false, color);
+        } else {
+          toggle(entry, newColor, null);
+          this.style('fill', () => curData[entry].dots);
+        }
       });
   // text for key in the legend
   legend.append('text')
