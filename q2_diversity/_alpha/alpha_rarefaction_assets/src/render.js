@@ -10,7 +10,7 @@ import {
 
 import { setupXLabel, setupYLabel } from './axis';
 import appendLegendKey from './legend';
-import { curData, appendSeries } from './data';
+import { curData, appendSeries, toggle } from './data';
 
 // re-render chart and legend whenever selection changes
 function renderPlot(svg, data, x, y, category, legend, legendTitle) {
@@ -42,20 +42,23 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     .x(d => x(d[depthIndex]))
     .y(d => y(d[medianIndex]));
 
-  appendSeries('Select%20All', [], 'black');
-  appendLegendKey(legendTitle, 'Select%20All', 10, 'black', color);
+  const all = 'Select%20All';
+  appendSeries(all, [], 'black');
+  toggle(all, null, 'white');
+  appendLegendKey(legendTitle, all, 10, 'black', color);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
     const curColor = color(entry);
     appendSeries(entry, subset, curColor);
+    toggle(entry, null, 'white');
     appendLegendKey(legend, entry, ly, curColor, color);
     chart.append('path')
         .attr('d', valueline(curData[entry]))
         .attr('stroke', curColor)
         .attr('opacity', curData[entry].lineOpacity)
-        .attr('fill', curColor)
+        .attr('fill', 'none')
         .attr('class', 'line')
         .attr('id', `idline${entry}`);
     chart.selectAll('dot')

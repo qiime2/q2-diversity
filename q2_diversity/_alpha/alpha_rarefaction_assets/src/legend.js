@@ -1,52 +1,54 @@
 import { select } from 'd3';
-import { curData, toggle, toggleAll } from './data';
+import { curData, toggle } from './data';
 
 export default function appendLegendKey(legend, entry, ly, c, color) {
   // line toggle in the legend
-  console.log(entry, ':', curData[entry]);
+  const all = 'Select%20All';
   const rect = legend.append('rect')
-    .attr('id', `idrect${entry}`)
+    .attr('id', `rect${entry}`)
     .attr('class', 'legend rect')
     .attr('x', 0)
     .attr('y', ly - 2.5)
     .attr('width', 15)
     .attr('height', 5)
     .attr('stroke', 'darkGrey')
-    .attr('fill', () => curData[entry].line);
+    .attr('fill', curData[entry].line);
   rect.on('click', () => {
-    const newColor = curData[entry].line === c ? 'white' : c;
-    if (entry === 'Select%20All') {
-      toggleAll(false, true, color);
-      for (const key of curData) {
-        const thatRect = select(`#idrect${key}`);
+    const becomeFull = curData[entry].lineOpacity === 0;
+    if (entry === all) {
+      for (const key of Object.keys(curData).slice(1)) {
+        const thatRect = select(`[id="rect${key}"]`);
+        const newColor = becomeFull ? color(key) : 'white';
+        toggle(key, null, newColor);
         thatRect.attr('fill', curData[key].line);
       }
-    } else {
-      toggle(entry, null, newColor);
-      rect.attr('fill', curData[entry].line);
     }
+    const fullColor = entry === all ? 'black' : color(entry);
+    toggle(entry, null, becomeFull ? fullColor : 'white');
+    rect.attr('fill', curData[entry].line);
   });
   // dot toggle in the legend
   const dot = legend.append('circle')
-    .attr('id', `iddot${entry}`)
+    .attr('id', `dot${entry}`)
     .attr('class', 'legend circle')
     .attr('cx', 30)
     .attr('cy', ly)
     .attr('r', 5)
     .attr('stroke', 'darkGrey')
-    .attr('fill', () => curData[entry].dots);
+    .attr('fill', curData[entry].dots);
   dot.on('click', () => {
-    const newColor = curData[entry].dots === c ? 'white' : c;
-    if (entry === 'Select%20All') {
-      toggleAll(true, false, color);
-      for (const key of curData) {
-        const thatCircle = select(`#iddot${key}`);
+    const becomeFull = curData[entry].dotsOpacity === 0;
+    if (entry === all) {
+      for (const key of Object.keys(curData).slice(1)) {
+        const thatCircle = select(`[id="dot${key}"]`);
+        const newColor = becomeFull ? color(key) : 'white';
+        toggle(key, newColor, null);
         thatCircle.attr('fill', curData[key].dots);
       }
-    } else {
-      toggle(entry, newColor, null);
-      dot.attr('fill', () => curData[entry].dots);
     }
+    const fullColor = entry === all ? 'black' : color(entry);
+    toggle(entry, becomeFull ? fullColor : 'white', null);
+    dot.attr('fill', curData[entry].dots);
   });
   // text for key in the legend
   legend.append('text')

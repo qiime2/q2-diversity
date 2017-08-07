@@ -33,10 +33,9 @@ export function appendSeries(name, series, curColor) {
   curData[name].dotsOpacity = 1;
   curData[name].lineOpacity = 0;
   curData[name].dots = curColor;
-  curData[name].line = 'white';
+  curData[name].line = curColor;
 }
 export function toggle(name, dots, line) {
-  console.log('toggle: ', name, dots, line);
   if (dots !== null) {
     curData[name].dots = dots;
     curData[name].dotsOpacity = dots === 'white' ? 0 : 1;
@@ -44,13 +43,6 @@ export function toggle(name, dots, line) {
   if (line !== null) {
     curData[name].line = line;
     curData[name].lineOpacity = line === 'white' ? 0 : 1;
-  }
-}
-// bool dots, bool line, color is function mapping entry -> color
-export function toggleAll(dots, line, color) {
-  console.log('toggleAll: ', dots, line, color);
-  for (const key of curData) {
-    toggle(key, dots ? color(key) : null, line ? color(key) : null);
   }
 }
 export { curData };
