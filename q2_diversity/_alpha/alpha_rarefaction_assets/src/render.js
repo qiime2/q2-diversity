@@ -53,9 +53,9 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     appendLegendKey(legend, entry, ly, curColor, color);
     chart.append('path')
         .attr('d', valueline(curData[entry]))
-        .style('stroke', curColor)
-        .style('opacity', curData[entry].lineOpacity)
-        .style('fill', curColor)
+        .attr('stroke', curColor)
+        .attr('opacity', curData[entry].lineOpacity)
+        .attr('fill', curColor)
         .attr('class', 'line')
         .attr('id', `idline${entry}`);
     chart.selectAll('dot')
@@ -65,9 +65,9 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
           .attr('cx', d => x(d[depthIndex]))
           .attr('cy', d => y(d[medianIndex]))
           .attr('r', 4)
-          .style('stroke', curColor)
-          .style('opacity', curData[entry].dotsOpacity)
-          .style('fill', curColor)
+          .attr('stroke', curColor)
+          .attr('opacity', curData[entry].dotsOpacity)
+          .attr('fill', curColor)
           .attr('class', 'circle')
           .attr('id', d => `idcircle${d[groupIndex]}`);
   }
