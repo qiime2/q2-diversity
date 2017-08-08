@@ -111,13 +111,18 @@ export default function render(svg, data, category, legend, legendTitle) {
   xAxis.scale(x);
   yAxis.scale(y);
 
-  chart.attr('transform', `translate(${margin.left},${margin.top})`);
-
-  setupXLabel(svg, width, height, xAxisLabel, xAxis);
-  setupYLabel(svg, height, yAxisLabel, yAxis);
+  const maxLabelX = setupXLabel(svg, width, height, xAxisLabel, xAxis);
+  const maxLabelY = setupYLabel(svg, height, yAxisLabel, yAxis);
+  console.log(maxLabelY, maxLabelX);
+  chart.attr('transform',
+    `translate(${margin.left},${margin.top})`);
 
   renderPlot(svg, data, x, y, category, legend, legendTitle);
-
-  svg.attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.bottom + margin.top);
+  // function resize(selection) {
+  //   selection.attr('width', width + margin.left + margin.right + maxLabelY)
+  //     .attr('height', height + margin.bottom + margin.top + maxLabelX);
+  // }
+  // select(svg.node().parentNode).call(resize);
+  // svg.call(resize);
+  // chart.call(resize);
 }

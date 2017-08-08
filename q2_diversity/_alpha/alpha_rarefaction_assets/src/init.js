@@ -17,8 +17,7 @@ export default function init() {
   // within plot row we have plot and legend
   const plotCol = plotRow.append('div')
                     .attr('class', 'col-lg-9')
-                    .style('min-width', '1120px')
-                    .style('max-width', '1120px');
+                    .style('width', '1120px');
   const legendCol = plotRow.append('div')
                       .style('height', '470px')
                       .attr('class', 'col-lg-2');
