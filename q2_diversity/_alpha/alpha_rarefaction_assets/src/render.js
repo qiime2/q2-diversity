@@ -32,15 +32,11 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
 
   legend.selectAll('.legend').remove();
   legendTitle.selectAll('.legend').remove();
-  chart.selectAll('.circle').remove();
-  chart.selectAll('.line').remove();
+  // chart.selectAll('.circle').remove();
+  // chart.selectAll('.line').remove();
 
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
-
-  const valueline = line()
-    .x(d => x(d[depthIndex]))
-    .y(d => y(d[medianIndex]));
 
   const all = 'Select%20All';
   appendSeries(all, [], 'black');
@@ -54,19 +50,33 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     appendSeries(entry, subset, curColor);
     toggle(entry, null, 'white');
     appendLegendKey(legend, entry, ly, color);
-    chart.append('path')
-        .attr('d', valueline(curData[entry]))
-        .attr('stroke', curColor)
-        .attr('opacity', curData[entry].lineOpacity)
-        .attr('fill', 'none')
-        .attr('class', `line ${entry}`);
   }
+  // LINES
+  const valueline = line()
+    .x(d => x(d[depthIndex]))
+    .y(d => y(d[medianIndex]));
+  function plotLines(selection) {
+    selection.transition()
+      .attr('d', valueline);
+  }
+  const linesUpdate = chart.selectAll('.line').data(points, d => d[groupIndex]);
+  linesUpdate.exit().transition().remove();
+  const linesEnter = linesUpdate.enter().append('g')
+    .attr('class', d => `line ${d[groupIndex]}`);
+  linesEnter.append('path')
+    .attr('stroke', d => curData[d[groupIndex]].line)
+    .attr('opacity', d => curData[d[groupIndex]].lineOpacity)
+    .attr('fill', 'none')
+    .attr('class', d => `line ${d[groupIndex]}`);
+  linesUpdate.call(plotLines);
+  linesEnter.call(plotLines);
+  // DOTS
   function plotDots(selection) {
     selection.transition()
       .attr('cx', d => x(d[depthIndex]))
       .attr('cy', d => y(d[medianIndex]));
   }
-  const dotsUpdate = chart.selectAll('dot').data(points);
+  const dotsUpdate = chart.selectAll('.circle').data(points);
   dotsUpdate.exit().transition().remove();
   const dotsEnter = dotsUpdate.enter().append('circle')
     .attr('r', 4)
