@@ -16,6 +16,7 @@ import { curData, appendSeries, toggle } from './data';
 // re-render chart and legend whenever selection changes
 function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   const chart = svg.select('g');
+  const legendBox = select(legend.node().parentNode);
 
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('median');
@@ -23,23 +24,20 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   if (groupIndex === -1) {
     groupIndex = data.data.columns.indexOf(category);
   }
-  const points = [data.data.data.sort((a, b) => a[depthIndex] - b[depthIndex])][0];
+  const points = [data.data.data][0];
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
   const color = scaleOrdinal(schemeCategory20)
     .domain(setGroups);
   const arrGroups = Array.from(setGroups);
 
-  const legendBox = select(legend.node().parentNode);
-
   legend.selectAll('.legend').remove();
   legendTitle.selectAll('.legend').remove();
-
   legend.attr('height', arrGroups.length * 20);
-  let ly = 0;
 
+  let ly = 0;
   const all = 'Select%20All';
   appendSeries(all, [], 'black');
-  toggle(all, null, 'white');
+  toggle(all, 'white', null);
   appendLegendKey(legendTitle, all, 10, color);
   for (const [i, entry] of arrGroups.entries()) {
     ly = (i + 0.5) * 20;
@@ -47,7 +45,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
     const curColor = color(entry);
     appendSeries(entry, subset, curColor);
-    toggle(entry, null, 'white');
+    toggle(entry, 'white', null);
     appendLegendKey(legend, entry, ly, color);
   }
   // DOTS

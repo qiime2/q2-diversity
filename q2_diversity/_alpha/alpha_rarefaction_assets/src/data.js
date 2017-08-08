@@ -33,7 +33,7 @@ const curData = {};
 export function appendSeries(name, series, curColor) {
   curData[name] = series;
   curData[name].dotsOpacity = 1;
-  curData[name].lineOpacity = 0;
+  curData[name].lineOpacity = 1;
   curData[name].dots = curColor;
   curData[name].line = curColor;
 }
