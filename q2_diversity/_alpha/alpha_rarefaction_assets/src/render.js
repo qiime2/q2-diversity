@@ -60,18 +60,22 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
         .attr('opacity', curData[entry].lineOpacity)
         .attr('fill', 'none')
         .attr('class', `line ${entry}`);
-    chart.selectAll('dot')
-        .data(curData[entry])
-      .enter()
-        .append('circle')
-          .attr('cx', d => x(d[depthIndex]))
-          .attr('cy', d => y(d[medianIndex]))
-          .attr('r', 4)
-          .attr('stroke', curColor)
-          .attr('opacity', curData[entry].dotsOpacity)
-          .attr('fill', curColor)
-          .attr('class', `circle ${entry}`);
   }
+  function plotDots(selection) {
+    selection.transition()
+      .attr('cx', d => x(d[depthIndex]))
+      .attr('cy', d => y(d[medianIndex]));
+  }
+  const dotsUpdate = chart.selectAll('dot').data(points);
+  dotsUpdate.exit().transition().remove();
+  const dotsEnter = dotsUpdate.enter().append('circle')
+    .attr('r', 4)
+    .attr('stroke', d => color(d[groupIndex]))
+    .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
+    .attr('fill', d => color(d[groupIndex]))
+    .attr('class', d => `circle ${d[groupIndex]}`);
+  dotsUpdate.call(plotDots);
+  dotsEnter.call(plotDots);
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
 }
 
