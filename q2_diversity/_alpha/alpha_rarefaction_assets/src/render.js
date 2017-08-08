@@ -53,17 +53,17 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   // DOTS
   function plotDots(selection) {
     selection.transition()
+      .attr('class', d => `circle ${d[groupIndex]}`)
+      .attr('fill', d => color(d[groupIndex]))
+      .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
+      .attr('stroke', d => color(d[groupIndex]))
       .attr('cx', d => x(d[depthIndex]))
       .attr('cy', d => y(d[medianIndex]));
   }
   const dotsUpdate = chart.selectAll('.circle').data(points);
   dotsUpdate.exit().transition().remove();
   const dotsEnter = dotsUpdate.enter().append('circle')
-    .attr('r', 4)
-    .attr('stroke', d => color(d[groupIndex]))
-    .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
-    .attr('fill', d => color(d[groupIndex]))
-    .attr('class', d => `circle ${d[groupIndex]}`);
+    .attr('r', 4);
   dotsUpdate.call(plotDots);
   dotsEnter.call(plotDots);
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
@@ -77,13 +77,15 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   const linesUpdate = chart.selectAll('.line').data(datum);
   linesUpdate.exit().transition().remove();
   linesUpdate.enter().append('path')
-    .attr('class', 'line')
     .attr('class', d => `line ${d.key}`)
-    .attr('stroke', d => curData[d.key].line)
+    .attr('stroke', d => color(d.key))
     .attr('opacity', d => curData[d.key].lineOpacity)
     .attr('fill', 'none')
     .attr('d', d => valueline(d.values));
-  linesUpdate.attr('d', d => valueline(d.values));
+  linesUpdate.attr('class', d => `line ${d.key}`)
+    .attr('stroke', d => color(d.key))
+    .attr('opacity', d => curData[d.key].lineOpacity)
+    .attr('d', d => valueline(d.values));
 }
 
 // re-render chart edges, exis, formatting, etc. when selection changes
