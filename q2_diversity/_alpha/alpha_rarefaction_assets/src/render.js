@@ -6,6 +6,7 @@ import {
   schemeCategory20,
   select,
   line,
+  nest,
 } from 'd3';
 
 import { setupXLabel, setupYLabel } from './axis';
@@ -32,8 +33,6 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
 
   legend.selectAll('.legend').remove();
   legendTitle.selectAll('.legend').remove();
-  // chart.selectAll('.circle').remove();
-  // chart.selectAll('.line').remove();
 
   legend.attr('height', arrGroups.length * 20);
   let ly = 0;
@@ -51,25 +50,6 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     toggle(entry, null, 'white');
     appendLegendKey(legend, entry, ly, color);
   }
-  // LINES
-  const valueline = line()
-    .x(d => x(d[depthIndex]))
-    .y(d => y(d[medianIndex]));
-  function plotLines(selection) {
-    selection.transition()
-      .attr('d', valueline);
-  }
-  const linesUpdate = chart.selectAll('.line').data(points, d => d[groupIndex]);
-  linesUpdate.exit().transition().remove();
-  const linesEnter = linesUpdate.enter().append('g')
-    .attr('class', d => `line ${d[groupIndex]}`);
-  linesEnter.append('path')
-    .attr('stroke', d => curData[d[groupIndex]].line)
-    .attr('opacity', d => curData[d[groupIndex]].lineOpacity)
-    .attr('fill', 'none')
-    .attr('class', d => `line ${d[groupIndex]}`);
-  linesUpdate.call(plotLines);
-  linesEnter.call(plotLines);
   // DOTS
   function plotDots(selection) {
     selection.transition()
@@ -87,6 +67,23 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   dotsUpdate.call(plotDots);
   dotsEnter.call(plotDots);
   legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
+  // LINES
+  const valueline = line()
+    .x(d => x(d[depthIndex]))
+    .y(d => y(d[medianIndex]));
+  const datum = nest()
+    .key(d => d[groupIndex])
+    .entries(points);
+  const linesUpdate = chart.selectAll('.line').data(datum);
+  linesUpdate.exit().transition().remove();
+  linesUpdate.enter().append('path')
+    .attr('class', 'line')
+    .attr('class', d => `line ${d.key}`)
+    .attr('stroke', d => curData[d.key].line)
+    .attr('opacity', d => curData[d.key].lineOpacity)
+    .attr('fill', 'none')
+    .attr('d', d => valueline(d.values));
+  linesUpdate.attr('d', d => valueline(d.values));
 }
 
 // re-render chart edges, exis, formatting, etc. when selection changes
