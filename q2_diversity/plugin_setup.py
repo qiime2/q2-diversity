@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool)
+                           Metadata, Int, Bool, Float, Range)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -133,6 +133,44 @@ plugin.methods.register_function(
     output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',
     description=("Apply principal coordinate analysis.")
+)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.core_microbiome,
+    inputs={
+        'table': FeatureTable[Frequency]
+    },
+    parameters={
+        'min_fraction': Float % Range(0.0, 1.0, inclusive_start=False),
+        'max_fraction': Float % Range(0.0, 1.0, inclusive_end=True),
+        'steps': Int % Range(2, None),
+        'where': Str,
+        'metadata': Metadata
+    },
+    name='Core microbiome analysis',
+    description=('Identify features present in the core microbiome, which '
+                 'are defined as features observed more than zero times '
+                 'in a user-defined fraction of the samples. Since the '
+                 'core microbiome features are a function of the fraction '
+                 'of the samples that the feature must be observed in to be '
+                 'considered core, this is computed over a range of fractions '
+                 'defined by the `min_fraction`, `max_fraction`, and `step` '
+                 'parameters.'),
+    input_descriptions={
+        'table': 'The feature table to use in core microbiome calculations.'
+    },
+    parameter_descriptions={
+        'min_fraction': ('The minimum fraction of samples that a feature must '
+                         'be observed in for that feature to be considered '
+                         'part of the core microbiome.'),
+        'max_fraction': ('The maximum fraction of samples that a feature must '
+                         'be observed in for that feature to be considered '
+                         'part of the core microbiome.'),
+        'steps': ('The number of steps to take between min_fraction and '
+                  'max_fraction for core microbiome calculations.'),
+        'where': ('Description of samples that should be included in the '
+                  'core microbiome calculation.'),
+    }
 )
 
 plugin.methods.register_function(
