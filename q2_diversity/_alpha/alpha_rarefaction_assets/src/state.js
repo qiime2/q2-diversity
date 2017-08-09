@@ -30,6 +30,7 @@ class State {
     // CONTROLS
     const downloadDiv = row.append('div')
       .attr('class', 'col-lg-2 form-group downloadCSV');
+    downloadDiv.append('label').text('');
     this.href = downloadDiv.append('form')
       .attr('method', 'GET')
       .attr('action', '#');

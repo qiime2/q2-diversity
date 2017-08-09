@@ -1,3 +1,5 @@
+import { max } from 'd3';
+
 export function setupXLabel(svg, width, height, label, xAxis) {
   svg.select('.x.axis')
     .attr('transform', `translate(0,${height})`)
@@ -20,8 +22,9 @@ export function setupYLabel(svg, height, label, yAxis) {
     .attr('text-anchor', 'middle')
     .style('font', '12px sans-serif')
     .text(label);
-  const all = a.selectAll('text')._groups[0];
-  const textHeight = all[all.length - 1].getComputedTextLength() + 20;
+  const all = Array.from(a.selectAll('text')._groups[0]).map(d => d.getComputedTextLength());
+  console.log('all: ', all, ' max(all): ', max(all));
+  const textHeight = max(all) + 20;
   l.attr('transform', `translate(-${textHeight},${(height / 2)})rotate(-90)`);
   return textHeight;
 }

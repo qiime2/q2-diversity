@@ -57,7 +57,7 @@ export default function appendLegendKey(legend, entry, ly, color) {
       .attr('class', 'legend')
       .attr('x', 40)
       .attr('y', ly + 5)
-      .attr('font', '10px sans-serif')
+      .style('font', '8px sans-serif')
       .text(decodeURI(entry));
 }
 
