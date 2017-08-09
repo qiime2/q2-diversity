@@ -23,5 +23,5 @@ export function setupYLabel(svg, height, label, yAxis) {
   const all = a.selectAll('text')._groups[0];
   const textHeight = all[all.length - 1].getComputedTextLength() + 20;
   l.attr('transform', `translate(-${textHeight},${(height / 2)})rotate(-90)`);
-  return textHeight + 20;
+  return textHeight;
 }
