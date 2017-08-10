@@ -245,7 +245,7 @@ def write_jsonp(output_dir, filename, metric, data, warnings, category):
         fh.write("load_data('%s', '%s'," % (metric, category))
         data.to_json(fh, orient='split')
         fh.write(",")
-        json.dump(warnings, fh)
+        json.dump(list(set(warnings)), fh)
         fh.write(");")
 
 
@@ -261,19 +261,19 @@ def alpha_rarefaction(output_dir: str,
     warnings = []
     filenames = []
     categories = []
-    _metrics = []
-    for m in metrics:
-        if m not in non_phylogenetic_metrics():
-            warnings.append("Warning: requested metric %s "
-                            "not a known metric." % m)
-        elif m in [ 'osd', 'lladser_ci', 'strong', 'esty_ci',
-                  'kempton_taylor_q', 'chao1_ci' ]:
-            warnings.append("Warning: requested metric %s "
-                            "not an integer-valued metric."
-                            % m)
-        else:
-            _metrics.append(m)
-    metrics = _metrics
+    non_integer_metrics = ['osd', 'lladser_ci', 'strong', 'esty_ci',
+                           'kempton_taylor_q', 'chao1_ci']
+    unknown_metrics = [m for m in metrics
+                       if m not in non_phylogenetic_metrics()]
+    unsupported_metrics = [m for m in metrics if m in non_integer_metrics]
+    if unknown_metrics:
+        warnings.append("Requested unknown metrics: %s " % unknown_metrics)
+    if unsupported_metrics:
+        warnings.append("Requested non integer-valued metrics: %s"
+                        % unsupported_metrics)
+    metrics = [m for m in metrics if
+               (m not in unknown_metrics and
+                m not in non_integer_metrics)]
 
     # TODO: replace these casts with input validation
     max_depth = int(min(max_depth, feature_table.nnz))
@@ -296,7 +296,6 @@ def alpha_rarefaction(output_dir: str,
                 vector = alpha(table=rt, metric=m)
                 data[m][(d, i)] = vector
             except Exception as e:
-                # see NOTE in get_stats() regarding confidence intervals
                 warnings.append(str(e))
                 pass
 
