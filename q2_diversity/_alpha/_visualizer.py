@@ -211,18 +211,15 @@ def _seven_number_summary(g):
     return stats
 
 
-def categorical_df(category, metadata_df, v, iterations):
-    metadata_category = metadata_df[category]
-    metadata_category = metadata_category.loc[v.index.levels[0]]
-    metadata_category = metadata_category.dropna()
-    v[category] = [metadata_category[row.name[0]]
-                   for _, row in v.iterrows()]
+def categorical_df(category, metadata_df, data, iterations):
     rows = []
-    for name, group in v.groupby([category, 'depth']):
-        gr = group.iloc[:, 0:iterations-1]
-        depth = gr.index.tolist()[0][1]
-        rows.append({**{'depth': depth}, **{category: quote(name[0])},
-                     **_seven_number_summary(gr.sum(axis=0))})
+    categorical_values = metadata_df[category].dropna()
+    groups = data.groupby(categorical_values[data.index])
+    for name, group in groups:
+        depthGroups = group.groupby(axis=1, level=0)
+        for depth, dGroup in depthGroups:
+            row = {**{category: quote(name)},
+                   **(_seven_number_summary(dGroup.stack()).to_dict(orient='dict'))}
     return pd.DataFrame(rows)
 
 
@@ -298,7 +295,6 @@ def alpha_rarefaction(output_dir: str,
     for (m, data) in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
-        # data = data.stack('depth')
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name

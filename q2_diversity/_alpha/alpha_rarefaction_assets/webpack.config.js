@@ -7,7 +7,7 @@ module.exports = {
     vendor: ['d3']
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'dst/vendor.bundle.js'),
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.bundle.js'),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false }
     }),
@@ -15,7 +15,7 @@ module.exports = {
   ],
   output: {
     path: __dirname,
-    filename: 'dst/bundle.js'
+    filename: 'dist/bundle.js'
   },
   module: {
     preLoaders: [
