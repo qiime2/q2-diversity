@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool, Set)
+                           Metadata, Int, Bool, Range)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -356,27 +356,29 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'feature_table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metrics': Set[Str % Choices(
-                                alpha.non_phylogenetic_metrics())],
+    parameters={'metric': Str % Choices(alpha.alpha_rarefaction_supported_methods),
                 'metadata': Metadata,
-                'min_depth': Int,
-                'max_depth': Int,
-                'steps': Int,
-                'iterations': Int},
+                'min_depth': Int % Range(1, None),
+                'max_depth': Int % Range(1, None),
+                'steps': Int % Range(2, None),
+                'iterations': Int % Range(1, None)},
     input_descriptions={
         'feature_table': 'Feature table to be rarefied.',
-        'phylogeny': 'Optional phylogeny for phylogenetic metrics.'
+        'phylogeny': 'Optional phylogeny for phylogenetic metrics.',
     },
     parameter_descriptions={
-        'metrics': 'The metrics to be measured.',
-        'metadata': 'The feature metadata.',
-        'min_depth': 'The minimum sequencing depth to rarefy.',
-        'max_depth': 'The maximum sequencing depth to rarefy.',
-        'steps': 'The number of sequencing depths to rarefy.',
-        'iterations': 'The number of subsamples to rarefy at each step.'
+        'metric': ('The metric to be measured. By default computes '
+                   'observed_otus, shannon, chao1, and if phylogeny is '
+                   'provided, faith_pd.'),
+        'metadata': 'The sample metadata.',
+        'min_depth': 'The minimum rarefaction depth.',
+        'max_depth': ('The maximum rarefaction depth. '
+                      'Must be greater than min_depth.'),
+        'steps': ('The number of rarefaction depths to include '
+                  'between min_depth and max_depth.'),
+        'iterations': ('The number of rarefied feature tables to '
+                       'compute at each step.'),
     },
     name='Alpha rarefaction',
-    description=('Compute alpha diversity metrics for subsamples of a '
-                 'feature table at sequential sequencing depths, and '
-                 'create alpha rarefaction plots for the requested metrics')
+    description='Compute alpha rarefaction plots.',
 )

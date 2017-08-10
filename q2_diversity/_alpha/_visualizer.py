@@ -22,7 +22,8 @@ import q2templates
 import biom
 import skbio
 from itertools import product
-from ._method import non_phylogenetic_metrics, alpha
+from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
+                      alpha, alpha_phylogenetic)
 from q2_feature_table import rarefy
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -200,18 +201,14 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def get_stats(group):
-    try:
-        return {'min': group.min(),
-                'tf': group.quantile(q=0.25),
-                'median': group.median(),
-                'sf': group.quantile(q=0.75),
-                'max': group.max()}
-    except:
-        # NOTE: THIS IS A PROBLEM WITH CONFIDENCE RANGES, WHICH MAY ALSO
-        # BE A PROBLEM IN OTHER METHODS & VISUALIZERS.  THIS NEEDS TO BE
-        # ADDRESSED AT SOME POINT.
-        return {}
+def _seven_number_summary(g):
+    # this should probably be publicly accessible throughout QIIME 2 - it's
+    # also currently implemented in q2-demux summarize
+    stats = g.describe(
+        percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
+    drop_cols = stats.index.isin(['std', 'mean'])
+    stats = stats[~drop_cols]
+    return stats
 
 
 def categorical_df(category, metadata_df, v, iterations):
@@ -225,18 +222,18 @@ def categorical_df(category, metadata_df, v, iterations):
         gr = group.iloc[:, 0:iterations-1]
         depth = gr.index.tolist()[0][1]
         rows.append({**{'depth': depth}, **{category: quote(name[0])},
-                     **get_stats(gr.sum(axis=0))})
+                     **_seven_number_summary(gr.sum(axis=0))})
     return pd.DataFrame(rows)
 
 
-def non_categorical_df(v, iterations):
-    rows = []
-    for name, group in v:
-        gr = group.iloc[:, 0:iterations-1]
-        depth = gr.index.tolist()[0][1]
-        rows.append({**{'sample-id': gr.index.get_level_values(0)[0]},
-                     **{'depth': depth},
-                     **get_stats(gr.sum(axis=0))})
+def non_categorical_df(data, iterations):
+    for sample in data.index:
+        for e in data.loc[sample]:
+            print(e)
+            
+            # rows.append({**{'sample-id': sample.index.get_level_values(0)[0]},
+            #              **{'depth': depth},
+            #              **_seven_number_summary(gr.sum(axis=0))})
     return pd.DataFrame(rows)
 
 
@@ -251,66 +248,64 @@ def write_jsonp(output_dir, filename, metric, data, warnings, category):
 
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
+                      max_depth: int,
                       phylogeny: skbio.TreeNode=None,
-                      metrics: set=None,
+                      metric: str=None,
                       metadata: qiime2.Metadata=None,
                       min_depth: int=1,
-                      max_depth: int=100,
                       steps: int=10,
                       iterations: int=10) -> None:
+    if metric is None:
+        metrics = ['observed_otus', 'chao1', 'shannon']
+        if phylogeny is not None:
+            metrics.append('faith_pd')
+    else:
+        if metric == 'faith_pd' and phylogeny is None:
+            raise ValueError('Phylogenetic metric was requested but '
+                             'phylogeny was not provided.')
+        metrics = [metric]
+    
+    if max_depth <= min_depth:
+        raise ValueError('Provided max_depth of %d must be greater than '
+                         'provided min_depth of %d.' % (max_depth, min_depth))
+    max_frequency = max(feature_table.sum(axis='sample'))
+    if max_frequency < max_depth:
+        raise ValueError('Provided max_depth of %d is greater than '
+                         'the maximum sample total frequency of the '
+                         'feature_table (%d).' % (max_depth, max_frequency))
     warnings = []
     filenames = []
-    categories = []
-    non_integer_metrics = ['osd', 'lladser_ci', 'strong', 'esty_ci',
-                           'kempton_taylor_q', 'chao1_ci']
-    unknown_metrics = [m for m in metrics
-                       if m not in non_phylogenetic_metrics()]
-    unsupported_metrics = [m for m in metrics if m in non_integer_metrics]
-    if unknown_metrics:
-        warnings.append("Requested unknown metrics: %s " % unknown_metrics)
-    if unsupported_metrics:
-        warnings.append("Requested non integer-valued metrics: %s"
-                        % unsupported_metrics)
-    metrics = [m for m in metrics if
-               (m not in unknown_metrics and
-                m not in non_integer_metrics)]
+    categories = []    
+    
+    depth_range = np.linspace(min_depth, max_depth, num=steps, dtype=int)
+    iter_range = range(1, iterations + 1)
 
-    # TODO: replace these casts with input validation
-    max_depth = int(min(max_depth, feature_table.nnz))
-    min_depth = int(min_depth)
-    step_size = int(max((max_depth - min_depth) / steps, 1))
-    # -----------------------------------------------
-
-    depth_range = range(min_depth, max_depth, step_size)
-    iter_range = range(1, iterations)
-
-    rows = feature_table.ids()
+    rows = feature_table.ids(axis='sample')
     cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
                                       names=['depth', 'iter'])
-    data = {k: pd.DataFrame(np.NaN, rows, cols) for k in metrics}
+    data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
+            for k in metrics}
 
     for d, i in product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
-            try:
+            if m in phylogenetic_metrics():
+                vector = alpha_phylogenetic(table=rt, metric=m,
+                                            phylogeny=phylogeny)
+            else:
                 vector = alpha(table=rt, metric=m)
-                data[m][(d, i)] = vector
-            except Exception as e:
-                warnings.append(str(e))
-                pass
+            data[m][(d, i)] = vector
 
-    for (k, v) in data.items():
-        metric_name = quote(k)
+    for (m, data) in data.items():
+        metric_name = quote(m)
         filename = '%s.csv' % metric_name
-        with open(os.path.join(output_dir, filename), 'w') as fh:
-            # I think move some collation stats into here probably
-            v = v.stack('depth')
-            v.to_csv(fh, index_label=['sample-id', 'depth'])
+        # data = data.stack('depth')
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-            vc = v.groupby([v.index.get_level_values(0), 'depth'])
-            n_df = non_categorical_df(vc, iterations)
+            # vc = data.groupby([data.index.get_level_values(0), 'depth'])
+            n_df = non_categorical_df(data, iterations)
+            print('n_df: ', n_df)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)
@@ -321,11 +316,14 @@ def alpha_rarefaction(output_dir: str,
             for category in categories:
                 category_name = quote(category)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
-                c_df = categorical_df(category_name, metadata_df, v,
+                c_df = categorical_df(category_name, metadata_df, data,
                                       iterations)
                 write_jsonp(output_dir, jsonp_filename, metric_name,
                             c_df, warnings, category_name)
                 filenames.append(jsonp_filename)
+            # merge here
+        with open(os.path.join(output_dir, filename), 'w') as fh:
+            data.to_csv(fh, index_label=['sample-id', 'depth'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
@@ -335,3 +333,10 @@ def alpha_rarefaction(output_dir: str,
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dst'),
                     os.path.join(output_dir, 'dist'))
+
+
+alpha_rarefaction_supported_methods = (non_phylogenetic_metrics()
+                                        & phylogenetic_metrics()
+                                        - {'osd', 'lladser_ci', 'strong',
+                                           'esty_ci', 'kempton_taylor_q',
+                                           'chao1_ci'})
