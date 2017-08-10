@@ -19,7 +19,7 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
   const legendBox = select(legend.node().parentNode);
 
   const depthIndex = data.data.columns.indexOf('depth');
-  const medianIndex = data.data.columns.indexOf('median');
+  const medianIndex = data.data.columns.indexOf('50%');
   let groupIndex = data.data.columns.indexOf('sample-id');
   if (groupIndex === -1) {
     groupIndex = data.data.columns.indexOf(category);

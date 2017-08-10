@@ -226,14 +226,13 @@ def categorical_df(category, metadata_df, v, iterations):
     return pd.DataFrame(rows)
 
 
-def non_categorical_df(data, iterations):
-    for sample in data.index:
-        for e in data.loc[sample]:
-            print(e)
-            
-            # rows.append({**{'sample-id': sample.index.get_level_values(0)[0]},
-            #              **{'depth': depth},
-            #              **_seven_number_summary(gr.sum(axis=0))})
+def non_categorical_df(data, depth_range):
+    rows = []
+    for (sample, d) in product(data.index, depth_range):
+        s = data.loc[sample,d]
+        rows.append({**{'sample-id': sample},
+                     **{'depth': d},
+                     **_seven_number_summary(s)})
     return pd.DataFrame(rows)
 
 
@@ -303,9 +302,7 @@ def alpha_rarefaction(output_dir: str,
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-            # vc = data.groupby([data.index.get_level_values(0), 'depth'])
-            n_df = non_categorical_df(data, iterations)
-            print('n_df: ', n_df)
+            n_df = non_categorical_df(data, depth_range)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)

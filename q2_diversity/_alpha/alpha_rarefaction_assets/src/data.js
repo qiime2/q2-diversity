@@ -7,14 +7,14 @@ export function setupData(data, metric) {
   let minY = Infinity;
   let maxY = 0;
   const depthIndex = data.columns.indexOf('depth');
-  const minIndex = data.columns.indexOf('min');
-  const maxIndex = data.columns.indexOf('max');
+  const medianIndex = data.columns.indexOf('50%');
   data.data.forEach((d) => {
     const x = d[depthIndex];
+    const y = d[medianIndex];
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
-    if (d[minIndex] < minY) minY = d[minIndex];
-    if (d[maxIndex] > maxY) maxY = d[maxIndex];
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
   });
 
   return {
