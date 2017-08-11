@@ -19,7 +19,9 @@ setup(
                       'alpha_group_significance_assets/index.html',
                       'alpha_group_significance_assets/dist/*',
                       'alpha_correlation_assets/index.html',
-                      'alpha_correlation_assets/dist/*'],
+                      'alpha_correlation_assets/dist/*',
+                      'alpha_rarefaction_assets/index.html',
+                      'alpha_rarefaction_assets/dist/*',],
                   'q2_diversity._beta': [
                       'beta_group_significance_assets/index.html',
                       'beta_correlation_assets/index.html',
