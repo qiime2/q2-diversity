@@ -16,7 +16,7 @@ export default function appendLegendKey(legend, entry, ly, color) {
   rect.on('click', () => {
     const becomeFull = curData[entry].lineOpacity === 0;
     if (entry === all) {
-      for (const key of Object.keys(curData).slice(1)) {
+      for (const key of Object.keys(curData)) {
         const thatRect = select(`[id="rect${key}"]`);
         const newColor = becomeFull ? color(key) : 'white';
         toggle(key, null, newColor);
@@ -40,7 +40,7 @@ export default function appendLegendKey(legend, entry, ly, color) {
   dot.on('click', () => {
     const becomeFull = curData[entry].dotsOpacity === 0;
     if (entry === all) {
-      for (const key of Object.keys(curData).slice(1)) {
+      for (const key of Object.keys(curData)) {
         const thatCircle = select(`[id="dot${key}"]`);
         const newColor = becomeFull ? color(key) : 'white';
         toggle(key, newColor, null);

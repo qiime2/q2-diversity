@@ -41,8 +41,22 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
   appendSeries(all, [], 'black');
   toggle(all, 'white', null);
   appendLegendKey(legendTitle, all, 10, color);
-  const sortedGroupEntries = arrGroups;
-  console.log(sortedGroupEntries);
+  const sortedGroupEntries = arrGroups.sort((a, b) => {
+    const aIsNaN = isNaN(a);
+    const bIsNaN = isNaN(b);
+    if (aIsNaN && bIsNaN) {
+      // a and b are both alphabetical
+      return (a > b) ? 1 : -1;
+    } else if (!aIsNaN && bIsNaN) {
+      // a is numeric, b is alphabetical
+      return 1;
+    } else if (aIsNaN && !bIsNaN) {
+      // a is alphabetic, b is numeric
+      return -1;
+    }
+    // a and be are both numeric
+    return a - b;
+  });
   for (const [i, entry] of sortedGroupEntries.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
