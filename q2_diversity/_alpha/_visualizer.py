@@ -326,7 +326,8 @@ def alpha_rarefaction(output_dir: str,
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            data.to_csv(fh, index_label=['sample-id', 'depth'])
+            data.columns = ['depth-%d_iter-%d' % (t[0], t[1]) for t in data.columns.values]
+            data.to_csv(fh, index_label=['sample-id'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
