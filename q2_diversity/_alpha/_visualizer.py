@@ -334,7 +334,7 @@ def alpha_rarefaction(output_dir: str,
                                 'filenames': filenames,
                                 'categories': list(categories)})
 
-    shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dst'),
+    shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dist'),
                     os.path.join(output_dir, 'dist'))
 
 

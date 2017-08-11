@@ -1,6 +1,7 @@
 import state from './state';
 
 export function setupData(data, metric) {
+  console.log('metric: ', metric, 'data: ', data);
   const [xAxisLabel, yAxisLabel] = ['Sequencing Depth', metric];
   let minX = Infinity;
   let maxX = 0;
