@@ -146,6 +146,7 @@ export default function render(svg, data, category, legend, legendTitle) {
 
   const x = scaleLinear().domain([minX - xPad, maxX + xPad]).range([0, width]).nice();
   const y = scaleLinear().domain([minY, maxY]).range([height, 0]).nice();
+  console.log('subY values: ', subYPad, minSubY, maxSubY);
   const subY = scaleLinear().domain([minSubY - subYPad, maxSubY + subYPad])
     .range([height, 0]).nice();
 

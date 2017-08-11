@@ -201,13 +201,16 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _seven_number_summary(g):
+def _seven_number_summary(g, iterations):
     # this should probably be publicly accessible throughout QIIME 2 - it's
     # also currently implemented in q2-demux summarize
     stats = g.describe(
         percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
     drop_cols = stats.index.isin(['std', 'mean'])
     stats = stats[~drop_cols]
+    # print('before stats[count]: ', stats['count'])
+    stats['count'] = stats['count'] / iterations
+    # print('after stats[count]: ', stats['count'])
     return stats
 
 
@@ -216,30 +219,33 @@ def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
     # TODO: replace below with metadata API call
     categorical_values = metadata_df[category]
     newData = data.copy()
-    newData[category] = categorical_values
+    print('before: ', newData.columns)
+    newData[category,category] = categorical_values
+    print('after: ', newData.columns)
     groups = newData.groupby(category)
     for name, group in groups:
         unstacked = group.unstack(level='sample-id')
-        unstacked = unstacked.unstack(level='iter')
+        unstacked = unstacked.unstack(level='iter').dropna(axis=0, how='all')
         unstacked.index = unstacked.index.droplevel(1)
         unstacked[category] = name
         unstacked = unstacked.drop(unstacked.index[len(unstacked) - 1])
         for d in depth_range:
-            valuesFrame = unstacked.loc[d][list(range(1, iterations + 1))]
-            valuesSeries = pd.Series(valuesFrame.values.ravel()).dropna().astype(float)
-            stats = _seven_number_summary(valuesSeries)
+            valuesFrame = unstacked.loc[d][list(range(0, iterations))]
+            valuesSeries = pd.Series(valuesFrame.values.ravel()).astype(float)
+            stats = _seven_number_summary(valuesSeries, iterations)
             rows.append({category: name, 'depth': d, **stats})
+    print('baloney')
     return pd.DataFrame(rows)
 
 
-def _without_metadata_df(data, depth_range):
+def _without_metadata_df(data, depth_range, iterations):
     rows = []
     for (sample, d) in product(data.index, depth_range):
         s = data.loc[sample,d]
         # TODO: don't hard-code sample-id
         rows.append({'sample-id': sample,
                      'depth': d,
-                     **_seven_number_summary(s)})
+                     **_seven_number_summary(s, iterations)})
     return pd.DataFrame(rows)
 
 
@@ -272,6 +278,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps, iterat
                 vector = alpha(table=rt, metric=m)
             data[m][(d, i)] = vector
     return data, depth_range, iter_range
+
 
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
@@ -311,7 +318,7 @@ def alpha_rarefaction(output_dir: str,
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-            n_df = _without_metadata_df(data, depth_range)
+            n_df = _without_metadata_df(data, depth_range, iterations)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)
