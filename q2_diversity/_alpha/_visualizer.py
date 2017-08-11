@@ -225,7 +225,9 @@ def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
         unstacked[category] = name
         unstacked = unstacked.drop(unstacked.index[len(unstacked) - 1])
         for d in depth_range:
-            s = unstacked.loc[d].dropna().iloc[1:iterations]
+            s = unstacked.loc[d]
+            print('*********************')
+            print(s.ix[0])
             rows.append({category: name,
                          'depth': d,
                          **_seven_number_summary(s)})
