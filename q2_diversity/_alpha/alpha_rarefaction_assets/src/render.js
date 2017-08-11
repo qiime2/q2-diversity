@@ -46,10 +46,7 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
     const bIsNaN = isNaN(b);
     if (aIsNaN && bIsNaN) {
       // a and b are both alphabetical
-      if (a > b) {
-        return 1;
-      }
-      return -1;
+      return (a > b) ? 1 : -1;
     } else if (!aIsNaN && bIsNaN) {
       // a is numeric, b is alphabetical
       return 1;
@@ -60,7 +57,6 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
     // a and be are both numeric
     return a - b;
   });
-  console.log(sortedGroupEntries);
   for (const [i, entry] of sortedGroupEntries.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)

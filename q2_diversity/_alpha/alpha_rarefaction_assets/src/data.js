@@ -19,7 +19,6 @@ export function setupData(data, metric) {
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
     const count = d[countIndex];
-    console.log(count);
     if (count > maxSubY) maxSubY = count;
     if (count < minSubY) minSubY = count;
   });
