@@ -228,9 +228,7 @@ def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
             valuesFrame = unstacked.loc[d][list(range(1, iterations + 1))]
             valuesSeries = pd.Series(valuesFrame.values.ravel()).dropna().astype(float)
             stats = _seven_number_summary(valuesSeries)
-            rows.append({category: name,
-                         'depth': d,
-                         **stats})
+            rows.append({category: name, 'depth': d, **stats})
     return pd.DataFrame(rows)
 
 
