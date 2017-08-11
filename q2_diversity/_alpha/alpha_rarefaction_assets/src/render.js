@@ -41,7 +41,9 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
   appendSeries(all, [], 'black');
   toggle(all, 'white', null);
   appendLegendKey(legendTitle, all, 10, color);
-  for (const [i, entry] of arrGroups.entries()) {
+  const sortedGroupEntries = arrGroups;
+  console.log(sortedGroupEntries);
+  for (const [i, entry] of sortedGroupEntries.entries()) {
     ly = (i + 0.5) * 20;
     const subset = points.filter(d => d[groupIndex] === entry)
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);

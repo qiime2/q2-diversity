@@ -252,6 +252,27 @@ def write_jsonp(output_dir, filename, metric, data, warnings, category):
         fh.write(");")
 
 
+def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps, iterations, phylogeny, metrics):
+    depth_range = np.linspace(min_depth, max_depth, num=steps, dtype=int)
+    iter_range = range(1, iterations + 1)
+
+    rows = feature_table.ids(axis='sample')
+    cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
+                                      names=['depth', 'iter'])
+    data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
+            for k in metrics}
+
+    for d, i in product(depth_range, iter_range):
+        rt = rarefy(feature_table, d)
+        for m in metrics:
+            if m in phylogenetic_metrics():
+                vector = alpha_phylogenetic(table=rt, metric=m,
+                                            phylogeny=phylogeny)
+            else:
+                vector = alpha(table=rt, metric=m)
+            data[m][(d, i)] = vector
+    return data, depth_range, iter_range
+
 def alpha_rarefaction(output_dir: str,
                       feature_table: biom.Table,
                       max_depth: int,
@@ -282,26 +303,8 @@ def alpha_rarefaction(output_dir: str,
     warnings = []
     filenames = []
     categories = []    
-    
-    depth_range = np.linspace(min_depth, max_depth, num=steps, dtype=int)
-    iter_range = range(1, iterations + 1)
-
-    rows = feature_table.ids(axis='sample')
-    cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
-                                      names=['depth', 'iter'])
-    data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
-            for k in metrics}
-
-    for d, i in product(depth_range, iter_range):
-        rt = rarefy(feature_table, d)
-        for m in metrics:
-            if m in phylogenetic_metrics():
-                vector = alpha_phylogenetic(table=rt, metric=m,
-                                            phylogeny=phylogeny)
-            else:
-                vector = alpha(table=rt, metric=m)
-            data[m][(d, i)] = vector
-
+    data, depth_range, iter_range = _compute_rarefaction_data(feature_table, min_depth, max_depth,
+                                         steps, iterations, phylogeny, metrics)
     for (m, data) in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
