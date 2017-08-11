@@ -211,24 +211,34 @@ def _seven_number_summary(g):
     return stats
 
 
-def categorical_df(category, metadata_df, data, iterations):
+def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
     rows = []
-    categorical_values = metadata_df[category].dropna()
-    groups = data.groupby(categorical_values[data.index])
+    # TODO: replace below with metadata API call
+    categorical_values = metadata_df[category]
+    newData = data.copy()
+    newData[category] = categorical_values
+    groups = newData.groupby(category)
     for name, group in groups:
-        depthGroups = group.groupby(axis=1, level=0)
-        for depth, dGroup in depthGroups:
-            row = {**{category: quote(name)},
-                   **(_seven_number_summary(dGroup.stack()).to_dict(orient='dict'))}
+        unstacked = group.unstack(level='sample-id')
+        unstacked = unstacked.unstack(level='iter')
+        unstacked.index = unstacked.index.droplevel(1)
+        unstacked[category] = name
+        unstacked = unstacked.drop(unstacked.index[len(unstacked) - 1])
+        for d in depth_range:
+            s = unstacked.loc[d].dropna().iloc[1:iterations]
+            rows.append({category: name,
+                         'depth': d,
+                         **_seven_number_summary(s)})
     return pd.DataFrame(rows)
 
 
-def non_categorical_df(data, depth_range):
+def _without_metadata_df(data, depth_range):
     rows = []
     for (sample, d) in product(data.index, depth_range):
         s = data.loc[sample,d]
-        rows.append({**{'sample-id': sample},
-                     **{'depth': d},
+        # TODO: don't hard-code sample-id
+        rows.append({'sample-id': sample,
+                     'depth': d,
                      **_seven_number_summary(s)})
     return pd.DataFrame(rows)
 
@@ -298,7 +308,7 @@ def alpha_rarefaction(output_dir: str,
 
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
-            n_df = non_categorical_df(data, depth_range)
+            n_df = _without_metadata_df(data, depth_range)
             write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
                         warnings, '')
             filenames.append(jsonp_filename)
@@ -309,12 +319,12 @@ def alpha_rarefaction(output_dir: str,
             for category in categories:
                 category_name = quote(category)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
-                c_df = categorical_df(category_name, metadata_df, data,
-                                      iterations)
+                c_df = _with_metadata_df(category_name, metadata_df, data,
+                                      iterations, depth_range)
                 write_jsonp(output_dir, jsonp_filename, metric_name,
                             c_df, warnings, category_name)
                 filenames.append(jsonp_filename)
-            # merge here
+
         with open(os.path.join(output_dir, filename), 'w') as fh:
             data.to_csv(fh, index_label=['sample-id', 'depth'])
 
