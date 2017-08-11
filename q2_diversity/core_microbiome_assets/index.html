@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Core microbiome</h1>
+
+<div class='row'>
+  <div class='col-md-6'>
+    <div class='row'>
+      <div class='col-md-12'>
+        <h3>Feature table summary</h3>
+          {% if filtered %}
+            Applied filter: {{filter}}<br>
+            Sample count pre-filtering: {{samples_pre_filter}}<br>
+            Feature count pre-filtering: {{features_pre_filter}}<br>
+            Sample count post-filtering: {{samples_post_filter}}<br>
+            Feature count post-filtering: {{features_post_filter}}<br>
+          {% else %}
+            Sample count: {{samples}}<br>
+            Feature count: {{features}}
+          {% endif %}
+      </div>
+    </div>
+    <div class='row'>
+      <div class='col-md-12'>
+        <img src='core-feature-counts.svg'>
+      </div>
+    </div>
+  </div>
+  <div class='col-md-6'>
+    <div class='row'>
+      <div class='col-md-12'>
+        <h3>Terminology key</h3>
+        <i>Fraction of samples</i>: The fraction of the total number of samples that a feature must be observed more than zero times in for that feature to be considered "core".<br>
+        <i>Feature count</i>: The number of "core" features at a given fraction of samples.<br>
+        <i>Fraction of features</i>: The fraction of the total number of features (post-filtering, if applicable) that are "core" features at a given fraction of samples.<br>
+        <i>Feature list</i>: The list of "core" feature ids and their percentile frequencies at a given fraction of samples.
+      </div>
+    </div>
+    <div class='row'>
+      <div class='col-md-12'>
+        {{table_html}}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

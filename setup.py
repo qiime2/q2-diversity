@@ -19,12 +19,14 @@ setup(
                       'alpha_group_significance_assets/index.html',
                       'alpha_group_significance_assets/dist/*',
                       'alpha_correlation_assets/index.html',
-                      'alpha_correlation_assets/dist/*'],
+                      'alpha_correlation_assets/dist/*', ],
                   'q2_diversity._beta': [
                       'beta_group_significance_assets/index.html',
                       'beta_correlation_assets/index.html',
-                      'bioenv_assets/index.html',
-                   ]},
+                      'bioenv_assets/index.html', ],
+                  'q2_diversity': [
+                      'core_microbiome_assets/index.html',
+                  ]},
     author="Greg Caporaso",
     author_email="gregcaporaso@gmail.com",
     description="Core diversity analyses.",

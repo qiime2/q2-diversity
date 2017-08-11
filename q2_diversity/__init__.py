@@ -12,6 +12,7 @@ from ._beta import (beta, beta_phylogenetic, bioenv, beta_group_significance,
                     beta_correlation)
 from ._ordination import pcoa
 from ._core_metrics import core_metrics
+from ._core_microbiome import core_microbiome
 from ._filter import filter_distance_matrix
 from ._version import get_versions
 
@@ -22,4 +23,4 @@ del get_versions
 __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic', 'pcoa',
            'alpha_group_significance', 'bioenv', 'beta_group_significance',
            'alpha_correlation', 'core_metrics', 'filter_distance_matrix',
-           'beta_correlation']
+           'beta_correlation', 'core_microbiome']
