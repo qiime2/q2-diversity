@@ -19,18 +19,24 @@ export default function init() {
                     .attr('class', 'col-lg-9')
                     .style('width', '1120px');
   const legendCol = plotRow.append('div')
-                      .style('height', '470px')
+                      .style('height', '1000px')
                       .attr('class', 'col-lg-2');
   // within plot col we have plot svg
   const plotSvg = plotCol.append('svg')
-                    .attr('viewBox', '0 0 1120 470');
+                    .attr('viewBox', '0 0 1120 1000');
   // within plot svg we have chart g
-  const chart = plotSvg.append('g');
+  const chart = plotSvg.append('g').attr('id', 'chart');
   // within chart g we have x axis, y axis, & axis labels
   chart.append('g').attr('class', 'x axis');
   chart.append('g').attr('class', 'y axis');
   chart.append('text').attr('class', 'x label');
   chart.append('text').attr('class', 'y label');
+  // subchart
+  const subChart = plotSvg.append('g').attr('id', 'subChart');
+  subChart.append('g').attr('class', 'x axis');
+  subChart.append('g').attr('class', 'y axis');
+  subChart.append('text').attr('class', 'x label');
+  subChart.append('text').attr('class', 'y label');
   // within legendCol we have legend title and legend box
   const legendTitle = legendCol.append('div')
                         .style('height', '25px')
@@ -43,13 +49,13 @@ export default function init() {
                           .append('g')
                             .attr('class', 'legendTitle');
   const legendBox = legendCol.append('div')
-                    .style('height', '445px')
+                    .style('height', '900px')
                     .style('width', '300px')
                     .style('overflow-y', 'scroll')
                     .style('overflow-x', 'auto')
                     .attr('class', 'legendBoxDiv')
                     .append('svg')
-                      .attr('viewBox', '0 0 300 445')
+                      .attr('viewBox', '0 0 300 900')
                       .attr('class', 'legendBoxSvg')
                       .append('g');
   body.insert('h1', ':first-child').text('Alpha Rarefaction');

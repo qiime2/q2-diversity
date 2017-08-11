@@ -368,7 +368,7 @@ plugin.visualizers.register_function(
     },
     parameter_descriptions={
         'metric': ('The metric to be measured. By default computes '
-                   'observed_otus, shannon, chao1, and if phylogeny is '
+                   'observed_otus, shannon, and if phylogeny is '
                    'provided, faith_pd.'),
         'metadata': 'The sample metadata.',
         'min_depth': 'The minimum rarefaction depth.',

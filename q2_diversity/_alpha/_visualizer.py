@@ -262,7 +262,7 @@ def alpha_rarefaction(output_dir: str,
                       steps: int=10,
                       iterations: int=10) -> None:
     if metric is None:
-        metrics = ['observed_otus', 'chao1', 'shannon']
+        metrics = ['observed_otus', 'shannon']
         if phylogeny is not None:
             metrics.append('faith_pd')
     else:

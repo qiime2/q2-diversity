@@ -9,17 +9,19 @@ import {
   nest,
 } from 'd3';
 
-import { setupXLabel, setupYLabel } from './axis';
+import { setupXLabel, setupYLabels } from './axis';
 import appendLegendKey from './legend';
 import { curData, appendSeries, toggle } from './data';
 
 // re-render chart and legend whenever selection changes
-function renderPlot(svg, data, x, y, category, legend, legendTitle) {
-  const chart = svg.select('g');
+function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
+  const chart = svg.select('#chart');
+  const subChart = svg.select('#subChart');
   const legendBox = select(legend.node().parentNode);
 
   const depthIndex = data.data.columns.indexOf('depth');
   const medianIndex = data.data.columns.indexOf('50%');
+  const countIndex = data.data.columns.indexOf('count');
   let groupIndex = data.data.columns.indexOf('sample-id');
   if (groupIndex === -1) {
     groupIndex = data.data.columns.indexOf(category);
@@ -49,41 +51,54 @@ function renderPlot(svg, data, x, y, category, legend, legendTitle) {
     appendLegendKey(legend, entry, ly, color);
   }
   // DOTS
-  function plotDots(selection) {
+  function plotDots(selection, index, yScale) {
     selection.transition()
       .attr('class', d => `circle ${d[groupIndex]}`)
       .attr('fill', d => color(d[groupIndex]))
       .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
       .attr('stroke', d => color(d[groupIndex]))
       .attr('cx', d => x(d[depthIndex]))
-      .attr('cy', d => y(d[medianIndex]));
+      .attr('cy', d => yScale(d[index]));
   }
   const dotsUpdate = chart.selectAll('.circle').data(points);
   dotsUpdate.exit().transition().remove();
   const dotsEnter = dotsUpdate.enter().append('circle')
     .attr('r', 4);
-  dotsUpdate.call(plotDots);
-  dotsEnter.call(plotDots);
-  legendBox.attr('viewBox', `0 0 200 ${ly + 10}`);
+  dotsUpdate.call(plotDots, medianIndex, y);
+  dotsEnter.call(plotDots, medianIndex, y);
+
+  const subDotsUpdate = subChart.selectAll('.circle').data(points);
+  subDotsUpdate.exit().transition().remove();
+  const subDotsEnter = subDotsUpdate.enter().append('circle')
+    .attr('r', 4);
+  subDotsUpdate.call(plotDots, countIndex, subY);
+  subDotsEnter.call(plotDots, countIndex, subY);
+
+  legendBox.attr('viewBox', `0 0 200 ${ly + 10}`); // CHANGE THIS
   // LINES
-  const valueline = line()
-    .x(d => x(d[depthIndex]))
-    .y(d => y(d[medianIndex]));
+  function valueline(yIndex, yScale) {
+    return line().x(d => x(d[depthIndex]))
+      .y(d => yScale(d[yIndex]));
+  }
   const datum = nest()
     .key(d => d[groupIndex])
     .entries(points);
+  function plotLines(selection, yScale, yIndex) {
+    selection.attr('class', d => `line ${d.key}`)
+      .attr('stroke', d => color(d.key))
+      .attr('opacity', d => curData[d.key].lineOpacity)
+      .attr('fill', 'none')
+      .attr('d', d => valueline(yIndex, yScale)(d.values));
+  }
   const linesUpdate = chart.selectAll('.line').data(datum);
   linesUpdate.exit().transition().remove();
-  linesUpdate.enter().append('path')
-    .attr('class', d => `line ${d.key}`)
-    .attr('stroke', d => color(d.key))
-    .attr('opacity', d => curData[d.key].lineOpacity)
-    .attr('fill', 'none')
-    .attr('d', d => valueline(d.values));
-  linesUpdate.attr('class', d => `line ${d.key}`)
-    .attr('stroke', d => color(d.key))
-    .attr('opacity', d => curData[d.key].lineOpacity)
-    .attr('d', d => valueline(d.values));
+  linesUpdate.enter().append('path').call(plotLines, y, medianIndex);
+  linesUpdate.call(plotLines, y, medianIndex);
+
+  const subLinesUpdate = subChart.selectAll('.line').data(datum);
+  subLinesUpdate.exit().transition().remove();
+  subLinesUpdate.enter().append('path').call(plotLines, subY, countIndex);
+  subLinesUpdate.call(plotLines, subY, countIndex);
 }
 
 // re-render chart edges, exis, formatting, etc. when selection changes
@@ -91,38 +106,46 @@ export default function render(svg, data, category, legend, legendTitle) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 80, right: 50, bottom: 50 };
-  const chart = svg.select('g');
+  const chart = svg.select('#chart');
+  const subChart = svg.select('#subChart');
 
-  const { xAxisLabel, yAxisLabel, minX, maxX, minY, maxY } = data;
+  const { xAxisLabel, yAxisLabel, minX, maxX, minY, maxY, minSubY, maxSubY } = data;
 
   const xAxis = axisBottom();
-  const yAxis = axisLeft();
+  const yAxisChart = axisLeft();
+  const yAxisSubChart = axisLeft();
 
-  let pad = (maxX - minX) * 0.03;
-  if (Number.isInteger(minX) && Number.isInteger(maxX)) {
-    pad = Math.max(Math.round(pad), 1);
-    const between = Math.max(3, (maxX - minX) + (2 * pad));
-    xAxis.ticks(Math.min(between, 12), 'd');
+  function setPad(min, max, axis) {
+    let pad = (max - min) * 0.03;
+    if (Number.isInteger(min) && Number.isInteger(max)) {
+      pad = Math.max(Math.round(pad), 1);
+      const between = Math.max(3, (max - min) + (2 * pad));
+      axis.ticks(Math.min(between, 12), 'd');
+    }
+    return pad;
   }
 
-  const x = scaleLinear().domain([minX - pad, maxX + pad]).range([0, width]).nice();
+  const xPad = setPad(minX, maxX, xAxis);
+  const subYPad = setPad(minSubY, maxSubY, yAxisSubChart);
+
+  const x = scaleLinear().domain([minX - xPad, maxX + xPad]).range([0, width]).nice();
   const y = scaleLinear().domain([minY, maxY]).range([height, 0]).nice();
+  const subY = scaleLinear().domain([minSubY - subYPad, maxSubY + subYPad])
+    .range([height, 0]).nice();
 
   xAxis.scale(x);
-  yAxis.scale(y);
+  yAxisChart.scale(y);
+  yAxisSubChart.scale(subY);
 
   setupXLabel(svg, width, height, xAxisLabel, xAxis);
-  const maxLabelY = setupYLabel(svg, height, yAxisLabel, yAxis);
+  const maxLabelY = setupYLabels(svg, height, yAxisLabel, yAxisChart, yAxisSubChart);
   const moveX = Math.max(margin.left, maxLabelY);
-  // log
-  console.log('moveX: ', moveX,
-    ' margin left: ', margin.left,
-    ' maxLabelY: ', maxLabelY);
-  // log
+
   svg.attr('width', width + moveX + margin.right)
-    .attr('height', height + margin.bottom + margin.top);
+    .attr('height', 2 * (height + margin.bottom + margin.top));
   select(svg.node().parentNode).style('width', `${width + moveX + margin.right}px`)
-    .style('height', `${height + margin.bottom + margin.top}px`);
+    .style('height', `${2 * (height + margin.bottom + margin.top)}px`);
   chart.attr('transform', `translate(${moveX},${margin.top})`);
-  renderPlot(svg, data, x, y, category, legend, legendTitle);
+  subChart.attr('transform', `translate(${moveX},${height + margin.bottom + margin.top})`);
+  renderPlot(svg, data, x, y, subY, category, legend, legendTitle);
 }

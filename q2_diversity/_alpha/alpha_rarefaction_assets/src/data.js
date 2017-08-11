@@ -6,8 +6,11 @@ export function setupData(data, metric) {
   let maxX = 0;
   let minY = Infinity;
   let maxY = 0;
+  let minSubY = Infinity;
+  let maxSubY = 0;
   const depthIndex = data.columns.indexOf('depth');
   const medianIndex = data.columns.indexOf('50%');
+  const countIndex = data.columns.indexOf('count');
   data.data.forEach((d) => {
     const x = d[depthIndex];
     const y = d[medianIndex];
@@ -15,6 +18,10 @@ export function setupData(data, metric) {
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
+    const count = d[countIndex];
+    console.log(count);
+    if (count > maxSubY) maxSubY = count;
+    if (count < minSubY) minSubY = count;
   });
 
   return {
@@ -25,6 +32,8 @@ export function setupData(data, metric) {
     maxX,
     minY,
     maxY,
+    minSubY,
+    maxSubY,
   };
 }
 
