@@ -219,9 +219,7 @@ def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
     # TODO: replace below with metadata API call
     categorical_values = metadata_df[category]
     newData = data.copy()
-    print('before: ', newData.columns)
     newData[category,category] = categorical_values
-    print('after: ', newData.columns)
     groups = newData.groupby(category)
     for name, group in groups:
         unstacked = group.unstack(level='sample-id')
