@@ -356,7 +356,8 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'feature_table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha.alpha_rarefaction_supported_methods),
+    parameters={'metric': Str % Choices(
+                            alpha.alpha_rarefaction_supported_methods),
                 'metadata': Metadata,
                 'min_depth': Int % Range(1, None),
                 'max_depth': Int % Range(1, None),

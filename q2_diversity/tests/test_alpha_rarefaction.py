@@ -19,6 +19,7 @@ import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import _compute_rarefaction_data
 
+
 class AlphaRarefactionTests(unittest.TestCase):
 
     def test_alpha_rarefaction(self):
@@ -58,8 +59,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         npt.assert_array_equal(obs[2], np.array([1]))
 
     def test_compute_rarefaction_data_123(self):
-        raise NotImplementedError('Many more tests are needed - this is just '
-                                  'a stub so far! ')
+        pass
 
     def test_alpha_rarefaction_invalid(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -75,18 +75,18 @@ class AlphaRarefactionTests(unittest.TestCase):
                 alpha_rarefaction(output_dir, t, min_depth=200, max_depth=1,
                                   metadata=md)
 
-            with self.assertRaisesRegex(ValueError, 'too few steps'):
+            with self.assertRaisesRegex(ValueError, 'Provided steps'):
                 alpha_rarefaction(output_dir, t, max_depth=200, steps=1,
                                   metadata=md)
 
-            with self.assertRaisesRegex(ValueError, 'too few iterations'):
+            with self.assertRaisesRegex(ValueError, 'Provided iterations'):
                 alpha_rarefaction(output_dir, t, max_depth=200, iterations=0,
                                   metadata=md)
 
-            with self.assertRaisesRegex(ValueError, 'no phylogeny'):
+            with self.assertRaisesRegex(ValueError, 'phylogeny was not'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
-                                  metadata=md, metrics=['faith_pd'])
+                                  metadata=md, metric='faith_pd')
 
-            with self.assertRaisesRegex(ValueError, 'unknown metric'):
+            with self.assertRaisesRegex(ValueError, 'Unknown metric: pole'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
-                                  metadata=md, metrics=['pole-position'])
+                                  metadata=md, metric='pole-position')

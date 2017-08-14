@@ -201,16 +201,13 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _seven_number_summary(g, iterations):
+def _seven_number_summary(g):
     # this should probably be publicly accessible throughout QIIME 2 - it's
     # also currently implemented in q2-demux summarize
     stats = g.describe(
         percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
     drop_cols = stats.index.isin(['std', 'mean'])
     stats = stats[~drop_cols]
-    # print('before stats[count]: ', stats['count'])
-    stats['count'] = stats['count'] / iterations
-    # print('after stats[count]: ', stats['count'])
     return stats
 
 
@@ -219,44 +216,42 @@ def _with_metadata_df(category, metadata_df, data, iterations, depth_range):
     # TODO: replace below with metadata API call
     categorical_values = metadata_df[category]
     newData = data.copy()
-    newData[category,category] = categorical_values
+    newData[category] = categorical_values
     groups = newData.groupby(category)
     for name, group in groups:
         unstacked = group.unstack(level='sample-id')
-        unstacked = unstacked.unstack(level='iter').dropna(axis=0, how='all')
+        unstacked = unstacked.unstack(level='iter')
         unstacked.index = unstacked.index.droplevel(1)
         unstacked[category] = name
         unstacked = unstacked.drop(unstacked.index[len(unstacked) - 1])
         for d in depth_range:
-            valuesFrame = unstacked.loc[d][list(range(0, iterations))]
-            valuesSeries = pd.Series(valuesFrame.values.ravel()).astype(float)
-            stats = _seven_number_summary(valuesSeries, iterations)
+            valuesFrame = unstacked.loc[d][list(range(1, iterations + 1))]
+            valuesSeries = (pd.Series(valuesFrame.values.ravel())
+                            .dropna().astype(float))
+            stats = _seven_number_summary(valuesSeries)
             rows.append({category: name, 'depth': d, **stats})
-    print('baloney')
     return pd.DataFrame(rows)
 
 
 def _without_metadata_df(data, depth_range, iterations):
     rows = []
     for (sample, d) in product(data.index, depth_range):
-        s = data.loc[sample,d]
-        # TODO: don't hard-code sample-id
+        s = data.loc[sample, d]
         rows.append({'sample-id': sample,
                      'depth': d,
-                     **_seven_number_summary(s, iterations)})
+                     **_seven_number_summary(s)})
     return pd.DataFrame(rows)
 
 
-def write_jsonp(output_dir, filename, metric, data, warnings, category):
+def write_jsonp(output_dir, filename, metric, data, category):
     with open(os.path.join(output_dir, filename), 'w') as fh:
         fh.write("load_data('%s', '%s'," % (metric, category))
         data.to_json(fh, orient='split')
-        fh.write(",")
-        json.dump(list(set(warnings)), fh)
         fh.write(");")
 
 
-def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps, iterations, phylogeny, metrics):
+def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
+                              iterations, phylogeny, metrics):
     depth_range = np.linspace(min_depth, max_depth, num=steps, dtype=int)
     iter_range = range(1, iterations + 1)
 
@@ -287,6 +282,11 @@ def alpha_rarefaction(output_dir: str,
                       min_depth: int=1,
                       steps: int=10,
                       iterations: int=10) -> None:
+    if steps < 2:
+        raise ValueError('Provided steps of %d must greater than 1.' % steps)
+    if iterations < 1:
+        raise ValueError('Provided iterations of %d must greater than 0.'
+                         % steps)
     if metric is None:
         metrics = ['observed_otus', 'shannon']
         if phylogeny is not None:
@@ -296,7 +296,7 @@ def alpha_rarefaction(output_dir: str,
             raise ValueError('Phylogenetic metric was requested but '
                              'phylogeny was not provided.')
         metrics = [metric]
-    
+
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '
                          'provided min_depth of %d.' % (max_depth, min_depth))
@@ -305,11 +305,11 @@ def alpha_rarefaction(output_dir: str,
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
-    warnings = []
     filenames = []
-    categories = []    
-    data, depth_range, iter_range = _compute_rarefaction_data(feature_table, min_depth, max_depth,
-                                         steps, iterations, phylogeny, metrics)
+    categories = []
+    data, depth_range, iter_range = _compute_rarefaction_data(
+        feature_table, min_depth, max_depth, steps, iterations,
+        phylogeny, metrics)
     for (m, data) in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
@@ -317,8 +317,7 @@ def alpha_rarefaction(output_dir: str,
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
             n_df = _without_metadata_df(data, depth_range, iterations)
-            write_jsonp(output_dir, jsonp_filename, metric_name, n_df,
-                        warnings, '')
+            write_jsonp(output_dir, jsonp_filename, metric_name, n_df, '')
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
@@ -328,13 +327,14 @@ def alpha_rarefaction(output_dir: str,
                 category_name = quote(category)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
                 c_df = _with_metadata_df(category_name, metadata_df, data,
-                                      iterations, depth_range)
-                write_jsonp(output_dir, jsonp_filename, metric_name,
-                            c_df, warnings, category_name)
+                                         iterations, depth_range)
+                write_jsonp(output_dir, jsonp_filename, metric_name, c_df,
+                            category_name)
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            data.columns = ['depth-%d_iter-%d' % (t[0], t[1]) for t in data.columns.values]
+            data.columns = ['depth-%d_iter-%d' % (t[0], t[1])
+                            for t in data.columns.values]
             data.to_csv(fh, index_label=['sample-id'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
@@ -343,12 +343,13 @@ def alpha_rarefaction(output_dir: str,
                                 'filenames': filenames,
                                 'categories': list(categories)})
 
-    shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'dist'),
+    shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets',
+                                 'dist'),
                     os.path.join(output_dir, 'dist'))
 
 
 alpha_rarefaction_supported_methods = (non_phylogenetic_metrics()
-                                        & phylogenetic_metrics()
-                                        - {'osd', 'lladser_ci', 'strong',
-                                           'esty_ci', 'kempton_taylor_q',
+                                       & phylogenetic_metrics()
+                                       - {'osd', 'lladser_ci', 'strong',
+                                          'esty_ci', 'kempton_taylor_q',
                                            'chao1_ci'})
