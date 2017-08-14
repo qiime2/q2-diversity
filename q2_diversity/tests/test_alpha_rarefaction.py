@@ -17,7 +17,8 @@ import pandas.testing as pdt
 import qiime2
 import pandas as pd
 from q2_diversity import alpha_rarefaction
-from q2_diversity._alpha._visualizer import _compute_rarefaction_data
+from q2_diversity._alpha._visualizer import (
+    _compute_rarefaction_data, _compute_summary)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -58,7 +59,87 @@ class AlphaRarefactionTests(unittest.TestCase):
         npt.assert_array_equal(obs[1], np.array([1, 200]))
         npt.assert_array_equal(obs[2], np.array([1]))
 
-    def test_compute_rarefaction_data_123(self):
+    def test_compute_summary_one_iteration(self):
+        columns = pd.MultiIndex.from_product([[1, 200], [1]],
+                                             names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _compute_summary(data, np.array([1]), 'sample-id')
+
+        d = [[1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S1'],
+             [1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S2'],
+             [1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S3']]
+
+        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
+                                            '91%', '98%', 'count', 'depth',
+                                            'max', 'min', 'sample-id'])
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_compute_summary_two_iterations(self):
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _compute_summary(data, np.array([1]), 'sample-id')
+
+        d = [[1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S1'],
+             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S2'],
+             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S3']]
+
+        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
+                                            '91%', '98%', 'count', 'depth',
+                                            'max', 'min', 'sample-id'])
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_compute_summary_three_iterations(self):
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2, 3]],
+                                             names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6],
+                                  [1, 2, 3, 4, 5, 6]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _compute_summary(data, np.array([1]), 'sample-id')
+
+        d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],
+             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S2'],
+             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S3']]
+
+        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
+                                            '91%', '98%', 'count', 'depth',
+                                            'max', 'min', 'sample-id'])
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_with_metadata_two_iterations_unique_metadata_groups(self):
+        # This should be identical to test_without_metadata_df_two_iterations,
+        # with just the `sample-id` replaced with `pet`.
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+                            columns=columns, index=['russ', 'milo', 'pea'])
+
+        obs = _compute_summary(data, np.array([1]), 'pet')
+
+        d = [[1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'russ'],
+             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'milo'],
+             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'pea']]
+
+        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
+                                            '91%', '98%', 'count', 'depth',
+                                            'max', 'min', 'pet'])
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_reindex_with_metadata(self):
+        # TODO: Write these tests!
+        pass
+
+    def test_seven_number_summary(self):
+        # TODO: Write these tests!
+        pass
+
+    def test_write_jsonp(self):
+        # TODO: Write these tests!
         pass
 
     def test_alpha_rarefaction_invalid(self):
