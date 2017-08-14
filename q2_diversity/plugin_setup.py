@@ -361,7 +361,6 @@ plugin.visualizers.register_function(
     function=q2_diversity._beta._visualizer.beta_rarefaction,
     inputs={'table': FeatureTable[Frequency], 'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int,
-                'rarefy_for_master_tree': Bool,
                 'metric': Str % Choices(beta.all_metrics()),
                 'num_iterations': Int,
                 'color_scheme': Str % Choices(color_schemes),
@@ -379,8 +378,6 @@ plugin.visualizers.register_function(
         'sampling_depth': ('The total frequency that each sample should be '
                            'rarefied to prior to computing diversity '
                            'metrics.'),
-        'rarefy_for_master_tree': ('If `False` the table used for computing '
-                                   'the master tree will be unrarefied.'),
         'metric': 'The beta diversity metric to be computed.',
         'num_iterations': 'Number of rarefied tables to be created.',
         'color_scheme': ('The matplotlib color scheme to generate the '

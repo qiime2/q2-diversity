@@ -23,9 +23,8 @@ import qiime2
 from q2_diversity import (beta, beta_phylogenetic, bioenv,
                           beta_group_significance, beta_correlation,)
 from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
-                                            _metadata_distance, _get_leaves,
-                                            _get_multiple_rarefaction,
-                                            _get_computed_tree)
+                                            _metadata_distance,
+                                            _get_multiple_rarefaction)
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -643,19 +642,6 @@ class BetaCorrelationTests(unittest.TestCase):
 
 class BetaRarefactionTests(unittest.TestCase):
 
-    def test_get_leaves(self):
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        exp = {'O1', 'O2'}
-        obs = _get_leaves(tree)
-        self.assertEqual(exp, obs)
-
-    def test_get_leaves_empty(self):
-        tree = skbio.TreeNode.read(io.StringIO('(O3:0.75)root;'))
-        exp = set()
-        obs = _get_leaves(tree)
-        self.assertEqual(exp, obs)
-
     def test_get_multiple_rarefaction(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'], ['S1', 'S2', 'S3'])
@@ -676,14 +662,8 @@ class BetaRarefactionTests(unittest.TestCase):
             npt.assert_array_equal(np.array([2., 2.]),
                                    obs_rt.sum(axis='sample'))
 
-    def test_get_computed_tree(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'], ['S1', 'S2', 'S3'])
-        dms, rt = _get_multiple_rarefaction(beta, 'braycurtis', 1, t, 2)
-
-        obs = _get_computed_tree(beta, 'braycurtis', 1, rt, dms)
-        self.assertEqual(3, obs.count())
-        self.assertEqual(set(['S2', 'S3']), set([t.name for t in obs.tips()]))
+    def test_get_multiple_rarefaction_with_phylogeny(self):
+        pass
 
     def test_compute_similarity_matrix(self):
         pass

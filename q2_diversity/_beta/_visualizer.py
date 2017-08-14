@@ -17,7 +17,7 @@ import qiime2
 import skbio
 import biom
 import skbio.diversity
-from scipy import spatial, cluster
+from scipy import spatial
 import numpy
 import pandas as pd
 import seaborn as sns
@@ -231,7 +231,6 @@ def beta_group_significance(output_dir: str,
 
 def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
                      metric: str, num_iterations: int,
-                     rarefy_for_master_tree: bool=True,
                      phylogeny: skbio.TreeNode=None,
                      color_scheme: str='BrBG',
                      method: str='spearman') -> None:
@@ -251,17 +250,8 @@ def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
     distance_matrices, rarefied_table = _get_multiple_rarefaction(
         beta_metric, metric, num_iterations, table, sampling_depth)
 
-    if rarefy_for_master_tree:
-        table = rarefied_table
-
-    master_tree = _get_computed_tree(
-        beta_metric, metric, num_iterations, table, distance_matrices)
-
     similarity_mtx = _compute_similarity_matrix(num_iterations,
                                                 distance_matrices, method)
-
-    nwk_fp = os.path.join(output_dir, 'master_tree.nwk')
-    master_tree.write(nwk_fp, 'newick')
 
     plt.figure()
     sns.heatmap(similarity_mtx, cmap=color_scheme,
@@ -293,36 +283,6 @@ def _get_multiple_rarefaction(beta_metric, metric, num_iterations, table,
     return (distance_matrices, rarefied_table)
 
 
-def _get_computed_tree(beta_metric, metric, num_iterations, table,
-                       distance_matrices):
-    trees = []
-    for dm in distance_matrices:
-        condensed_dm = dm.condensed_form()
-        upgma_tree = cluster.hierarchy.average(condensed_dm)
-        tree = skbio.tree.TreeNode.from_linkage_matrix(upgma_tree, dm.ids)
-        leaves = _get_leaves(tree)
-        trees.append(leaves)
-
-    dm = beta_metric(table=table, metric=metric)
-    condensed_dm = dm.condensed_form()
-    upgma_tree = cluster.hierarchy.average(condensed_dm)
-    master_tree = skbio.tree.TreeNode.from_linkage_matrix(upgma_tree, dm.ids)
-    master_leaves = dict.fromkeys(_get_leaves(master_tree), 0)
-
-    for leaves in master_leaves:
-        nodes_w_leaves = 0
-        for tree in trees:
-            if leaves in tree:
-                nodes_w_leaves += 1
-        master_leaves[leaves] = nodes_w_leaves / num_iterations
-
-    for node in master_tree.non_tips():
-        leaves = tuple(tip.name for tip in node.tips())
-        if leaves in master_leaves.keys():
-            node.name = str(master_leaves[leaves])
-    return master_tree
-
-
 def _compute_similarity_matrix(num_iterations, distance_matrices, method):
     similarity_mtx = numpy.ones(shape=(num_iterations, num_iterations))
     for i in range(num_iterations):
@@ -332,13 +292,6 @@ def _compute_similarity_matrix(num_iterations, distance_matrices, method):
                 permutations=0, strict=True)
             similarity_mtx[i, j] = similarity_mtx[j, i] = r
     return similarity_mtx
-
-
-def _get_leaves(tree):
-    nodes = set()
-    for node in tree.non_tips():
-        nodes.update(tuple(sorted([leaf.name for leaf in node.tips()])))
-    return nodes
 
 
 def _metadata_distance(metadata: pd.Series) -> skbio.DistanceMatrix:
