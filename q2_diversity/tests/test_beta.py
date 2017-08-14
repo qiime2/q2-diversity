@@ -12,6 +12,7 @@ import os
 import tempfile
 import glob
 import collections
+import functools
 
 import skbio
 import numpy as np
@@ -21,7 +22,8 @@ import pandas as pd
 import qiime2
 
 from q2_diversity import (beta, beta_phylogenetic, bioenv,
-                          beta_group_significance, beta_correlation,)
+                          beta_group_significance, beta_correlation,
+                          beta_rarefaction)
 from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
                                             _metadata_distance,
                                             _get_multiple_rarefaction)
@@ -643,30 +645,72 @@ class BetaCorrelationTests(unittest.TestCase):
 class BetaRarefactionTests(unittest.TestCase):
 
     def test_get_multiple_rarefaction(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'], ['S1', 'S2', 'S3'])
+        # w/o phylogeny
+        t = Table(np.array([[0, 1, 3], [1, 1, 2], [2, 1, 0]]),
+                  ['O1', 'O2', 'O3'], ['S1', 'S2', 'S3'])
         for num_iterations in range(1, 4):
-            obs_dms, obs_rt = _get_multiple_rarefaction(beta, 'braycurtis',
-                                                        num_iterations, t, 2)
+            obs_dms = _get_multiple_rarefaction(beta, 'braycurtis',
+                                                num_iterations, t, 2)
 
             self.assertEqual(num_iterations, len(obs_dms))
             for obs in obs_dms:
-                self.assertEqual((2, 2), obs.shape)
-                self.assertEqual(set(['S2', 'S3']), set(obs.ids))
+                self.assertEqual((3, 3), obs.shape)
+                self.assertEqual(set(['S1', 'S2', 'S3']), set(obs.ids))
 
-            self.assertEqual((2, 2), obs_rt.shape)
-            self.assertEqual(set(['S2', 'S3']),
-                             set(obs_rt.ids(axis='sample')))
-            self.assertEqual(set(['O1', 'O2']),
-                             set(obs_rt.ids(axis='observation')))
-            npt.assert_array_equal(np.array([2., 2.]),
-                                   obs_rt.sum(axis='sample'))
+        # w/ phylogeny
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        beta_phylo = functools.partial(beta_phylogenetic, phylogeny=tree)
+        for num_iterations in range(1, 4):
+            obs_dms = _get_multiple_rarefaction(beta_phylo, 'weighted_unifrac',
+                                                num_iterations, t, 2)
 
-    def test_get_multiple_rarefaction_with_phylogeny(self):
-        pass
+            self.assertEqual(num_iterations, len(obs_dms))
+            for obs in obs_dms:
+                self.assertEqual((3, 3), obs.shape)
+                self.assertEqual(set(['S1', 'S2', 'S3']), set(obs.ids))
 
-    def test_compute_similarity_matrix(self):
-        pass
+    def test_beta_rarefaction(self):
+        # w/o phylogeny
+        t1 = Table(np.array([[0, 1, 3], [1, 1, 2], [2, 1, 0]]),
+                   ['O1', 'O2', 'O3'], ['S1', 'S2', 'S3'])
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_rarefaction(output_dir, t1, 2, 'braycurtis', 10)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('Beta rarefaction' in open(index_fp).read())
+            heatmap_fp = os.path.join(output_dir, 'heatmap.svg')
+            self.assertTrue(os.path.exists(heatmap_fp))
+            self.assertTrue('rho' in open(heatmap_fp).read())
+            tsv_fp = os.path.join(output_dir,
+                                  'rarefaction-iteration-similarities.tsv')
+            self.assertTrue(os.path.exists(tsv_fp))
+
+        # w/ phylogeny
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        with tempfile.TemporaryDirectory() as output_dir:
+            beta_rarefaction(output_dir, t1, 2, 'weighted_unifrac', 10, tree)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('Beta rarefaction' in open(index_fp).read())
+            heatmap_fp = os.path.join(output_dir, 'heatmap.svg')
+            self.assertTrue(os.path.exists(heatmap_fp))
+            self.assertTrue('rho' in open(heatmap_fp).read())
+            tsv_fp = os.path.join(output_dir,
+                                  'rarefaction-iteration-similarities.tsv')
+            self.assertTrue(os.path.exists(tsv_fp))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            # Table too small, mantel needs 3x3
+            t2 = Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'], ['S1', 'S2', 'S3'])
+            with self.assertRaisesRegex(ValueError, '3x3 in size'):
+                beta_rarefaction(output_dir, t2, 2, 'braycurtis', 10)
+
+            # phylo metric specified w/o phylogeny
+            with self.assertRaisesRegex(ValueError, 'phylogenetic metric'):
+                beta_rarefaction(output_dir, t1, 2, 'weighted_unifrac', 10)
 
 
 if __name__ == "__main__":

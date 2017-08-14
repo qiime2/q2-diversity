@@ -247,14 +247,16 @@ def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
     else:
         beta_metric = beta
 
-    distance_matrices, rarefied_table = _get_multiple_rarefaction(
+    distance_matrices = _get_multiple_rarefaction(
         beta_metric, metric, num_iterations, table, sampling_depth)
 
-    similarity_mtx = _compute_similarity_matrix(num_iterations,
-                                                distance_matrices, method)
+    sm_df = skbio.stats.distance.pwmantel(distance_matrices, method=method,
+                                          permutations=0, strict=True)
+    sm = sm_df[['statistic']]  # Drop all other DF columns
+    sm = sm.unstack(level=0)  # Reshape for seaborn
 
     plt.figure()
-    sns.heatmap(similarity_mtx, cmap=color_scheme,
+    sns.heatmap(sm, cmap=color_scheme,
                 vmin=-1.0, vmax=1.0, annot=False,
                 cbar_kws={'ticks': [1, 0.5, 0, -0.5, -1]}).set(
                     xlabel=test_statistics[method],
@@ -266,8 +268,7 @@ def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
     plt.savefig(os.path.join(output_dir, 'heatmap.svg'))
     similarity_mtx_fp = \
         os.path.join(output_dir, 'rarefaction-iteration-similarities.tsv')
-    numpy.savetxt(similarity_mtx_fp, similarity_mtx, fmt='%1.3f',
-                  delimiter='\t')
+    sm_df.to_csv(similarity_mtx_fp, sep='\t')
 
     index_fp = os.path.join(TEMPLATES, 'beta_rarefaction_assets', 'index.html')
     q2templates.render(index_fp, output_dir)
@@ -280,18 +281,7 @@ def _get_multiple_rarefaction(beta_metric, metric, num_iterations, table,
         rarefied_table = rarefy(table, sampling_depth)
         distance_matrix = beta_metric(table=rarefied_table, metric=metric)
         distance_matrices.append(distance_matrix)
-    return (distance_matrices, rarefied_table)
-
-
-def _compute_similarity_matrix(num_iterations, distance_matrices, method):
-    similarity_mtx = numpy.ones(shape=(num_iterations, num_iterations))
-    for i in range(num_iterations):
-        for j in range(i):
-            r, p, n = skbio.stats.distance.mantel(
-                distance_matrices[i], distance_matrices[j], method=method,
-                permutations=0, strict=True)
-            similarity_mtx[i, j] = similarity_mtx[j, i] = r
-    return similarity_mtx
+    return distance_matrices
 
 
 def _metadata_distance(metadata: pd.Series) -> skbio.DistanceMatrix:
