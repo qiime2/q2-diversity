@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import io
 import os
 import tempfile
 import unittest
@@ -15,15 +16,42 @@ import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 import qiime2
+import skbio
 import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
-    _compute_rarefaction_data, _compute_summary)
+    _compute_rarefaction_data, _compute_summary, _reindex_with_metadata)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
 
-    def test_alpha_rarefaction(self):
+    def test_alpha_rarefaction_without_metadata(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, max_depth=200)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('observed_otus' in open(index_fp).read())
+            self.assertTrue('shannon' in open(index_fp).read())
+
+    def test_alpha_rarefaction_with_phylogeny(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        p = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('observed_otus' in open(index_fp).read())
+            self.assertTrue('shannon' in open(index_fp).read())
+            self.assertTrue('faith_pd' in open(index_fp).read())
+
+    def test_alpha_rarefaction_with_metadata(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
@@ -130,9 +158,65 @@ class AlphaRarefactionTests(unittest.TestCase):
                                             'max', 'min', 'pet'])
         pdt.assert_frame_equal(exp, obs)
 
-    def test_reindex_with_metadata(self):
-        # TODO: Write these tests!
-        pass
+    def test_reindex_with_metadata_unique_metadata_groups(self):
+        md = pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
+                          index=['S1', 'S2', 'S3'])
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+
+        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _reindex_with_metadata('pet', md, data)
+
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                names=['depth', 'iter'])
+        exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_reindex_with_metadata_some_dupes(self):
+        md = pd.DataFrame({'pet': ['russ', 'milo', 'russ']},
+                          index=['S1', 'S2', 'S3'])
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+
+        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _reindex_with_metadata('pet', md, data)
+
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                names=['depth', 'iter'])
+        exp_ind = pd.Index(['milo', 'russ'], name='pet')
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [10, 12, 14, 16]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs)
+
+    def test_reindex_with_metadata_all_dupes(self):
+        md = pd.DataFrame({'pet': ['russ', 'russ', 'russ']},
+                          index=['S1', 'S2', 'S3'])
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+
+        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _reindex_with_metadata('pet', md, data)
+
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                names=['depth', 'iter'])
+        exp_ind = pd.Index(['russ'], name='pet')
+        exp = pd.DataFrame(data=[[15, 18, 21, 24]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs)
 
     def test_seven_number_summary(self):
         # TODO: Write these tests!
@@ -171,3 +255,6 @@ class AlphaRarefactionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Unknown metric: pole'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
                                   metadata=md, metric='pole-position')
+
+            with self.assertRaisesRegex(ValueError, 'max_depth'):
+                alpha_rarefaction(output_dir, t, max_depth=1000)
