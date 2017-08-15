@@ -201,10 +201,10 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _seven_number_summary(g):
+def _seven_number_summary(row):
     # this should probably be publicly accessible throughout QIIME 2 - it's
     # also currently implemented in q2-demux summarize
-    stats = g.describe(
+    stats = row.describe(
         percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
     drop_cols = stats.index.isin(['std', 'mean'])
     stats = stats[~drop_cols]

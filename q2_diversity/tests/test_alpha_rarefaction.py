@@ -20,7 +20,8 @@ import skbio
 import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
-    _compute_rarefaction_data, _compute_summary, _reindex_with_metadata)
+    _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
+    _seven_number_summary)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -219,8 +220,16 @@ class AlphaRarefactionTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs)
 
     def test_seven_number_summary(self):
-        # TODO: Write these tests!
-        pass
+        row = pd.Series([1, 2, 3, 4], name='pet')
+
+        exp = pd.Series(
+            data=[4., 1., 1.06, 1.27, 1.75, 2.5, 3.25, 3.73, 3.94, 4.],
+            index=pd.Index(['count', 'min', '2%', '9%', '25%', '50%', '75%',
+                            '91%', '98%', 'max']),
+            name='pet')
+
+        obs = _seven_number_summary(row)
+        pdt.assert_series_equal(exp, obs)
 
     def test_write_jsonp(self):
         # TODO: Write these tests!
