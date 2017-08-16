@@ -160,15 +160,14 @@ class AlphaRarefactionTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs)
 
     def test_reindex_with_metadata_unique_metadata_groups(self):
-        md = pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
-                          index=['S1', 'S2', 'S3'])
-        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
-                                             names=['depth', 'iter'])
-
-        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+        columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
+                                             (200, 2), ('pet', '')],
+                                            names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'milo'],
+                                  [9, 10, 11, 12, 'peanut']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', md, data)
+        obs = _reindex_with_metadata('pet', data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -180,15 +179,14 @@ class AlphaRarefactionTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs)
 
     def test_reindex_with_metadata_some_dupes(self):
-        md = pd.DataFrame({'pet': ['russ', 'milo', 'russ']},
-                          index=['S1', 'S2', 'S3'])
-        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
-                                             names=['depth', 'iter'])
-
-        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+        columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
+                                             (200, 2), ('pet', '')],
+                                            names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'milo'],
+                                  [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', md, data)
+        obs = _reindex_with_metadata('pet', data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -200,15 +198,14 @@ class AlphaRarefactionTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs)
 
     def test_reindex_with_metadata_all_dupes(self):
-        md = pd.DataFrame({'pet': ['russ', 'russ', 'russ']},
-                          index=['S1', 'S2', 'S3'])
-        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
-                                             names=['depth', 'iter'])
-
-        data = pd.DataFrame(data=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+        columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
+                                             (200, 2), ('pet', '')],
+                                            names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'russ'],
+                                  [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', md, data)
+        obs = _reindex_with_metadata('pet', data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -218,6 +215,9 @@ class AlphaRarefactionTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs)
+
+    def test_reindex_with_metadata_multiple_categories(self):
+        pass
 
     def test_seven_number_summary(self):
         row = pd.Series([1, 2, 3, 4], name='pet')
@@ -251,6 +251,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue('columns' in jsonp_content)
             self.assertTrue('index' in jsonp_content)
             self.assertTrue('data' in jsonp_content)
+            self.assertTrue('sample-id' in jsonp_content)
 
     def test_alpha_rarefaction_invalid(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),

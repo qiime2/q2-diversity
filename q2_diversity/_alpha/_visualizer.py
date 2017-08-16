@@ -211,14 +211,11 @@ def _seven_number_summary(row):
     return stats
 
 
-def _reindex_with_metadata(category, metadata_df, data):
-    categorical_values = metadata_df[category]
-    new_data = data.copy()
-    new_data[category] = categorical_values
-    new_data.set_index(category, inplace=True)
-    new_data.sort_index(axis=0, ascending=True, inplace=True)
-    new_data = new_data.groupby(level=[category]).sum()
-    return new_data
+def _reindex_with_metadata(category, merged):
+    merged.set_index(category, inplace=True)
+    merged.sort_index(axis=0, ascending=True, inplace=True)
+    merged = merged.groupby(level=[category]).sum()
+    return merged
 
 
 def _compute_summary(data, depth_range, id_label):
@@ -304,22 +301,22 @@ def alpha_rarefaction(output_dir: str,
         filename = '%s.csv' % metric_name
 
         if metadata is None:
-            jsonp_filename = '%s.jsonp' % metric_name
             n_df = _compute_summary(data, depth_range, 'sample-id')
+            jsonp_filename = '%s.jsonp' % metric_name
             _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
                                     n_df, '')
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
-            metadata_df = metadata_df.select_dtypes(exclude=[np.number])
-            categories = metadata_df.columns
+            metadata_df.columns = pd.MultiIndex.from_tuples(
+                [(c, '') for c in metadata_df.columns])
+            merged = data.join(metadata_df, how='left')
+            categories = metadata_df.columns.get_level_values(0)
             for category in categories:
                 category_name = quote(category)
+                reindexed_df = _reindex_with_metadata(category, merged)
+                c_df = _compute_summary(reindexed_df, depth_range, category)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
-                reindexed_df = _reindex_with_metadata(category_name,
-                                                      metadata_df, data)
-                c_df = _compute_summary(reindexed_df, depth_range,
-                                        category_name)
                 _beta_rarefaction_jsonp(output_dir, jsonp_filename,
                                         metric_name, c_df, category_name)
                 filenames.append(jsonp_filename)
