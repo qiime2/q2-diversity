@@ -232,7 +232,7 @@ def _compute_summary(data, depth_range, id_label):
     return pd.DataFrame(rows)
 
 
-def write_jsonp(output_dir, filename, metric, data, category):
+def _beta_rarefaction_jsonp(output_dir, filename, metric, data, category):
     with open(os.path.join(output_dir, filename), 'w') as fh:
         fh.write("load_data('%s', '%s'," % (metric, category))
         data.to_json(fh, orient='split')
@@ -306,7 +306,8 @@ def alpha_rarefaction(output_dir: str,
         if metadata is None:
             jsonp_filename = '%s.jsonp' % metric_name
             n_df = _compute_summary(data, depth_range, 'sample-id')
-            write_jsonp(output_dir, jsonp_filename, metric_name, n_df, '')
+            _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
+                                    n_df, '')
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
@@ -319,8 +320,8 @@ def alpha_rarefaction(output_dir: str,
                                                       metadata_df, data)
                 c_df = _compute_summary(reindexed_df, depth_range,
                                         category_name)
-                write_jsonp(output_dir, jsonp_filename, metric_name, c_df,
-                            category_name)
+                _beta_rarefaction_jsonp(output_dir, jsonp_filename,
+                                        metric_name, c_df, category_name)
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:

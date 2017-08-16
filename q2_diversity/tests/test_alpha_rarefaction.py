@@ -21,7 +21,7 @@ import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
     _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
-    _seven_number_summary)
+    _seven_number_summary, _beta_rarefaction_jsonp)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -231,9 +231,26 @@ class AlphaRarefactionTests(unittest.TestCase):
         obs = _seven_number_summary(row)
         pdt.assert_series_equal(exp, obs)
 
-    def test_write_jsonp(self):
-        # TODO: Write these tests!
-        pass
+    def test_beta_rarefaction_jsonp(self):
+        d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],
+             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S2'],
+             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S3']]
+
+        data = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
+                                             '91%', '98%', 'count', 'depth',
+                                             'max', 'min', 'sample-id'])
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            _beta_rarefaction_jsonp(output_dir, 'peanut.jsonp', 'braycurtis',
+                                    data, '')
+
+            jsonp_fp = os.path.join(output_dir, 'peanut.jsonp')
+            self.assertTrue(os.path.exists(jsonp_fp))
+            jsonp_content = open(jsonp_fp).read()
+            self.assertTrue('load_data' in jsonp_content)
+            self.assertTrue('columns' in jsonp_content)
+            self.assertTrue('index' in jsonp_content)
+            self.assertTrue('data' in jsonp_content)
 
     def test_alpha_rarefaction_invalid(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
