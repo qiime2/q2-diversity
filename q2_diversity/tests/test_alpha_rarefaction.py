@@ -13,7 +13,6 @@ import unittest
 
 import biom
 import numpy as np
-import numpy.testing as npt
 import pandas.testing as pdt
 import qiime2
 import skbio
@@ -21,7 +20,7 @@ import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
     _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
-    _seven_number_summary, _beta_rarefaction_jsonp)
+    _beta_rarefaction_jsonp)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -84,8 +83,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
-        pdt.assert_frame_equal(obs[0]['observed_otus'], exp)
-        npt.assert_array_equal(obs[1], np.array([1]))
+        pdt.assert_frame_equal(obs['observed_otus'], exp)
 
     def test_compute_summary_one_iteration(self):
         columns = pd.MultiIndex.from_product([[1, 200], [1]],
@@ -112,7 +110,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _compute_summary(data, 'sample-id')
+        obs = _compute_summary(data, 'sample-id', 2)
 
         d = [['S1', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
              ['S1', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
@@ -153,20 +151,23 @@ class AlphaRarefactionTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
                             columns=columns, index=['russ', 'milo', 'pea'])
 
-        obs = _compute_summary(data, 'pet')
+        obs = _compute_summary(data, 'pet', 2)
 
         d = [
-            ['russ', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['russ', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-            ['milo', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['milo', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-            ['pea', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['pea', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['russ', 1,   1., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['russ', 200, 1., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['milo', 1,   1., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['milo', 200, 1., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['pea', 1,    1., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['pea', 200,  1., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
         ]
         exp = pd.DataFrame(data=d, columns=['pet', 'depth', 'count', 'min',
                                             '2%', '9%', '25%', '50%', '75%',
                                             '91%', '98%', 'max'])
         pdt.assert_frame_equal(exp, obs)
+
+    def test_with_metadata_two_iterations_not_unique_metadata_groups(self):
+        pass
 
     def test_reindex_with_metadata_unique_metadata_groups(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -197,11 +198,12 @@ class AlphaRarefactionTests(unittest.TestCase):
 
         obs = _reindex_with_metadata('pet', data)
 
-        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'count'],
+                                        [1, 2, '']],
+                                labels=[[0, 0, 1, 1, 3], [0, 1, 0, 1, 2]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
-        exp = pd.DataFrame(data=[[5, 6, 7, 8], [10, 12, 14, 16]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8, 1], [10, 12, 14, 16, 2]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs)
@@ -253,18 +255,6 @@ class AlphaRarefactionTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs)
-
-    def test_seven_number_summary(self):
-        row = pd.Series([1, 2, 3, 4], name='pet')
-
-        exp = pd.Series(
-            data=[4., 1., 1.06, 1.27, 1.75, 2.5, 3.25, 3.73, 3.94, 4.],
-            index=pd.Index(['count', 'min', '2%', '9%', '25%', '50%', '75%',
-                            '91%', '98%', 'max']),
-            name='pet')
-
-        obs = _seven_number_summary(row)
-        pdt.assert_series_equal(exp, obs)
 
     def test_beta_rarefaction_jsonp(self):
         d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],

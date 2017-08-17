@@ -202,24 +202,16 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _seven_number_summary(row):
-    # this should probably be publicly accessible throughout QIIME 2 - it's
-    # also currently implemented in q2-demux summarize
-    stats = row.describe(
-        percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
-    drop_cols = stats.index.isin(['std', 'mean'])
-    stats = stats[~drop_cols]
-    return stats
-
-
 def _reindex_with_metadata(category, merged):
     merged.set_index(category, inplace=True)
-    merged.sort_index(axis=0, ascending=True, inplace=True)
+    merged = merged.sort_index(axis=0, ascending=True)
+    merged['count'] = 1
     merged = merged.groupby(level=[category]).sum()
     return merged
 
 
-def _compute_summary(data, id_label):
+def _compute_summary(data, id_label, iterations):
+    scale_counts = 'count' in data
     perc = [0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98]
     describer = functools.partial(pd.DataFrame.describe, percentiles=perc)
     summary_df = data.stack(level=0)
@@ -228,6 +220,8 @@ def _compute_summary(data, id_label):
     for col in ['std', 'mean']:
         summary_df.drop(col, axis=1, inplace=True)
     summary_df.rename(columns={'level_0': id_label}, inplace=True)
+    if scale_counts:
+        summary_df['count'] = summary_df['count'] / iterations
     return summary_df
 
 
@@ -258,7 +252,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
             else:
                 vector = alpha(table=rt, metric=m)
             data[m][(d, i)] = vector
-    return data, iter_range
+    return data
 
 
 def alpha_rarefaction(output_dir: str,
@@ -293,22 +287,20 @@ def alpha_rarefaction(output_dir: str,
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
-    filenames = []
-    categories = []
-    data, iter_range = _compute_rarefaction_data(feature_table, min_depth,
-                                                 max_depth, steps, iterations,
-                                                 phylogeny, metrics)
-    for (m, data) in data.items():
-        metric_name = quote(m)
-        filename = '%s.csv' % metric_name
+    filenames, categories = [], []
+    data = _compute_rarefaction_data(feature_table, min_depth, max_depth,
+                                     steps, iterations, phylogeny, metrics)
 
+    for (metric, data) in data.items():
+        metric = quote(metric)
         if metadata is None:
-            n_df = _compute_summary(data, 'sample-id')
-            jsonp_filename = '%s.jsonp' % metric_name
-            _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
-                                    n_df, '')
+            n_df = _compute_summary(data, 'sample-id', iterations)
+            jsonp_filename = '%s.jsonp' % metric
+            _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric, n_df,
+                                    '')
             filenames.append(jsonp_filename)
         else:
+            # Join Metadata to computed DF
             metadata_df = metadata.to_dataframe()
             metadata_df.columns = pd.MultiIndex.from_tuples(
                 [(c, '') for c in metadata_df.columns])
@@ -317,12 +309,14 @@ def alpha_rarefaction(output_dir: str,
             for category in categories:
                 category_name = quote(category)
                 reindexed_df = _reindex_with_metadata(category, merged)
-                c_df = _compute_summary(reindexed_df, category)
-                jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
-                _beta_rarefaction_jsonp(output_dir, jsonp_filename,
-                                        metric_name, c_df, category_name)
+                c_df = _compute_summary(reindexed_df, category, iterations)
+                jsonp_filename = "%s-%s.jsonp" % (metric, category_name)
+                _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric,
+                                        c_df, category_name)
                 filenames.append(jsonp_filename)
 
+        # CSV file
+        filename = '%s.csv' % metric
         with open(os.path.join(output_dir, filename), 'w') as fh:
             data.columns = ['depth-%d_iter-%d' % (t[0], t[1])
                             for t in data.columns.values]
