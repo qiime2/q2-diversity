@@ -85,8 +85,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
         pdt.assert_frame_equal(obs[0]['observed_otus'], exp)
-        npt.assert_array_equal(obs[1], np.array([1, 200]))
-        npt.assert_array_equal(obs[2], np.array([1]))
+        npt.assert_array_equal(obs[1], np.array([1]))
 
     def test_compute_summary_one_iteration(self):
         columns = pd.MultiIndex.from_product([[1, 200], [1]],
@@ -94,15 +93,17 @@ class AlphaRarefactionTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _compute_summary(data, np.array([1]), 'sample-id')
+        obs = _compute_summary(data, 'sample-id')
 
-        d = [[1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S1'],
-             [1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S2'],
-             [1., 1., 1., 1., 1., 1., 1., 1., 1, 1., 1., 'S3']]
-
-        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
-                                            '91%', '98%', 'count', 'depth',
-                                            'max', 'min', 'sample-id'])
+        d = [['S1', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S1', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.],
+             ['S2', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S2', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.],
+             ['S3', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S3', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.]]
+        exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
+                                            'min', '2%', '9%', '25%', '50%',
+                                            '75%', '91%', '98%', 'max'])
         pdt.assert_frame_equal(exp, obs)
 
     def test_compute_summary_two_iterations(self):
@@ -111,15 +112,17 @@ class AlphaRarefactionTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _compute_summary(data, np.array([1]), 'sample-id')
+        obs = _compute_summary(data, 'sample-id')
 
-        d = [[1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S1'],
-             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S2'],
-             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'S3']]
-
-        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
-                                            '91%', '98%', 'count', 'depth',
-                                            'max', 'min', 'sample-id'])
+        d = [['S1', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S1', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+             ['S2', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S2', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+             ['S3', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S3', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.]]
+        exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
+                                            'min', '2%', '9%', '25%', '50%',
+                                            '75%', '91%', '98%', 'max'])
         pdt.assert_frame_equal(exp, obs)
 
     def test_compute_summary_three_iterations(self):
@@ -129,15 +132,17 @@ class AlphaRarefactionTests(unittest.TestCase):
                                   [1, 2, 3, 4, 5, 6]],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _compute_summary(data, np.array([1]), 'sample-id')
+        obs = _compute_summary(data, 'sample-id')
 
-        d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],
-             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S2'],
-             [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S3']]
-
-        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
-                                            '91%', '98%', 'count', 'depth',
-                                            'max', 'min', 'sample-id'])
+        d = [['S1', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S1', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
+             ['S2', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S2', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
+             ['S3', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S3', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.]]
+        exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
+                                            'min', '2%', '9%', '25%', '50%',
+                                            '75%', '91%', '98%', 'max'])
         pdt.assert_frame_equal(exp, obs)
 
     def test_with_metadata_two_iterations_unique_metadata_groups(self):
@@ -148,15 +153,19 @@ class AlphaRarefactionTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
                             columns=columns, index=['russ', 'milo', 'pea'])
 
-        obs = _compute_summary(data, np.array([1]), 'pet')
+        obs = _compute_summary(data, 'pet')
 
-        d = [[1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'russ'],
-             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'milo'],
-             [1.02, 1.25, 1.5, 1.75, 1.09, 1.91, 1.98, 2., 1, 2., 1., 'pea']]
-
-        exp = pd.DataFrame(data=d, columns=['2%', '25%', '50%', '75%', '9%',
-                                            '91%', '98%', 'count', 'depth',
-                                            'max', 'min', 'pet'])
+        d = [
+            ['russ', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['russ', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['milo', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['milo', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['pea', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+            ['pea', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+        ]
+        exp = pd.DataFrame(data=d, columns=['pet', 'depth', 'count', 'min',
+                                            '2%', '9%', '25%', '50%', '75%',
+                                            '91%', '98%', 'max'])
         pdt.assert_frame_equal(exp, obs)
 
     def test_reindex_with_metadata_unique_metadata_groups(self):
@@ -217,7 +226,33 @@ class AlphaRarefactionTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs)
 
     def test_reindex_with_metadata_multiple_categories(self):
-        pass
+        columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
+                                             (200, 2), ('pet', ''),
+                                             ('toy', '')],
+                                            names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ', 'stick'],
+                                  [5, 6, 7, 8, 'milo', 'yeti'],
+                                  [9, 10, 11, 12, 'peanut', 'stick']],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        obs = _reindex_with_metadata('pet', data)
+
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '']],
+                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                names=['depth', 'iter'])
+        exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs)
+
+        obs = _reindex_with_metadata('toy', data)
+
+        exp_ind = pd.Index(['stick', 'yeti'], name='toy')
+        exp = pd.DataFrame(data=[[10, 12, 14, 16], [5, 6, 7, 8]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs)
 
     def test_seven_number_summary(self):
         row = pd.Series([1, 2, 3, 4], name='pet')

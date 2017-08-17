@@ -11,6 +11,7 @@ import os
 import pkg_resources
 import shutil
 from urllib.parse import quote
+import functools
 
 import scipy
 import numpy as np
@@ -218,15 +219,16 @@ def _reindex_with_metadata(category, merged):
     return merged
 
 
-def _compute_summary(data, depth_range, id_label):
-    rows = []
-    for (id_, depth) in product(data.index, depth_range):
-        s = data.loc[id_, depth]
-        # TODO: sort columns
-        rows.append({id_label: id_,
-                     'depth': depth,
-                     **_seven_number_summary(s)})
-    return pd.DataFrame(rows)
+def _compute_summary(data, id_label):
+    perc = [0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98]
+    describer = functools.partial(pd.DataFrame.describe, percentiles=perc)
+    summary_df = data.stack(level=0)
+    summary_df = summary_df.apply(describer, axis=1)
+    summary_df = summary_df.reset_index()
+    for col in ['std', 'mean']:
+        summary_df.drop(col, axis=1, inplace=True)
+    summary_df.rename(columns={'level_0': id_label}, inplace=True)
+    return summary_df
 
 
 def _beta_rarefaction_jsonp(output_dir, filename, metric, data, category):
@@ -256,7 +258,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
             else:
                 vector = alpha(table=rt, metric=m)
             data[m][(d, i)] = vector
-    return data, depth_range, iter_range
+    return data, iter_range
 
 
 def alpha_rarefaction(output_dir: str,
@@ -293,15 +295,15 @@ def alpha_rarefaction(output_dir: str,
                          'feature_table (%d).' % (max_depth, max_frequency))
     filenames = []
     categories = []
-    data, depth_range, iter_range = _compute_rarefaction_data(
-        feature_table, min_depth, max_depth, steps, iterations,
-        phylogeny, metrics)
+    data, iter_range = _compute_rarefaction_data(feature_table, min_depth,
+                                                 max_depth, steps, iterations,
+                                                 phylogeny, metrics)
     for (m, data) in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
 
         if metadata is None:
-            n_df = _compute_summary(data, depth_range, 'sample-id')
+            n_df = _compute_summary(data, 'sample-id')
             jsonp_filename = '%s.jsonp' % metric_name
             _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
                                     n_df, '')
@@ -315,7 +317,7 @@ def alpha_rarefaction(output_dir: str,
             for category in categories:
                 category_name = quote(category)
                 reindexed_df = _reindex_with_metadata(category, merged)
-                c_df = _compute_summary(reindexed_df, depth_range, category)
+                c_df = _compute_summary(reindexed_df, category)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
                 _beta_rarefaction_jsonp(output_dir, jsonp_filename,
                                         metric_name, c_df, category_name)
