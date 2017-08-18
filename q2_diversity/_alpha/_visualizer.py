@@ -202,21 +202,32 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _reindex_with_metadata(category, merged):
+def _reindex_with_metadata(category, categories, merged):
     merged.set_index(category, inplace=True)
     merged.sort_index(axis=0, ascending=True, inplace=True)
-    merged = merged.groupby(level=[category]).sum()
-    return merged
+    merged = merged.groupby(level=[category])
+    counts = merged.count()
+    for col in categories:
+        counts.drop(col, axis=1, inplace=True, level=0)
+    sum_ = merged.sum()
+    return sum_, counts
 
 
-def _compute_summary(data, id_label):
+def _compute_summary(data, id_label, counts=None):
     perc = [0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98]
     describer = functools.partial(pd.DataFrame.describe, percentiles=perc)
     summary_df = data.stack(level=0)
     summary_df = summary_df.apply(describer, axis=1)
-    summary_df = summary_df.reset_index()
     for col in ['std', 'mean']:
         summary_df.drop(col, axis=1, inplace=True)
+    if counts is not None:
+        summary_df.drop('count', axis=1, inplace=True)
+        stacked_counts = counts.stack(level=0)
+        # There will always be at least one iteration, so we grab the first
+        stacked_counts = stacked_counts[[1]]
+        stacked_counts.rename(columns={1: 'count'}, inplace=True)
+        summary_df = summary_df.join(stacked_counts, how='inner')
+    summary_df = summary_df.reset_index()
     summary_df.rename(columns={'level_0': id_label}, inplace=True)
     return summary_df
 
@@ -283,8 +294,7 @@ def alpha_rarefaction(output_dir: str,
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
-    filenames = []
-    categories = []
+    filenames, categories = [], []
     data = _compute_rarefaction_data(feature_table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
     for (m, data) in data.items():
@@ -305,8 +315,10 @@ def alpha_rarefaction(output_dir: str,
             categories = metadata_df.columns.get_level_values(0)
             for category in categories:
                 category_name = quote(category)
-                reindexed_df = _reindex_with_metadata(category, merged)
-                c_df = _compute_summary(reindexed_df, category)
+                reindexed_df, counts = _reindex_with_metadata(category,
+                                                              categories,
+                                                              merged)
+                c_df = _compute_summary(reindexed_df, category, counts=counts)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
                 _beta_rarefaction_jsonp(output_dir, jsonp_filename,
                                         metric_name, c_df, category_name)

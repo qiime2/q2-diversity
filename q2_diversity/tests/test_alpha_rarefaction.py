@@ -174,7 +174,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'peanut']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', data)
+        obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -183,7 +183,8 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs)
+        pdt.assert_frame_equal(exp, obs[0])
+        # TODO: test obs[1]
 
     def test_reindex_with_metadata_some_dupes(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -193,7 +194,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', data)
+        obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -202,7 +203,8 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [10, 12, 14, 16]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs)
+        pdt.assert_frame_equal(exp, obs[0])
+        # TODO: test obs[1]
 
     def test_reindex_with_metadata_all_dupes(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -212,7 +214,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', data)
+        obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -221,7 +223,8 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[15, 18, 21, 24]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs)
+        pdt.assert_frame_equal(exp, obs[0])
+        # TODO: test obs[1]
 
     def test_reindex_with_metadata_multiple_categories(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -233,7 +236,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'peanut', 'stick']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', data)
+        obs = _reindex_with_metadata('pet', ['pet', 'toy'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '']],
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
@@ -242,15 +245,17 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs)
+        pdt.assert_frame_equal(exp, obs[0])
+        # TODO: test obs[1]
 
-        obs = _reindex_with_metadata('toy', data)
+        obs = _reindex_with_metadata('toy', ['pet', 'toy'], data)
 
         exp_ind = pd.Index(['stick', 'yeti'], name='toy')
         exp = pd.DataFrame(data=[[10, 12, 14, 16], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs)
+        pdt.assert_frame_equal(exp, obs[0])
+        # TODO: test obs[1]
 
     def test_beta_rarefaction_jsonp(self):
         d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],
