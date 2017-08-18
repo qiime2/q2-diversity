@@ -13,7 +13,6 @@ import unittest
 
 import biom
 import numpy as np
-import numpy.testing as npt
 import pandas.testing as pdt
 import qiime2
 import skbio
@@ -21,7 +20,7 @@ import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
     _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
-    _seven_number_summary, _beta_rarefaction_jsonp)
+    _beta_rarefaction_jsonp)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -84,8 +83,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
-        pdt.assert_frame_equal(obs[0]['observed_otus'], exp)
-        npt.assert_array_equal(obs[1], np.array([1]))
+        pdt.assert_frame_equal(obs['observed_otus'], exp)
 
     def test_compute_summary_one_iteration(self):
         columns = pd.MultiIndex.from_product([[1, 200], [1]],
@@ -253,18 +251,6 @@ class AlphaRarefactionTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs)
-
-    def test_seven_number_summary(self):
-        row = pd.Series([1, 2, 3, 4], name='pet')
-
-        exp = pd.Series(
-            data=[4., 1., 1.06, 1.27, 1.75, 2.5, 3.25, 3.73, 3.94, 4.],
-            index=pd.Index(['count', 'min', '2%', '9%', '25%', '50%', '75%',
-                            '91%', '98%', 'max']),
-            name='pet')
-
-        obs = _seven_number_summary(row)
-        pdt.assert_series_equal(exp, obs)
 
     def test_beta_rarefaction_jsonp(self):
         d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],

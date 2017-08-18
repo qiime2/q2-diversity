@@ -202,16 +202,6 @@ def alpha_correlation(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-def _seven_number_summary(row):
-    # this should probably be publicly accessible throughout QIIME 2 - it's
-    # also currently implemented in q2-demux summarize
-    stats = row.describe(
-        percentiles=[0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98])
-    drop_cols = stats.index.isin(['std', 'mean'])
-    stats = stats[~drop_cols]
-    return stats
-
-
 def _reindex_with_metadata(category, merged):
     merged.set_index(category, inplace=True)
     merged.sort_index(axis=0, ascending=True, inplace=True)
@@ -258,7 +248,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
             else:
                 vector = alpha(table=rt, metric=m)
             data[m][(d, i)] = vector
-    return data, iter_range
+    return data
 
 
 def alpha_rarefaction(output_dir: str,
@@ -295,9 +285,8 @@ def alpha_rarefaction(output_dir: str,
                          'feature_table (%d).' % (max_depth, max_frequency))
     filenames = []
     categories = []
-    data, iter_range = _compute_rarefaction_data(feature_table, min_depth,
-                                                 max_depth, steps, iterations,
-                                                 phylogeny, metrics)
+    data = _compute_rarefaction_data(feature_table, min_depth, max_depth,
+                                     steps, iterations, phylogeny, metrics)
     for (m, data) in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
