@@ -282,8 +282,8 @@ def alpha_rarefaction(output_dir: str,
             metrics.append('faith_pd')
     else:
         if metric == 'faith_pd' and phylogeny is None:
-            raise ValueError('Phylogenetic metric was requested but '
-                             'phylogeny was not provided.')
+            raise ValueError('Phylogenetic metric %s was requested but '
+                             'phylogeny was not provided.' % metric)
         metrics = [metric]
 
     if max_depth <= min_depth:
