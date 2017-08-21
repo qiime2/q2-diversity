@@ -327,6 +327,8 @@ def alpha_rarefaction(output_dir: str,
         with open(os.path.join(output_dir, filename), 'w') as fh:
             data.columns = ['depth-%d_iter-%d' % (t[0], t[1])
                             for t in data.columns.values]
+            if metadata is not None:
+                data = data.join(metadata.to_dataframe(), how='left')
             data.to_csv(fh, index_label=['sample-id'])
 
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
