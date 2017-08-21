@@ -7,11 +7,12 @@ export default function appendLegendKey(legend, entry, ly, color) {
   const rect = legend.append('rect')
     .attr('id', `rect${entry}`)
     .attr('class', 'legend rect')
-    .attr('x', 0)
+    .attr('x', 2)
     .attr('y', ly - 2.5)
     .attr('width', 15)
     .attr('height', 5)
-    .attr('stroke', 'darkGrey')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '1')
     .attr('fill', curData[entry].line);
   rect.on('click', () => {
     const becomeFull = curData[entry].lineOpacity === 0;
@@ -35,7 +36,8 @@ export default function appendLegendKey(legend, entry, ly, color) {
     .attr('cx', 30)
     .attr('cy', ly)
     .attr('r', 5)
-    .attr('stroke', 'darkGrey')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '1')
     .attr('fill', curData[entry].dots);
   dot.on('click', () => {
     const becomeFull = curData[entry].dotsOpacity === 0;
@@ -57,7 +59,7 @@ export default function appendLegendKey(legend, entry, ly, color) {
       .attr('class', 'legend')
       .attr('x', 40)
       .attr('y', ly + 5)
-      .style('font', '8px sans-serif')
+      .style('font', '10px sans-serif')
       .text(decodeURI(entry));
 }
 

@@ -90,7 +90,7 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
   subDotsUpdate.call(plotDots, countIndex, subY);
   subDotsEnter.call(plotDots, countIndex, subY);
 
-  legendBox.attr('viewBox', `0 0 200 ${ly + 10}`); // CHANGE THIS
+  legendBox.attr('height', `${ly + 10}`).attr('width', '200');
   // LINES
   function valueline(yIndex, yScale) {
     return line().x(d => x(d[depthIndex]))
@@ -142,7 +142,8 @@ export default function render(svg, data, category, legend, legendTitle) {
   }
 
   const xPad = setPad(minX, maxX, xAxis);
-  const subYPad = setPad(minSubY, maxSubY, yAxisSubChart);
+  let subYPad = setPad(minSubY, maxSubY, yAxisSubChart);
+  subYPad = subYPad === 1 ? 2 : subYPad;
 
   const x = scaleLinear().domain([minX - xPad, maxX + xPad]).range([0, width]).nice();
   const y = scaleLinear().domain([minY, maxY]).range([height, 0]).nice();

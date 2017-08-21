@@ -3,7 +3,7 @@ import { setupData } from './data';
 import render from './render';
 
 function updateData(metric, category, svg, href, legend, legendTitle) {
-  href.attr('action', `${metric}.csv`);
+  href.attr('href', `${metric}.csv`);
   let data = d[metric];
   if (category) {
     data = d[metric][category];
@@ -30,15 +30,10 @@ class State {
     // CONTROLS
     const downloadDiv = row.append('div')
       .attr('class', 'col-lg-2 form-group downloadCSV');
-    downloadDiv.append('label').text('');
-    this.href = downloadDiv.append('form')
-      .attr('method', 'GET')
-      .attr('action', '#');
-    this.href.append('button')
-      .attr('class', 'btn btn-block btn-primary btn-md form-control')
-      .attr('role', 'button')
-      .attr('aria-pressed', 'true')
-      .text('Download CSV');
+    downloadDiv.append('label').html('&nbsp;');
+    this.href = downloadDiv.append('a')
+      .text('Download CSV')
+      .attr('class', 'btn btn-default form-control');
     this.svg = svg;
     this.metric = metric;
     this.category = category;
