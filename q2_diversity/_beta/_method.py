@@ -29,7 +29,7 @@ def non_phylogenetic_metrics():
 
 
 def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
-                      metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:
+                      metric: str)-> skbio.DistanceMatrix:
     if metric not in phylogenetic_metrics():
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
     if table.is_empty():
@@ -45,9 +45,7 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
             counts=counts,
             ids=sample_ids,
             otu_ids=feature_ids,
-            tree=phylogeny,
-            pairwise_func=sklearn.metrics.pairwise_distances,
-            n_jobs=n_jobs
+            tree=phylogeny
         )
     except skbio.tree.MissingNodeError as e:
         message = str(e).replace('otu_ids', 'feature_ids')

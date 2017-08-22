@@ -31,6 +31,7 @@ requirements:
     #  https://github.com/mwaskom/seaborn/issues/874
     - ipywidgets
     - scikit-bio
+    - scikit-learn
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2templates {{ release }}.*
