@@ -225,6 +225,10 @@ def _compute_summary(data, id_label, counts=None):
         stacked_counts = stacked_counts[[1]]
         stacked_counts.rename(columns={1: 'count'}, inplace=True)
         summary_df = summary_df.join(stacked_counts, how='inner')
+    else:
+        # Reset count (this should always be one if we weren't explicitly
+        # passed counts)
+        summary_df['count'] = 1
     summary_df = summary_df.reset_index()
     summary_df.rename(columns={'level_0': id_label}, inplace=True)
     return summary_df

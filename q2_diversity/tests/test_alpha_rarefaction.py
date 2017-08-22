@@ -65,8 +65,23 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue('faith_pd' in open(index_fp).read())
 
     def test_alpha_rarefaction_with_phylogeny_and_metadata(self):
-        # TODO: Implement this test
-        pass
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        p = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        md = qiime2.Metadata(
+            pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
+                         index=['S1', 'S2', 'S3']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p,
+                              metadata=md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('observed_otus' in open(index_fp).read())
+            self.assertTrue('shannon' in open(index_fp).read())
+            self.assertTrue('faith_pd' in open(index_fp).read())
 
     def test_invalid_invocations(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -124,12 +139,46 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         pdt.assert_frame_equal(obs['observed_otus'], exp)
 
     def test_faith_pd(self):
-        # TODO: Implement this test
-        pass
+        t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        p = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+
+        obs = _compute_rarefaction_data(feature_table=t,
+                                        min_depth=1,
+                                        max_depth=200,
+                                        steps=2,
+                                        iterations=1,
+                                        phylogeny=p,
+                                        metrics=['faith_pd'])
+
+        self.assertTrue('faith_pd' in obs)
 
     def test_multiple_metrics(self):
-        # TODO: Implement this test
-        pass
+        t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        obs = _compute_rarefaction_data(feature_table=t,
+                                        min_depth=1,
+                                        max_depth=200,
+                                        steps=2,
+                                        iterations=1,
+                                        phylogeny=None,
+                                        metrics=['observed_otus', 'shannon'])
+
+        exp_ind = pd.MultiIndex.from_product(
+            [[1, 200], [1]],
+            names=['depth', 'iter'])
+        exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
+                           columns=exp_ind,
+                           index=['S1', 'S2', 'S3'])
+        pdt.assert_frame_equal(obs['observed_otus'], exp)
+
+        exp = pd.DataFrame(data=[[0., 0.811278124459], [0., 1.], [0., 1.]],
+                           columns=exp_ind,
+                           index=['S1', 'S2', 'S3'])
+        pdt.assert_frame_equal(obs['shannon'], exp)
 
 
 class ComputeSummaryTests(unittest.TestCase):
@@ -142,12 +191,12 @@ class ComputeSummaryTests(unittest.TestCase):
         # No counts provided because no metadata
         obs = _compute_summary(data, 'sample-id')
 
-        d = [['S1', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
-             ['S1', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.],
-             ['S2', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
-             ['S2', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.],
-             ['S3', 1,   1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
-             ['S3', 200, 1., 2., 2., 2., 2., 2., 2., 2., 2., 2.]]
+        d = [['S1', 1,   1, 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S1', 200, 1, 2., 2., 2., 2., 2., 2., 2., 2., 2.],
+             ['S2', 1,   1, 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S2', 200, 1, 2., 2., 2., 2., 2., 2., 2., 2., 2.],
+             ['S3', 1,   1, 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             ['S3', 200, 1, 2., 2., 2., 2., 2., 2., 2., 2., 2.]]
         exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
                                             'min', '2%', '9%', '25%', '50%',
                                             '75%', '91%', '98%', 'max'])
@@ -162,12 +211,12 @@ class ComputeSummaryTests(unittest.TestCase):
         # No counts provided because no metadata
         obs = _compute_summary(data, 'sample-id')
 
-        d = [['S1', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-             ['S1', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-             ['S2', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-             ['S2', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-             ['S3', 1,   2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-             ['S3', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.]]
+        d = [['S1', 1,   1, 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S1', 200, 1, 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+             ['S2', 1,   1, 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S2', 200, 1, 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+             ['S3', 1,   1, 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
+             ['S3', 200, 1, 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.]]
         exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
                                             'min', '2%', '9%', '25%', '50%',
                                             '75%', '91%', '98%', 'max'])
@@ -183,12 +232,12 @@ class ComputeSummaryTests(unittest.TestCase):
         # No counts provided because no metadata
         obs = _compute_summary(data, 'sample-id')
 
-        d = [['S1', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
-             ['S1', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
-             ['S2', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
-             ['S2', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
-             ['S3', 1,   3., 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
-             ['S3', 200, 3., 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.]]
+        d = [['S1', 1,   1, 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S1', 200, 1, 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
+             ['S2', 1,   1, 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S2', 200, 1, 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.],
+             ['S3', 1,   1, 1., 1.04, 1.18, 1.5, 2., 2.5, 2.82, 2.96, 3.],
+             ['S3', 200, 1, 4., 4.04, 4.18, 4.5, 5., 5.5, 5.82, 5.96, 6.]]
         exp = pd.DataFrame(data=d, columns=['sample-id', 'depth', 'count',
                                             'min', '2%', '9%', '25%', '50%',
                                             '75%', '91%', '98%', 'max'])
@@ -202,25 +251,43 @@ class ComputeSummaryTests(unittest.TestCase):
         data = pd.DataFrame(data=[[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
                             columns=columns, index=['russ', 'milo', 'pea'])
 
-        # TODO: Add counts
-        obs = _compute_summary(data, 'pet')
+        counts = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+                              columns=columns, index=['russ', 'milo', 'pea'])
+
+        obs = _compute_summary(data, 'pet', counts=counts)
 
         d = [
-            ['russ', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['russ', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-            ['milo', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['milo', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
-            ['pea', 1, 2., 1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2.],
-            ['pea', 200, 2., 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4.],
+            ['russ', 1,   1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2., 1],
+            ['russ', 200, 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4., 1],
+            ['milo', 1,   1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2., 1],
+            ['milo', 200, 3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4., 1],
+            ['pea', 1,    1., 1.02, 1.09, 1.25, 1.5, 1.75, 1.91, 1.98, 2., 1],
+            ['pea', 200,  3., 3.02, 3.09, 3.25, 3.5, 3.75, 3.91, 3.98, 4., 1],
         ]
-        exp = pd.DataFrame(data=d, columns=['pet', 'depth', 'count', 'min',
-                                            '2%', '9%', '25%', '50%', '75%',
-                                            '91%', '98%', 'max'])
+        exp = pd.DataFrame(data=d, columns=['pet', 'depth', 'min', '2%', '9%',
+                                            '25%', '50%', '75%', '91%', '98%',
+                                            'max', 'count'])
         pdt.assert_frame_equal(exp, obs)
 
     def test_two_iterations_with_metadata_were_values_are_identical(self):
-        # TODO: Implement this test, include counts
-        pass
+        columns = pd.MultiIndex.from_product([[1, 200], [1, 2]],
+                                             names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[3, 6, 9, 9]], columns=columns,
+                            index=['milo'])
+
+        counts = pd.DataFrame(data=[[3, 3, 3, 3]], columns=columns,
+                              index=['milo'])
+
+        obs = _compute_summary(data, 'pet', counts=counts)
+
+        d = [
+            ['milo', 1,   3., 3.06, 3.27, 3.75, 4.5,  5.25, 5.73, 5.94, 6., 3],
+            ['milo', 200, 9.,   9.,   9.,   9.,  9.,    9.,   9.,   9., 9., 3],
+        ]
+        exp = pd.DataFrame(data=d, columns=['pet', 'depth', 'min', '2%', '9%',
+                                            '25%', '50%', '75%', '91%', '98%',
+                                            'max', 'count'])
+        pdt.assert_frame_equal(exp, obs)
 
 
 class ReindexWithMetadataTests(unittest.TestCase):
@@ -242,7 +309,11 @@ class ReindexWithMetadataTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
-        # TODO: test obs[1]
+
+        exp = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs[1])
 
     def test_some_duplicates_in_category(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -262,7 +333,11 @@ class ReindexWithMetadataTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
-        # TODO: test obs[1]
+
+        exp = pd.DataFrame(data=[[1, 1, 1, 1], [2, 2, 2, 2]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs[1])
 
     def test_all_identical(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -282,7 +357,11 @@ class ReindexWithMetadataTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
-        # TODO: test obs[1]
+
+        exp = pd.DataFrame(data=[[3, 3, 3, 3]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs[1])
 
     def test_multiple_categories(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -304,7 +383,11 @@ class ReindexWithMetadataTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
-        # TODO: test obs[1]
+
+        exp = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs[1])
 
         obs = _reindex_with_metadata('toy', ['pet', 'toy'], data)
 
@@ -313,7 +396,11 @@ class ReindexWithMetadataTests(unittest.TestCase):
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
-        # TODO: test obs[1]
+
+        exp = pd.DataFrame(data=[[2, 2, 2, 2], [1, 1, 1, 1]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, obs[1])
 
 
 class BetaRarefactionJSONPTests(unittest.TestCase):
@@ -327,7 +414,7 @@ class BetaRarefactionJSONPTests(unittest.TestCase):
                                              'max', 'min', 'sample-id'])
 
         with tempfile.TemporaryDirectory() as output_dir:
-            _beta_rarefaction_jsonp(output_dir, 'peanut.jsonp', 'braycurtis',
+            _beta_rarefaction_jsonp(output_dir, 'peanut.jsonp', 'shannon',
                                     data, '')
 
             jsonp_fp = os.path.join(output_dir, 'peanut.jsonp')
@@ -338,3 +425,4 @@ class BetaRarefactionJSONPTests(unittest.TestCase):
             self.assertTrue('index' in jsonp_content)
             self.assertTrue('data' in jsonp_content)
             self.assertTrue('sample-id' in jsonp_content)
+            self.assertTrue('shannon' in jsonp_content)
