@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool)
+                           Metadata, Int, Bool, Range)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -360,9 +360,9 @@ color_schemes = [
 plugin.visualizers.register_function(
     function=q2_diversity._beta._visualizer.beta_rarefaction,
     inputs={'table': FeatureTable[Frequency], 'phylogeny': Phylogeny[Rooted]},
-    parameters={'sampling_depth': Int,
+    parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(beta.all_metrics()),
-                'num_iterations': Int,
+                'num_iterations': Int % Range(1, None),
                 'color_scheme': Str % Choices(color_schemes),
                 'method': Str % Choices(beta_correlation_methods)},
     input_descriptions={
