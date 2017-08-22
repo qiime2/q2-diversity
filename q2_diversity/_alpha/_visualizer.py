@@ -207,8 +207,7 @@ def _reindex_with_metadata(category, categories, merged):
     merged.sort_index(axis=0, ascending=True, inplace=True)
     merged = merged.groupby(level=[category])
     counts = merged.count()
-    for col in categories:
-        counts.drop(col, axis=1, inplace=True, level=0)
+    counts.drop(categories, axis=1, inplace=True, level=0)
     sum_ = merged.sum()
     return sum_, counts
 
@@ -218,8 +217,7 @@ def _compute_summary(data, id_label, counts=None):
     describer = functools.partial(pd.DataFrame.describe, percentiles=perc)
     summary_df = data.stack(level=0)
     summary_df = summary_df.apply(describer, axis=1)
-    for col in ['std', 'mean']:
-        summary_df.drop(col, axis=1, inplace=True)
+    summary_df.drop(['std', 'mean'], axis=1, inplace=True)
     if counts is not None:
         summary_df.drop('count', axis=1, inplace=True)
         stacked_counts = counts.stack(level=0)
