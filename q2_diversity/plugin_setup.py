@@ -45,7 +45,8 @@ plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
+                'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -57,7 +58,9 @@ plugin.methods.register_function(
                       'present in this tree.')
     },
     parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.'
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': '[Excluding weighted_unifrac] - %s' %
+                  sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
@@ -183,7 +186,8 @@ plugin.methods.register_function(
     parameter_descriptions={
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
-        'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
+        'n_jobs': '[beta/beta-phylogenetic methods only, excluding weighted_'
+                  'unifrac] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
         'faith_pd_vector': 'Vector of Faith PD values by sample.',

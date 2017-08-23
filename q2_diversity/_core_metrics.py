@@ -40,7 +40,8 @@ def core_metrics(table: biom.Table, phylogeny: skbio.TreeNode,
     evenness_vector = alpha(table=rarefied_table, metric='pielou_e')
 
     unweighted_unifrac_distance_matrix = beta_phylogenetic(
-        table=rarefied_table, phylogeny=phylogeny, metric='unweighted_unifrac')
+        table=rarefied_table, phylogeny=phylogeny, metric='unweighted_unifrac',
+        n_jobs=n_jobs)
     weighted_unifrac_distance_matrix = beta_phylogenetic(
         table=rarefied_table, phylogeny=phylogeny, metric='weighted_unifrac')
     jaccard_distance_matrix = beta(table=rarefied_table, metric='jaccard',
