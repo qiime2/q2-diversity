@@ -352,19 +352,20 @@ plugin.visualizers.register_function(
                  'correlated with alpha diversity.')
 )
 
+alpha_rarefaction_metrics = list(alpha.alpha_rarefaction_supported_methods)
+
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
-    inputs={'feature_table': FeatureTable[Frequency],
+    inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(
-                            alpha.alpha_rarefaction_supported_methods),
+    parameters={'metric': Str % Choices(alpha_rarefaction_metrics),
                 'metadata': Metadata,
                 'min_depth': Int % Range(1, None),
                 'max_depth': Int % Range(1, None),
                 'steps': Int % Range(2, None),
                 'iterations': Int % Range(1, None)},
     input_descriptions={
-        'feature_table': 'Feature table to be rarefied.',
+        'table': 'Feature table to compute rarefaction curves from.',
         'phylogeny': 'Optional phylogeny for phylogenetic metrics.',
     },
     parameter_descriptions={
@@ -380,6 +381,12 @@ plugin.visualizers.register_function(
         'iterations': ('The number of rarefied feature tables to '
                        'compute at each step.'),
     },
-    name='Alpha rarefaction',
-    description='Compute alpha rarefaction plots.',
+    name='Alpha rarefaction curves',
+    description=('Generate interactive alpha rarefaction curves by computing '
+                 'rarefactions between `min_depth` and `max_depth`. The '
+                 'number of intermediate depths to compute is controlled by '
+                 'the `steps` parameter, with n `iterations` being computed '
+                 'at each rarefaction depth. If sample metadata is provided, '
+                 'samples may be grouped based on distinct values within a '
+                 'metadata column.'),
 )

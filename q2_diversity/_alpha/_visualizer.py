@@ -19,13 +19,14 @@ import pandas as pd
 import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
 import q2templates
-
 import biom
 import skbio
-from itertools import product
+import itertools
+from q2_feature_table import rarefy
+
 from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
                       alpha, alpha_phylogenetic)
-from q2_feature_table import rarefy
+
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 
@@ -252,7 +253,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
-    for d, i in product(depth_range, iter_range):
+    for d, i in itertools.product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
             if m in phylogenetic_metrics():
@@ -264,15 +265,10 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     return data
 
 
-def alpha_rarefaction(output_dir: str,
-                      feature_table: biom.Table,
-                      max_depth: int,
-                      phylogeny: skbio.TreeNode=None,
-                      metric: str=None,
-                      metadata: qiime2.Metadata=None,
-                      min_depth: int=1,
-                      steps: int=10,
-                      iterations: int=10) -> None:
+def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
+                      phylogeny: skbio.TreeNode=None, metric: str=None,
+                      metadata: qiime2.Metadata=None, min_depth: int=1,
+                      steps: int=10, iterations: int=10) -> None:
     if steps < 2:
         raise ValueError('Provided steps of %d must greater than 1.' % steps)
     if iterations < 1:
@@ -291,13 +287,13 @@ def alpha_rarefaction(output_dir: str,
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '
                          'provided min_depth of %d.' % (max_depth, min_depth))
-    max_frequency = max(feature_table.sum(axis='sample'))
+    max_frequency = max(table.sum(axis='sample'))
     if max_frequency < max_depth:
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
     filenames, categories = [], []
-    data = _compute_rarefaction_data(feature_table, min_depth, max_depth,
+    data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
     for (m, data) in data.items():
         metric_name = quote(m)
@@ -344,8 +340,8 @@ def alpha_rarefaction(output_dir: str,
                     os.path.join(output_dir, 'dist'))
 
 
-alpha_rarefaction_supported_methods = (non_phylogenetic_metrics()
-                                       & phylogenetic_metrics()
+alpha_rarefaction_supported_methods = ((non_phylogenetic_metrics()
+                                       | phylogenetic_metrics())
                                        - {'osd', 'lladser_ci', 'strong',
                                           'esty_ci', 'kempton_taylor_q',
-                                           'chao1_ci'})
+                                          'chao1_ci'})
