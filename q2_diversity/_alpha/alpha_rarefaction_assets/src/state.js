@@ -12,28 +12,17 @@ function updateData(metric, category, svg, href, legend, legendTitle) {
   render(svg, preppedData, category, legend, legendTitle);
 }
 
-let curState = null;
 class State {
   constructor() {
-    if (!curState) {
-      curState = this;
-    }
     this.category = '';
     this.metric = '';
     this.svg = null;
     this.href = null;
     this.legend = null;
     this.legendTitle = null;
-    return curState;
   }
   initialize(metric, category, row, svg, legend, legendTitle) {
-    // CONTROLS
-    const downloadDiv = row.append('div')
-      .attr('class', 'col-lg-2 form-group downloadCSV');
-    downloadDiv.append('label').html('&nbsp;');
-    this.href = downloadDiv.append('a')
-      .text('Download CSV')
-      .attr('class', 'btn btn-default form-control');
+    this.href = row.select('.downloadCSV a');
     this.svg = svg;
     this.metric = metric;
     this.category = category;

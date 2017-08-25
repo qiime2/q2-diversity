@@ -6,24 +6,72 @@
 
 {% block content %}
 
-<div class="row">
-	<div class="col-lg-12" id="main"></div>
+<div class='row'>
+  <div class='col-lg-12' id='main'>
+    <h1>Alpha rarefaction</h1>
+    <div class='controls row'>
+      <div class='col-lg-2 form-group downloadCSV'>
+        <label>&nbsp;</label>
+        <a class='btn btn-default form-control'>
+          Download CSV
+        </a>
+      </div>
+      <div class='col-lg-2 form-group metricPicker'>
+        <label>Metric</label>
+        <select class='form-control'></select>
+      </div>
+      <div class='col-lg-3 form-group categoryPicker'>
+        <label>Sample Metadata Column</label>
+        <select class='form-control'></select>
+      </div>
+    </div>
+    <div class='viz row'>
+      <div class='col-lg-9' style='width: 1120px;'>
+        <svg class='plotSvg'>
+          <g id='chart'>
+            <g class='x axis'></g>
+            <g class='y axis'></g>
+            <text class='x label'></text>
+            <text class='y label'></text>
+          </g>
+          <g id='subChart'>
+            <g class='x axis'></g>
+            <g class='y axis'></g>
+            <text class='x label'></text>
+            <text class='y label'></text>
+          </g>
+        </svg>
+      </div>
+      <div class='col-lg-2' style='height: 1000px;'>
+        <div style='height: 25px; width: 300px; overflow-x: auto; overflow-y: hidden'>
+          <svg width='200' height='20' class='legendTitleSvg'>
+            <g class='legendTitle'></g>
+          </svg>
+        </div>
+        <div style='height: 900px; width: 300px; overflow-x: auto; overflow-y: hidden' class-'legendBoxDiv'>
+          <svg class='legendBoxSvg'>
+            <g></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-  	var d = {};
-  	var categories = {{ categories | safe }};
-	var metrics = {{ metrics | safe }};
-	function load_data(metric, category, data) {
-		if (category) {
-			if (!d[metric]) {
-				d[metric] = {};
-			}
-			d[metric][category] = data;
-		} else {
-			d[metric] = data;
-		}
-  	}
+  var d = {};
+  var categories = {{ categories | safe }};
+  var metrics = {{ metrics | safe }};
+  function load_data(metric, category, data) {
+    if (category) {
+      if (!d[metric]) {
+        d[metric] = {};
+      }
+      d[metric][category] = data;
+    } else {
+      d[metric] = data;
+    }
+  }
 </script>
 {% for filename in filenames %}
 <script src='{{ filename }}?callback=load_data'></script>

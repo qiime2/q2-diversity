@@ -2,10 +2,7 @@
 import state from './state';
 
 export function addMetricPicker(row, metrics, selectedMetric) {
-  const grp = row.append('div').attr('class', 'col-lg-2 form-group metricPicker');
-  grp.append('label').text('Metric');
-  grp.append('select')
-    .attr('class', 'form-control')
+  row.select('.metricPicker select')
     .on('change', function changeCategory() {
       const newMetric = metrics[this.selectedIndex];
       state.setMetric(newMetric);
@@ -17,14 +14,10 @@ export function addMetricPicker(row, metrics, selectedMetric) {
       .attr('value', d => d)
       .text(d => d)
       .property('selected', d => (d === selectedMetric));
-  return grp;
 }
 
 export function addCategoryPicker(row, categories, selectedCategory) {
-  const grp = row.append('div').attr('class', 'col-lg-3 form-group categoryPicker');
-  grp.append('label').text('Sample Metadata Column');
-  grp.append('select')
-    .attr('class', 'form-control')
+  row.select('.categoryPicker select')
     .on('change', function changeCategory() {
       const newCategory = categories[this.selectedIndex];
       state.setCategory(newCategory);
@@ -36,5 +29,4 @@ export function addCategoryPicker(row, categories, selectedCategory) {
       .attr('value', d => d)
       .text(d => d)
       .property('selected', d => (d === selectedCategory));
-  return grp;
 }
