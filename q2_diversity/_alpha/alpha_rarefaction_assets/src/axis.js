@@ -42,7 +42,7 @@ export function setupYLabels(svg, height, label, yAxisChart, yAxisSubChart) {
 
   svg.select('#subChart .y.axis')
     .call(yAxisSubChart);
-  const subChartLabel = svg.select('#subChart .y.label').call(setupLabel, 'samples');
+  const subChartLabel = svg.select('#subChart .y.label').call(setupLabel, 'Number of samples');
   subChartLabel.attr('transform', `translate(-${textHeight},${(height / 2)})rotate(-90)`);
 
   return textHeight;

@@ -352,13 +352,12 @@ plugin.visualizers.register_function(
                  'correlated with alpha diversity.')
 )
 
-alpha_rarefaction_metrics = list(alpha.alpha_rarefaction_supported_methods)
-
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha_rarefaction_metrics),
+    parameters={'metric': Str % Choices(
+                                    alpha.alpha_rarefaction_supported_metrics),
                 'metadata': Metadata,
                 'min_depth': Int % Range(1, None),
                 'max_depth': Int % Range(1, None),

@@ -20,7 +20,7 @@ import pandas as pd
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
     _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
-    _beta_rarefaction_jsonp)
+    _alpha_rarefaction_jsonp)
 
 
 class AlphaRarefactionTests(unittest.TestCase):
@@ -48,6 +48,22 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('observed_otus' in open(index_fp).read())
             self.assertTrue('shannon' in open(index_fp).read())
+
+    def test_alpha_rarefaction_with_superset_metadata(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer']},
+                         index=['S1', 'S2', 'S3', 'S4']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('observed_otus' in open(index_fp).read())
+            self.assertTrue('shannon' in open(index_fp).read())
+            metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
+            self.assertTrue('summer' not in open(metric_fp).read())
 
     def test_alpha_rarefaction_with_phylogeny(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -91,18 +107,15 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
                          index=['S1', 'S2', 'S3']))
 
-        with tempfile.TemporaryDirectory() as output_dir:
+        empty_table = biom.Table(np.array([]), [], [])
 
+        bad_metadata = qiime2.Metadata(
+            pd.DataFrame({'pet': ['russ', 'milo', 'summer']},
+                         index=['S1', 'S2', 'S4']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaisesRegex(ValueError, 'must be greater'):
                 alpha_rarefaction(output_dir, t, min_depth=200, max_depth=1,
-                                  metadata=md)
-
-            with self.assertRaisesRegex(ValueError, 'Provided steps'):
-                alpha_rarefaction(output_dir, t, max_depth=200, steps=1,
-                                  metadata=md)
-
-            with self.assertRaisesRegex(ValueError, 'Provided iterations'):
-                alpha_rarefaction(output_dir, t, max_depth=200, iterations=0,
                                   metadata=md)
 
             with self.assertRaisesRegex(ValueError, 'phylogeny was not'):
@@ -116,8 +129,21 @@ class AlphaRarefactionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'max_depth'):
                 alpha_rarefaction(output_dir, t, max_depth=1000)
 
+            with self.assertRaisesRegex(ValueError, 'steps'):
+                alpha_rarefaction(output_dir, t, max_depth=2)
+
+            with self.assertRaisesRegex(ValueError, 'empty'):
+                alpha_rarefaction(output_dir, empty_table, max_depth=200)
+
+            with self.assertRaisesRegex(ValueError, 'Missing'):
+                alpha_rarefaction(output_dir, t, metadata=bad_metadata,
+                                  max_depth=200)
+
 
 class ComputeRarefactionDataTests(unittest.TestCase):
+    def setUp(self):
+        np.random.seed(0)
+
     def test_observed_otus(self):
         t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
                        ['O1', 'O2'],
@@ -414,8 +440,8 @@ class BetaRarefactionJSONPTests(unittest.TestCase):
                                              'max', 'min', 'sample-id'])
 
         with tempfile.TemporaryDirectory() as output_dir:
-            _beta_rarefaction_jsonp(output_dir, 'peanut.jsonp', 'shannon',
-                                    data, '')
+            _alpha_rarefaction_jsonp(output_dir, 'peanut.jsonp', 'shannon',
+                                     data, '')
 
             jsonp_fp = os.path.join(output_dir, 'peanut.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))

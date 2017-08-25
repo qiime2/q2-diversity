@@ -235,7 +235,7 @@ def _compute_summary(data, id_label, counts=None):
     return summary_df
 
 
-def _beta_rarefaction_jsonp(output_dir, filename, metric, data, category):
+def _alpha_rarefaction_jsonp(output_dir, filename, metric, data, category):
     with open(os.path.join(output_dir, filename), 'w') as fh:
         fh.write("load_data('%s', '%s'," % (metric, category))
         data.to_json(fh, orient='split')
@@ -269,17 +269,12 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                       phylogeny: skbio.TreeNode=None, metric: str=None,
                       metadata: qiime2.Metadata=None, min_depth: int=1,
                       steps: int=10, iterations: int=10) -> None:
-    if steps < 2:
-        raise ValueError('Provided steps of %d must greater than 1.' % steps)
-    if iterations < 1:
-        raise ValueError('Provided iterations of %d must greater than 0.'
-                         % steps)
     if metric is None:
         metrics = ['observed_otus', 'shannon']
         if phylogeny is not None:
             metrics.append('faith_pd')
     else:
-        if metric == 'faith_pd' and phylogeny is None:
+        if metric in phylogenetic_metrics() and phylogeny is None:
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % metric)
         metrics = [metric]
@@ -287,23 +282,37 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '
                          'provided min_depth of %d.' % (max_depth, min_depth))
+    possible_steps = max_depth - min_depth
+    if possible_steps < steps:
+        raise ValueError('Provided number of steps (%d) is greater than the '
+                         'steps possible between min_depth and '
+                         'max_depth (%d).' % (steps, possible_steps))
+    if table.is_empty():
+        raise ValueError('Provided table is empty.')
     max_frequency = max(table.sum(axis='sample'))
     if max_frequency < max_depth:
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
+    if metadata is not None:
+        metadata_ids = metadata.ids()
+        table_ids = set(table.ids(axis='sample'))
+        if not table_ids.issubset(metadata_ids):
+            raise ValueError('Missing samples in metadata: %r' %
+                             table_ids.difference(metadata_ids))
+
     filenames, categories = [], []
     data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
-    for (m, data) in data.items():
+    for m, data in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
 
         if metadata is None:
             n_df = _compute_summary(data, 'sample-id')
             jsonp_filename = '%s.jsonp' % metric_name
-            _beta_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
-                                    n_df, '')
+            _alpha_rarefaction_jsonp(output_dir, jsonp_filename, metric_name,
+                                     n_df, '')
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
@@ -318,8 +327,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                                                               merged)
                 c_df = _compute_summary(reindexed_df, category, counts=counts)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
-                _beta_rarefaction_jsonp(output_dir, jsonp_filename,
-                                        metric_name, c_df, category_name)
+                _alpha_rarefaction_jsonp(output_dir, jsonp_filename,
+                                         metric_name, c_df, category_name)
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
@@ -340,7 +349,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                     os.path.join(output_dir, 'dist'))
 
 
-alpha_rarefaction_supported_methods = ((non_phylogenetic_metrics()
+alpha_rarefaction_supported_metrics = ((non_phylogenetic_metrics()
                                        | phylogenetic_metrics())
                                        - {'osd', 'lladser_ci', 'strong',
                                           'esty_ci', 'kempton_taylor_q',
