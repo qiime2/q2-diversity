@@ -77,14 +77,14 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
       .attr('cy', d => yScale(d[index]));
   }
   const dotsUpdate = chart.selectAll('.circle').data(points);
-  dotsUpdate.exit().transition().remove();
+  dotsUpdate.exit().remove();
   const dotsEnter = dotsUpdate.enter().append('circle')
     .attr('r', 4);
   dotsUpdate.call(plotDots, medianIndex, y);
   dotsEnter.call(plotDots, medianIndex, y);
 
   const subDotsUpdate = subChart.selectAll('.circle').data(points);
-  subDotsUpdate.exit().transition().remove();
+  subDotsUpdate.exit().remove();
   const subDotsEnter = subDotsUpdate.enter().append('circle')
     .attr('r', 4);
   subDotsUpdate.call(plotDots, countIndex, subY);
@@ -107,12 +107,12 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
       .attr('d', d => valueline(yIndex, yScale)(d.values));
   }
   const linesUpdate = chart.selectAll('.line').data(datum);
-  linesUpdate.exit().transition().remove();
+  linesUpdate.exit().remove();
   linesUpdate.enter().append('path').call(plotLines, y, medianIndex);
   linesUpdate.call(plotLines, y, medianIndex);
 
   const subLinesUpdate = subChart.selectAll('.line').data(datum);
-  subLinesUpdate.exit().transition().remove();
+  subLinesUpdate.exit().remove();
   subLinesUpdate.enter().append('path').call(plotLines, subY, countIndex);
   subLinesUpdate.call(plotLines, subY, countIndex);
 }
