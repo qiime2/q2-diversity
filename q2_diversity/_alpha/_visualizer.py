@@ -107,9 +107,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                 fh.write(",")
                 json.dump({'H': kw_H_all, 'p': kw_p_all}, fh)
                 fh.write(",'")
-                table = kw_H_pairwise.to_html(classes="table table-striped "
-                                              "table-hover")
-                table = table.replace('border="1"', 'border="0"')
+                table = q2templates.df_to_html(kw_H_pairwise)
                 fh.write(table.replace('\n', '').replace("'", "\\'"))
                 fh.write("','%s', '%s');" % (quote(pairwise_fn), metric_name))
         else:
