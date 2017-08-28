@@ -56,8 +56,7 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     filtered_dm_length = distance_matrix.shape[0]
 
     result = skbio.stats.distance.bioenv(distance_matrix, df)
-    result = result.to_html(classes='table table-striped table-hover').replace(
-        'border="1"', 'border="0"')
+    result = q2templates.df_to_html(result)
 
     index = os.path.join(TEMPLATES, 'bioenv_assets', 'index.html')
     q2templates.render(index, output_dir, context={
@@ -177,9 +176,7 @@ def beta_group_significance(output_dir: str,
                                  urllib.parse.quote_plus(str(group_id))))
         fig.clear()
 
-    result_html = result.to_frame().to_html(classes=("table table-striped "
-                                                     "table-hover"))
-    result_html = result_html.replace('border="1"', 'border="0"')
+    result_html = q2templates.df_to_html(result.to_frame())
 
     if pairwise:
         pairwise_results = []
@@ -210,10 +207,7 @@ def beta_group_significance(output_dir: str,
             output_dir, '%s-pairwise.csv' % method)
         pairwise_results.to_csv(pairwise_path)
 
-        pairwise_results_html = pairwise_results.to_html(
-            classes=("table table-striped table-hover"))
-        pairwise_results_html = pairwise_results_html.replace(
-            'border="1"', 'border="0"')
+        pairwise_results_html = q2templates.df_to_html(pairwise_results)
     else:
         pairwise_results_html = None
 
@@ -335,9 +329,7 @@ def beta_correlation(output_dir: str,
                                          test_statistics[method]),
                               'p-value'],
                        name='Mantel test results')
-    result_html = result.to_frame().to_html(classes=("table table-striped "
-                                                     "table-hover"))
-    result_html = result_html.replace('border="1"', 'border="0"')
+    result_html = q2templates.df_to_html(result.to_frame())
 
     scatter_data = []
     for id1, id2 in itertools.combinations(distance_matrix.ids, 2):

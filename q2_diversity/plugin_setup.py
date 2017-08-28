@@ -19,6 +19,16 @@ from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults
 
 
+sklearn_n_jobs_description = (
+    'The number of jobs to use for the computation. This works by breaking '
+    'down the pairwise matrix into n_jobs even slices and computing them in '
+    'parallel. If -1 all CPUs are used. If 1 is given, no parallel computing '
+    'code is used at all, which is useful for debugging. For n_jobs below -1, '
+    '(n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one '
+    'are used. (Description from sklearn.metrics.pairwise_distances)'
+)
+
+
 plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
@@ -35,7 +45,8 @@ plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
+                'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -47,7 +58,9 @@ plugin.methods.register_function(
                       'present in this tree.')
     },
     parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.'
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': '[Excluding weighted_unifrac] - %s' %
+                  sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
@@ -58,14 +71,16 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_diversity.beta,
     inputs={'table': FeatureTable[Frequency]},
-    parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
+                'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
                   'diversity should be computed.')
     },
     parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.'
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
@@ -142,7 +157,8 @@ plugin.methods.register_function(
         'phylogeny': Phylogeny[Rooted]
     },
     parameters={
-        'sampling_depth': Int
+        'sampling_depth': Int,
+        'n_jobs': Int
     },
     outputs=[
         ('faith_pd_vector', SampleData[AlphaDiversity]),
@@ -168,8 +184,10 @@ plugin.methods.register_function(
                       'present in this tree.')
     },
     parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'rarefied to prior to computing diversity metrics.')
+        'sampling_depth': 'The total frequency that each sample should be '
+                          'rarefied to prior to computing diversity metrics.',
+        'n_jobs': '[beta/beta-phylogenetic methods only, excluding weighted_'
+                  'unifrac] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
         'faith_pd_vector': 'Vector of Faith PD values by sample.',
@@ -350,6 +368,44 @@ plugin.visualizers.register_function(
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata category is '
                  'correlated with alpha diversity.')
+)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.alpha_rarefaction,
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'metric': Str % Choices(
+                                    alpha.alpha_rarefaction_supported_metrics),
+                'metadata': Metadata,
+                'min_depth': Int % Range(1, None),
+                'max_depth': Int % Range(1, None),
+                'steps': Int % Range(2, None),
+                'iterations': Int % Range(1, None)},
+    input_descriptions={
+        'table': 'Feature table to compute rarefaction curves from.',
+        'phylogeny': 'Optional phylogeny for phylogenetic metrics.',
+    },
+    parameter_descriptions={
+        'metric': ('The metric to be measured. By default computes '
+                   'observed_otus, shannon, and if phylogeny is '
+                   'provided, faith_pd.'),
+        'metadata': 'The sample metadata.',
+        'min_depth': 'The minimum rarefaction depth.',
+        'max_depth': ('The maximum rarefaction depth. '
+                      'Must be greater than min_depth.'),
+        'steps': ('The number of rarefaction depths to include '
+                  'between min_depth and max_depth.'),
+        'iterations': ('The number of rarefied feature tables to '
+                       'compute at each step.'),
+    },
+    name='Alpha rarefaction curves',
+    description=('Generate interactive alpha rarefaction curves by computing '
+                 'rarefactions between `min_depth` and `max_depth`. The '
+                 'number of intermediate depths to compute is controlled by '
+                 'the `steps` parameter, with n `iterations` being computed '
+                 'at each rarefaction depth. If sample metadata is provided, '
+                 'samples may be grouped based on distinct values within a '
+                 'metadata column.'),
 )
 
 color_schemes = [
