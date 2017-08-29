@@ -725,30 +725,31 @@ class BetaRarefactionTests(unittest.TestCase):
                          scipy.misc.comb(iterations, 2))
 
     def test_beta_rarefaction_with_phylogeny(self):
-        beta_rarefaction(self.output_dir, self.table, 2, 10,
-                         'weighted_unifrac', phylogeny=self.tree)
+        beta_rarefaction(self.output_dir, self.table, 'weighted_unifrac', 2,
+                         phylogeny=self.tree)
 
         self.assertBetaRarefactionValidity(self.output_dir, 10, 'spearman')
 
     def test_beta_rarefaction_without_phylogeny(self):
-        beta_rarefaction(self.output_dir, self.table, 2, 10, 'braycurtis')
+        beta_rarefaction(self.output_dir, self.table, 'braycurtis', 2)
 
         self.assertBetaRarefactionValidity(self.output_dir, 10, 'spearman')
 
     def test_beta_rarefaction_minimum_iterations(self):
-        beta_rarefaction(self.output_dir, self.table, 2, 2, 'braycurtis')
+        beta_rarefaction(self.output_dir, self.table, 'braycurtis', 2,
+                         iterations=2)
 
         self.assertBetaRarefactionValidity(self.output_dir, 2, 'spearman')
 
     def test_beta_rarefaction_pearson_correlation(self):
-        beta_rarefaction(self.output_dir, self.table, 2, 7, 'jaccard',
-                         correlation_method='pearson')
+        beta_rarefaction(self.output_dir, self.table, 'jaccard', 2,
+                         iterations=7, correlation_method='pearson')
 
         self.assertBetaRarefactionValidity(self.output_dir, 7, 'pearson')
 
     def test_beta_rarefaction_non_default_color_scheme(self):
-        beta_rarefaction(self.output_dir, self.table, 3, 5, 'euclidean',
-                         color_scheme='PiYG')
+        beta_rarefaction(self.output_dir, self.table, 'euclidean', 3,
+                         iterations=5, color_scheme='PiYG')
 
         self.assertBetaRarefactionValidity(self.output_dir, 5, 'spearman')
 
@@ -756,25 +757,24 @@ class BetaRarefactionTests(unittest.TestCase):
         table = Table(np.array([[]]), [], [])
         with self.assertRaisesRegex(ValueError,
                                     'shallow enough sampling depth'):
-            beta_rarefaction(self.output_dir, table, 1, 10, 'braycurtis')
+            beta_rarefaction(self.output_dir, table, 'braycurtis', 1)
 
     def test_beta_rarefaction_all_samples_dropped(self):
         with self.assertRaisesRegex(ValueError,
                                     'shallow enough sampling depth'):
-            beta_rarefaction(self.output_dir, self.table, 100, 10,
-                             'braycurtis')
+            beta_rarefaction(self.output_dir, self.table, 'braycurtis', 100)
 
     def test_beta_rarefaction_too_many_samples_dropped(self):
         # mantel needs 3x3 or larger distance matrix
         table = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                       ['O1', 'O2'], ['S1', 'S2', 'S3'])
         with self.assertRaisesRegex(ValueError, '3x3 in size'):
-            beta_rarefaction(self.output_dir, table, 2, 10, 'braycurtis')
+            beta_rarefaction(self.output_dir, table, 'braycurtis', 2)
 
     def test_beta_rarefaction_missing_phylogeny(self):
         with self.assertRaisesRegex(ValueError, 'Phylogeny must be provided'):
-            beta_rarefaction(self.output_dir, self.table, 2, 10,
-                             'weighted_unifrac')
+            beta_rarefaction(self.output_dir, self.table, 'weighted_unifrac',
+                             2)
 
     def test_get_multiple_rarefaction_with_phylogeny(self):
         beta_func = functools.partial(beta_phylogenetic, phylogeny=self.tree)

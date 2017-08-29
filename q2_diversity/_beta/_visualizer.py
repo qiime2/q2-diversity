@@ -224,8 +224,8 @@ def beta_group_significance(output_dir: str,
     })
 
 
-def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
-                     iterations: int, metric: str,
+def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
+                     sampling_depth: int, iterations: int=10,
                      phylogeny: skbio.TreeNode=None,
                      correlation_method: str='spearman',
                      color_scheme: str='BrBG') -> None:

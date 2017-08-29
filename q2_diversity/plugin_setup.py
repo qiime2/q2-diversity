@@ -419,10 +419,10 @@ plugin.visualizers.register_function(
         'table': FeatureTable[Frequency],
         'phylogeny': Phylogeny[Rooted]},
     parameters={
+        'metric': Str % Choices(beta.all_metrics()),
         'sampling_depth': Int % Range(1, None),
         # Need at least two iterations to do a comparison.
         'iterations': Int % Range(2, None),
-        'metric': Str % Choices(beta.all_metrics()),
         'correlation_method': Str % Choices({'spearman', 'pearson'}),
         'color_scheme': Str % Choices(_beta_rarefaction_color_schemes)
     },
@@ -437,12 +437,12 @@ plugin.visualizers.register_function(
                      'metrics]'
     },
     parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.',
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity '
                           'metrics.',
         'iterations': 'Number of times to rarefy the feature table at a given '
                       'sampling depth.',
-        'metric': 'The beta diversity metric to be computed.',
         'correlation_method': 'The Mantel correlation test to be applied when '
                               'computing correlation between beta diversity '
                               'distance matrices.',
