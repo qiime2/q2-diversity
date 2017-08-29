@@ -6,26 +6,27 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import os
+import os.path
 import collections
 import urllib.parse
 import pkg_resources
 import itertools
 import functools
 
-import qiime2
 import skbio
-import biom
 import skbio.diversity
-from scipy import spatial
+import biom
+import scipy.spatial.distance
 import numpy
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import q2templates
-from q2_feature_table import rarefy
-from ._method import beta, beta_phylogenetic, phylogenetic_metrics
 from statsmodels.sandbox.stats.multicomp import multipletests
+import qiime2
+import q2templates
+import q2_feature_table
+
+from ._method import beta, beta_phylogenetic, phylogenetic_metrics
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -224,56 +225,53 @@ def beta_group_significance(output_dir: str,
 
 
 def beta_rarefaction(output_dir: str, table: biom.Table, sampling_depth: int,
-                     metric: str, num_iterations: int,
+                     iterations: int, metric: str,
                      phylogeny: skbio.TreeNode=None,
-                     color_scheme: str='BrBG',
-                     method: str='spearman') -> None:
-    test_statistics = {'spearman': 'rho', 'pearson': 'r'}
-
+                     correlation_method: str='spearman',
+                     color_scheme: str='BrBG') -> None:
     if metric in phylogenetic_metrics():
         if phylogeny is None:
             raise ValueError("A phylogenetic metric (%s) was requested, "
                              "but a phylogenetic tree was not provided. "
                              "Phylogeny must be provided when using a "
                              "phylogenetic diversity metric." % metric)
-        beta_metric = functools.partial(beta_phylogenetic,
-                                        phylogeny=phylogeny)
+        beta_func = functools.partial(beta_phylogenetic, phylogeny=phylogeny)
     else:
-        beta_metric = beta
+        beta_func = beta
 
     distance_matrices = _get_multiple_rarefaction(
-        beta_metric, metric, num_iterations, table, sampling_depth)
+        beta_func, metric, iterations, table, sampling_depth)
 
-    sm_df = skbio.stats.distance.pwmantel(distance_matrices, method=method,
-                                          permutations=0, strict=True)
+    sm_df = skbio.stats.distance.pwmantel(
+        distance_matrices, method=correlation_method, permutations=0,
+        strict=True)
     sm = sm_df[['statistic']]  # Drop all other DF columns
     sm = sm.unstack(level=0)  # Reshape for seaborn
 
-    plt.figure()
-    sns.heatmap(sm, cmap=color_scheme,
-                vmin=-1.0, vmax=1.0, annot=False,
-                cbar_kws={'ticks': [1, 0.5, 0, -0.5, -1]}).set(
-                    xlabel=test_statistics[method],
-                    ylabel=test_statistics[method])
-    frame = plt.gca()
-    frame.axes.get_xaxis().set_ticks([])
-    frame.axes.get_yaxis().set_ticks([])
+    test_statistics = {'spearman': "Spearman's rho", 'pearson': "Pearson's r"}
+    ax = sns.heatmap(
+        sm, cmap=color_scheme, vmin=-1.0, vmax=1.0, center=0.0, annot=False,
+        square=True, xticklabels=False, yticklabels=False,
+        cbar_kws={'ticks': [1, 0.5, 0, -0.5, -1],
+                  'label': test_statistics[correlation_method]})
+    ax.set(xlabel='Iteration', ylabel='Iteration',
+           title='Mantel correlation between iterations')
+    ax.get_figure().savefig(os.path.join(output_dir, 'heatmap.svg'))
 
-    plt.savefig(os.path.join(output_dir, 'heatmap.svg'))
-    similarity_mtx_fp = \
-        os.path.join(output_dir, 'rarefaction-iteration-similarities.tsv')
+    similarity_mtx_fp = os.path.join(output_dir,
+                                     'rarefaction-iteration-correlation.tsv')
     sm_df.to_csv(similarity_mtx_fp, sep='\t')
 
     index_fp = os.path.join(TEMPLATES, 'beta_rarefaction_assets', 'index.html')
     q2templates.render(index_fp, output_dir)
 
 
-def _get_multiple_rarefaction(beta_metric, metric, num_iterations, table,
+def _get_multiple_rarefaction(beta_func, metric, iterations, table,
                               sampling_depth):
     distance_matrices = []
-    for _ in range(num_iterations):
-        rarefied_table = rarefy(table, sampling_depth)
-        distance_matrix = beta_metric(table=rarefied_table, metric=metric)
+    for _ in range(iterations):
+        rarefied_table = q2_feature_table.rarefy(table, sampling_depth)
+        distance_matrix = beta_func(table=rarefied_table, metric=metric)
         distance_matrices.append(distance_matrix)
     return distance_matrices
 
@@ -282,7 +280,7 @@ def _metadata_distance(metadata: pd.Series) -> skbio.DistanceMatrix:
     # This code is derived from @jairideout's scikit-bio cookbook recipe,
     # "Exploring Microbial Community Diversity"
     # https://github.com/biocore/scikit-bio-cookbook
-    distances = spatial.distance.pdist(
+    distances = scipy.spatial.distance.pdist(
         metadata.values[:, numpy.newaxis], metric='euclidean')
     return skbio.DistanceMatrix(distances, ids=metadata.index)
 

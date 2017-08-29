@@ -408,38 +408,57 @@ plugin.visualizers.register_function(
                  'metadata column.'),
 )
 
-color_schemes = [
+_beta_rarefaction_color_schemes = [
     'BrBG', 'BrBG_r', 'PRGn', 'PRGn_r', 'PiYG', 'PiYG_r',
     'PuOr', 'PuOr_r', 'RdBu', 'RdBu_r', 'RdGy', 'RdGy_r',
     'RdYlBu', 'RdYlBu_r', 'RdYlGn', 'RdYlGn_r']
 
 plugin.visualizers.register_function(
     function=q2_diversity._beta._visualizer.beta_rarefaction,
-    inputs={'table': FeatureTable[Frequency], 'phylogeny': Phylogeny[Rooted]},
-    parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(beta.all_metrics()),
-                'num_iterations': Int % Range(1, None),
-                'color_scheme': Str % Choices(color_schemes),
-                'method': Str % Choices(beta_correlation_methods)},
+    inputs={
+        'table': FeatureTable[Frequency],
+        'phylogeny': Phylogeny[Rooted]},
+    parameters={
+        'sampling_depth': Int % Range(1, None),
+        # Need at least two iterations to do a comparison.
+        'iterations': Int % Range(2, None),
+        'metric': Str % Choices(beta.all_metrics()),
+        'correlation_method': Str % Choices({'spearman', 'pearson'}),
+        'color_scheme': Str % Choices(_beta_rarefaction_color_schemes)
+    },
     input_descriptions={
-        'table': ('The feature table containing the samples over which '
-                  'jacknife comparison should be computed.'),
-        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in the table. '
-                      'This tree can contain tip ids that are not present in '
-                      'the table, but all feature ids in the table must be '
-                      'present in this tree.')
+        'table': 'Feature table upon which to perform beta diversity '
+                 'rarefaction analyses.',
+        'phylogeny': 'Phylogenetic tree containing tip identifiers that '
+                     'correspond to the feature identifiers in the table. '
+                     'This tree can contain tip ids that are not present in '
+                     'the table, but all feature ids in the table must be '
+                     'present in this tree. [required for phylogenetic '
+                     'metrics]'
     },
     parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'rarefied to prior to computing diversity '
-                           'metrics.'),
+        'sampling_depth': 'The total frequency that each sample should be '
+                          'rarefied to prior to computing diversity '
+                          'metrics.',
+        'iterations': 'Number of times to rarefy the feature table at a given '
+                      'sampling depth.',
         'metric': 'The beta diversity metric to be computed.',
-        'num_iterations': 'Number of rarefied tables to be created.',
-        'color_scheme': ('The matplotlib color scheme to generate the '
-                         'heatmap with.'),
-        'method': 'The correlation test to be applied.',
+        'correlation_method': 'The Mantel correlation test to be applied when '
+                              'computing correlation between beta diversity '
+                              'distance matrices.',
+        'color_scheme': 'The matplotlib color scheme to generate the heatmap '
+                        'with.',
     },
-    name='Beta rarefaction comparison',
-    description='Performs jacknife comparison upon FeatureTable.'
+    name='Beta diversity rarefaction',
+    description='Repeatedly rarefy a feature table to compare beta diversity '
+                'results across and within rarefaction depths.\n\n'
+                'This visualizer provides a heatmap showing the correlation '
+                'between beta diversity distance matrices computed by '
+                'repeatedly rarefying at a given sampling depth.\n\n'
+                'Note: currently only a single sampling depth is supported. A '
+                'range of sampling depths (e.g. similar to '
+                '`alpha_rarefaction`) will be supported in the future to '
+                'allow comparison between sampling depths. Additional '
+                'visualizations will be supported, such as Emperor plots and '
+                'UPGMA trees.'
 )
