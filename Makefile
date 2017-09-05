@@ -16,19 +16,19 @@ q2_diversity/_alpha/alpha_correlation_assets/dist:
 	cd q2_diversity/_alpha/alpha_correlation_assets && \
 	npm install && \
 	npm run build && \
-	cp licenses/* dist
+	cp licenses/* dist/
 
 q2_diversity/_alpha/alpha_group_significance_assets/dist:
 	cd q2_diversity/_alpha/alpha_group_significance_assets && \
 	npm install && \
 	npm run build && \
-	cp licenses/* dist
+	cp licenses/* dist/
 
 q2_diversity/_alpha/alpha_rarefaction_assets/dist:
 	cd q2_diversity/_alpha/alpha_rarefaction_assets && \
 	npm install && \
 	npm run build && \
-	cp licenses/* dist
+	cp licenses/* dist/
 
 viz-alpha-correlation: q2_diversity/_alpha/alpha_correlation_assets/dist
 viz-alpha-group-significance: q2_diversity/_alpha/alpha_group_significance_assets/dist

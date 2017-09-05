@@ -21,7 +21,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --inline",
-    "build": "webpack"
+    "build": "webpack --bail"
   },
   "repository": {
     "type": "git",
