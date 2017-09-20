@@ -74,12 +74,14 @@ def beta_phylogenetic_hpc(table: BIOMV210Format, phylogeny: NewickFormat,
                           alpha=1.0)-> skbio.DistanceMatrix:
     if metric == 'unweighted_unifrac':
         f = unifrac.unweighted
-    if metric == 'weighted_unnormalized_unifrac':
+    elif metric == 'weighted_unnormalized_unifrac':
         f = unifrac.weighted_unnormalized
-    if metric == 'weighted_normalized_unifrac':
+    elif metric == 'weighted_normalized_unifrac':
         f = unifrac.weighted_normalized
-    if metric == 'generalized_unifrac':
+    elif metric == 'generalized_unifrac':
         f = partial(unifrac.generalized, alpha=alpha)
+    else:
+        raise ValueError("Unknown metric: %s" % metric)
 
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,
