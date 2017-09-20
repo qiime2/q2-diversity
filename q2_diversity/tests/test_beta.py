@@ -21,9 +21,11 @@ from biom.table import Table
 import pandas as pd
 import scipy.misc
 import qiime2
+from qiime2.plugin.testing import TestPluginBase
 
-from q2_diversity import (beta, beta_phylogenetic, bioenv,
-                          beta_group_significance, beta_correlation,
+
+from q2_diversity import (beta, beta_phylogenetic, beta_phylogenetic_hpc,
+                          bioenv, beta_group_significance, beta_correlation,
                           beta_rarefaction)
 from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
                                             _metadata_distance,
@@ -159,6 +161,143 @@ class BetaDiversityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'parallelizable'):
             beta_phylogenetic(table=t, phylogeny=tree,
                               metric='weighted_unifrac', n_jobs=-1)
+
+
+class BetaDiversityHPCTests(TestPluginBase):
+    # Note that some of these tests replicate the cases in biocore/unifrac
+    package = 'q2_diversity.tests'
+
+    def test_beta_unweighted(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('crawford.nwk')
+
+        actual = beta_phylogenetic_hpc(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='unweighted_unifrac')
+
+        # computed with beta-phylogenetic
+        data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
+                         0.72826674, 0.72065895, 0.72640581, 0.73606053,
+                         0.70302967, 0.73407301, 0.6548042, 0.71547381,
+                         0.78397813, 0.72318399, 0.76138933, 0.61041275,
+                         0.62331299, 0.71848305, 0.70416337, 0.75258475,
+                         0.79249029, 0.64392779, 0.70052733, 0.69832716,
+                         0.77818938, 0.72959894, 0.75782689, 0.71005144,
+                         0.75065046, 0.78944369, 0.63593642, 0.71283615,
+                         0.58314638, 0.69200762, 0.68972056, 0.71514083])
+        ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356', '10084.PC.355',
+               '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
+               '10084.PC.634')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_beta_weighted(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('crawford.nwk')
+
+        actual = beta_phylogenetic_hpc(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='weighted_unnormalized_unifrac')
+
+        # computed with beta-phylogenetic (weighted_unifrac)
+        data = np.array([0.44656238, 0.23771096, 0.30489123, 0.23446002,
+                         0.65723575, 0.44911772, 0.381904, 0.69144829,
+                         0.39611776, 0.36568012, 0.53377975, 0.48908025,
+                         0.35155196, 0.28318669, 0.57376916, 0.23395746,
+                         0.24658122, 0.60271637, 0.39802552, 0.36567394,
+                         0.68062701, 0.36862049, 0.48350632, 0.33024631,
+                         0.33266697, 0.53464744, 0.74605075, 0.53951035,
+                         0.49680733, 0.79178838, 0.37109012, 0.52629343,
+                         0.22118218, 0.32400805, 0.43189708, 0.59705893])
+        ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356', '10084.PC.355',
+               '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
+               '10084.PC.634')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_variance_adjusted_normalized(self):
+        bt_fp = self.get_data_path('vaw.biom')
+        tree_fp = self.get_data_path('vaw.nwk')
+
+        actual = beta_phylogenetic_hpc(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='weighted_normalized_unifrac',
+                                       variance_adjusted=True)
+
+        data = np.array([[0.0000000, 0.4086040, 0.6240185, 0.4639481,
+                          0.2857143, 0.2766318],
+                         [0.4086040, 0.0000000, 0.3798594, 0.6884992,
+                          0.6807616, 0.4735781],
+                         [0.6240185, 0.3798594, 0.0000000, 0.7713254,
+                          0.8812897, 0.5047114],
+                         [0.4639481, 0.6884992, 0.7713254, 0.0000000,
+                          0.6666667, 0.2709298],
+                         [0.2857143, 0.6807616, 0.8812897, 0.6666667,
+                          0.0000000, 0.4735991],
+                         [0.2766318, 0.4735781, 0.5047114, 0.2709298,
+                          0.4735991, 0.0000000]])
+        ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
+               'Sample6')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_generalized_unifrac(self):
+        bt_fp = self.get_data_path('vaw.biom')
+        tree_fp = self.get_data_path('vaw.nwk')
+
+        actual = beta_phylogenetic_hpc(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='generalized_unifrac',
+                                       alpha=0.5)
+
+        data = np.array([[0.0000000, 0.4040518, 0.6285560, 0.5869439,
+                          0.4082483, 0.2995673],
+                         [0.4040518, 0.0000000, 0.4160597, 0.7071068,
+                          0.7302479, 0.4860856],
+                         [0.6285560, 0.4160597, 0.0000000, 0.8005220,
+                          0.9073159, 0.5218198],
+                         [0.5869439, 0.7071068, 0.8005220, 0.0000000,
+                          0.4117216, 0.3485667],
+                         [0.4082483, 0.7302479, 0.9073159, 0.4117216,
+                          0.0000000, 0.6188282],
+                         [0.2995673, 0.4860856, 0.5218198, 0.3485667,
+                          0.6188282, 0.0000000]])
+        ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
+               'Sample6')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_beta_phylogenetic_non_phylo_metric(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('tree.nwk')
+
+        with self.assertRaises(ValueError):
+            beta_phylogenetic_hpc(table=bt_fp, phylogeny=tree_fp,
+                                  metric='braycurtis')
+
+    def test_beta_phylogenetic_unknown_metric(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('tree.nwk')
+
+        with self.assertRaises(ValueError):
+            beta_phylogenetic_hpc(table=bt_fp, phylogeny=tree_fp,
+                                  metric='not-a-metric')
 
 
 class BioenvTests(unittest.TestCase):
