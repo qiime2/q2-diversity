@@ -12,7 +12,12 @@ import skbio
 import skbio.diversity
 import skbio.tree
 import sklearn.metrics
+import unifrac
 
+from q2_types.feature_table import BIOMV210Format
+from q2_types.tree import NewickFormat
+
+from functools import partial
 
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
@@ -61,6 +66,24 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
         raise skbio.tree.MissingNodeError(message)
 
     return results
+
+
+def beta_phylogenetic_hpc(table: BIOMV210Format, phylogeny: NewickFormat,
+                          metric: str, n_jobs: int=1,
+                          variance_adjusted: bool=False,
+                          alpha=1.0)-> skbio.DistanceMatrix:
+    if metric == 'unweighted_unifrac':
+        f = unifrac.unweighted
+    if metric == 'weighted_unnormalized_unifrac':
+        f = unifrac.weighted_unnormalized
+    if metric == 'weighted_normalized_unifrac':
+        f = unifrac.weighted_normalized
+    if metric == 'generalized_unifrac':
+        f = partial(unifrac.generalized, alpha=alpha)
+
+    # unifrac processes tables and trees should be filenames
+    return f(str(table), str(phylogeny), threads=n_jobs,
+             variance_adjusted=variance_adjusted)
 
 
 def beta(table: biom.Table, metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:

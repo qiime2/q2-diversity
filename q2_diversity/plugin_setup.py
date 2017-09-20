@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool, Range)
+                           Metadata, Int, Bool, Range, Float)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -67,6 +67,56 @@ plugin.methods.register_function(
     description=("Computes a user-specified phylogenetic beta diversity metric"
                  " for all pairs of samples in a feature table.")
 )
+
+
+plugin.methods.register_function(
+    function=q2_diversity.beta_phylogenetic_hpc,
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'metric': Str % Choices(['unweighted_unifrac',
+                                         'weighted_unnormalized_unifrac',
+                                         'weighted_normalized_unifrac',
+                                         'generalized_unifrac']),
+                'n_jobs': Int,
+                'variance_adjusted': Bool,
+                'alpha': Float},
+    outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which beta '
+                  'diversity should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
+    },
+    parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.',
+        'n_jobs': 'The number of workers to use.',
+        'variance_adjusted': ('Perform variance adjustment based on Chang et '
+                              'al. BMC Bioinformatics 2011'),
+        'alpha': ('This parameter is only used when the choice of metric is '
+                  'generalized. The value of alpha controls importance of '
+                  'sample proportions. 1.0 is weighted normalized UniFrac. '
+                  '0.0 is close to unweighted UniFrac, but only if the sample '
+                  'proportions are dichotomized.')
+    },
+    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
+    name='Beta diversity (phylogenetic) - High Performance Computation',
+    description=("Computes a user-specified phylogenetic beta diversity metric"
+                 " for all pairs of samples in a feature table. This "
+                 "implementation is recommended for large datasets, otherwise "
+                 "the results are identical to beta_phylogenetic.\n\n"
+                 "This method is an implementation of the Strided State "
+                 "UniFrac algorithm. Multiple variants of the UniFrac metric "
+                 "are available, including Generalized UniFrac (Chen et al. "
+                 "2012), Variance Adjusted UniFrac (Chang et al. 2011), "
+                 "as well as Weighted normalized and unnormalized UniFrac "
+                 "(Lozupone et al. 2007), unweighted UniFrac "
+                 "(Lozupone et al. 2005), and metagenomic UniFrac "
+                 "(Lozupone et al. 2008).")
+)
+
 
 plugin.methods.register_function(
     function=q2_diversity.beta,
