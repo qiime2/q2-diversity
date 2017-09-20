@@ -38,7 +38,19 @@ plugin = Plugin(
                  'and exploring community alpha and beta diversity through '
                  'statistics and visualizations in the context of sample '
                  'metadata.'),
-    short_description='Plugin for exploring community diversity.'
+    short_description='Plugin for exploring community diversity.',
+    citation_text=('Unweighted UniFrac: '
+                   'Lozupone and Knight 2005 Appl Environ Microbiol; DOI: '
+                   '10.1128/AEM.71.12.8228-8235.2005.'
+                   'Weighted UniFrac: '
+                   'Lozupone et al. 2007 Appl Environ Microbiol; DOI: '
+                   '10.1128/AEM.01996-06.'
+                   'Variance adjusted UniFrac: '
+                   'Chang et al. BMC Bioinformatics 2011 '
+                   'https://doi.org/10.1186/1471-2105-12-118.'
+                   'Generalized UniFrac: '
+                   'Chen et al. 2012 Bioinformatics; DOI: '
+                   '10.1093/bioinformatics/bts342')
 )
 
 plugin.methods.register_function(
