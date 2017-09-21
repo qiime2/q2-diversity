@@ -15,6 +15,8 @@ install:
   - conda create -q -n test-env --file https://raw.githubusercontent.com/qiime2/environment-files/master/latest/staging/qiime2-latest-conda-linux-64.txt
   - source activate test-env
   - conda install -q pytest-cov
+  # temporary solution while we get this into a permanent channel
+  - conda install -c mortonjt unifrac
   - pip install -q flake8 coveralls
   - pip install -q https://github.com/qiime2/q2lint/archive/master.zip
   - make install

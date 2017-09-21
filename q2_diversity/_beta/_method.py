@@ -71,7 +71,8 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 def beta_phylogenetic_hpc(table: BIOMV210Format, phylogeny: NewickFormat,
                           metric: str, n_jobs: int=1,
                           variance_adjusted: bool=False,
-                          alpha=1.0) -> skbio.DistanceMatrix:
+                          alpha=1.0,
+                          bypass_tips: bool=False) -> skbio.DistanceMatrix:
     if metric == 'unweighted_unifrac':
         f = unifrac.unweighted
     elif metric == 'weighted_unnormalized_unifrac':
@@ -85,7 +86,7 @@ def beta_phylogenetic_hpc(table: BIOMV210Format, phylogeny: NewickFormat,
 
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,
-             variance_adjusted=variance_adjusted)
+             variance_adjusted=variance_adjusted, bypass_tips=bypass_tips)
 
 
 def beta(table: biom.Table, metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:

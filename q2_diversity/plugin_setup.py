@@ -91,7 +91,7 @@ plugin.methods.register_function(
                                          'generalized_unifrac']),
                 'n_jobs': Int,
                 'variance_adjusted': Bool,
-                'alpha': Float},
+                'alpha': Float, 'bypass_tips': Bool},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -111,7 +111,16 @@ plugin.methods.register_function(
                   'generalized. The value of alpha controls importance of '
                   'sample proportions. 1.0 is weighted normalized UniFrac. '
                   '0.0 is close to unweighted UniFrac, but only if the sample '
-                  'proportions are dichotomized.')
+                  'proportions are dichotomized.'),
+        'bypass_tips': ('Compute will be reduced by ~50% with this option '
+                        'yielding an approximate result. The option '
+                        'disregards computing UniFrac at the tips of the '
+                        'phylogeny and instead only computes it on the '
+                        'internal nodes. In a bifurcating tree, the tips '
+                        'correspond to approximately 50% of the vertices in '
+                        'the tree, which is how the compute time reduction is'
+                        ' achieved. The use of this parameter is analogous '
+                        'in concept to switching from 99% OTUs to 97% OTUs.')
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic) - High Performance Computation',
