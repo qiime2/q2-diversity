@@ -19,6 +19,7 @@ from q2_types.tree import NewickFormat
 
 from functools import partial
 
+
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
 def phylogenetic_metrics():

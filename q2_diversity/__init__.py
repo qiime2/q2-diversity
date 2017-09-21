@@ -20,7 +20,8 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
-__all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic', 'pcoa',
-           'alpha_group_significance', 'bioenv', 'beta_group_significance',
-           'alpha_correlation', 'core_metrics', 'filter_distance_matrix',
-           'beta_correlation', 'alpha_rarefaction', 'beta_rarefaction']
+__all__ = ['beta', 'beta_phylogenetic', 'beta_phylogenetic_hpc', 'alpha',
+           'alpha_phylogenetic', 'pcoa', 'alpha_group_significance', 'bioenv',
+           'beta_group_significance', 'alpha_correlation', 'core_metrics',
+           'filter_distance_matrix', 'beta_correlation', 'alpha_rarefaction',
+           'beta_rarefaction']
