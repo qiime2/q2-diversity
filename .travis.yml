@@ -16,7 +16,7 @@ install:
   - source activate test-env
   - conda install -q pytest-cov
   # temporary solution while we get this into a permanent channel
-  - conda install -c mortonjt unifrac
+  - conda install -c biocore unifrac
   - conda install -c conda-forge hdf5==1.8.17
   - pip install -q flake8 coveralls
   - pip install -q https://github.com/qiime2/q2lint/archive/master.zip

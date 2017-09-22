@@ -17,6 +17,7 @@ requirements:
     - python 3.5*
     - setuptools
     - nodejs
+    - hdf5 ==1.8.17
 
   run:
     - python 3.5*
@@ -33,6 +34,8 @@ requirements:
     - scikit-bio
     - scikit-learn
     - biom-format >=2.1.5,<2.2.0
+    - hdf5 ==1.8.17
+    - unifrac
     - qiime2 {{ release }}.*
     - q2templates {{ release }}.*
     - q2-types {{ release }}.*
