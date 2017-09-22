@@ -33,7 +33,7 @@ requirements:
     - scikit-bio
     - scikit-learn
     - biom-format >=2.1.5,<2.2.0
-    - unifrac
+    - unifrac >=0.9.2,<0.10.0
     - qiime2 {{ release }}.*
     - q2templates {{ release }}.*
     - q2-types {{ release }}.*
