@@ -230,7 +230,7 @@ class BetaDiversityAltTests(TestPluginBase):
 
         actual = beta_phylogenetic_alt(table=bt_fp,
                                        phylogeny=tree_fp,
-                                       metric='weighted_unnormalized_unifrac')
+                                       metric='weighted_unifrac')
 
         # computed with beta-phylogenetic (weighted_unifrac)
         data = np.array([0.44656238, 0.23771096, 0.30489123, 0.23446002,
@@ -312,6 +312,35 @@ class BetaDiversityAltTests(TestPluginBase):
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
+    def test_generalized_unifrac_no_alpha(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('crawford.nwk')
+
+        actual = beta_phylogenetic_alt(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='generalized_unifrac',
+                                       alpha=None)
+
+        # alpha=1 should be equal to weighted normalized UniFrac
+        data = np.array([0.2821874, 0.16148405, 0.20186143, 0.1634832,
+                         0.40351108, 0.29135056, 0.24790944, 0.41967404,
+                         0.24642185, 0.22218489, 0.34007547, 0.27722011,
+                         0.20963881, 0.16897221, 0.3217958, 0.15237816,
+                         0.16899207, 0.36445044, 0.25408941, 0.23358681,
+                         0.4069374, 0.24615927, 0.28573888, 0.20578184,
+                         0.20742006, 0.31249151, 0.46169893, 0.35294595,
+                         0.32522355, 0.48437103, 0.21534558, 0.30558908,
+                         0.12091004, 0.19817777, 0.24792853, 0.34293674])
+        ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356', '10084.PC.355',
+               '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
+               '10084.PC.634')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
     def test_beta_phylogenetic_alpha_on_non_generalized(self):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('tree.nwk')
@@ -338,6 +367,16 @@ class BetaDiversityAltTests(TestPluginBase):
         with self.assertRaises(ValueError):
             beta_phylogenetic_alt(table=bt_fp, phylogeny=tree_fp,
                                   metric='not-a-metric')
+
+    def test_beta_phylogenetic_too_many_jobs(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('tree.nwk')
+
+        with self.assertRaises(ValueError):
+            # cannot guarantee that this will always be true, but it would be
+            # odd to see a machine with these many CPUs
+            beta_phylogenetic_alt(table=bt_fp, phylogeny=tree_fp,
+                                  metric='unweighted_unifrac', n_jobs=11117)
 
 
 class BioenvTests(unittest.TestCase):

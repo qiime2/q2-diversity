@@ -32,6 +32,7 @@ requirements:
     - ipywidgets
     - scikit-bio
     - scikit-learn
+    - psutilt
     - biom-format >=2.1.5,<2.2.0
     - qiime2 {{ release }}.*
     - q2templates {{ release }}.*
