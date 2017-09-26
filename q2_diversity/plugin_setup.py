@@ -161,6 +161,7 @@ plugin.methods.register_function(
         'n_jobs': Int
     },
     outputs=[
+        ('rarefied_table', FeatureTable[Frequency]),
         ('faith_pd_vector', SampleData[AlphaDiversity]),
         ('observed_otus_vector', SampleData[AlphaDiversity]),
         ('shannon_vector', SampleData[AlphaDiversity]),
@@ -190,6 +191,7 @@ plugin.methods.register_function(
                   'unifrac] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
+        'rarefied_table': 'The resulting rarefied feature table.',
         'faith_pd_vector': 'Vector of Faith PD values by sample.',
         'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
         'shannon_vector': 'Vector of Shannon diversity values by sample.',
@@ -230,6 +232,7 @@ plugin.methods.register_function(
         'n_jobs': Int
     },
     outputs=[
+        ('rarefied_table', FeatureTable[Frequency]),
         ('observed_otus_vector', SampleData[AlphaDiversity]),
         ('shannon_vector', SampleData[AlphaDiversity]),
         ('evenness_vector', SampleData[AlphaDiversity]),
@@ -248,6 +251,7 @@ plugin.methods.register_function(
         'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
+        'rarefied_table': 'The resulting rarefied feature table.',
         'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
         'shannon_vector': 'Vector of Shannon diversity values by sample.',
         'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',

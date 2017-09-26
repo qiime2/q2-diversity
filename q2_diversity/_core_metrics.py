@@ -15,7 +15,8 @@ from q2_diversity import (alpha, alpha_phylogenetic, beta, beta_phylogenetic,
 from q2_feature_table import rarefy
 
 
-_core_phylogenetic_output = (pd.Series,
+_core_phylogenetic_output = (biom.Table,
+                             pd.Series,
                              pd.Series,
                              pd.Series,
                              pd.Series,
@@ -28,7 +29,8 @@ _core_phylogenetic_output = (pd.Series,
                              skbio.OrdinationResults,
                              skbio.OrdinationResults)
 
-_core_output = (pd.Series,
+_core_output = (biom.Table,
+                pd.Series,
                 pd.Series,
                 pd.Series,
                 skbio.DistanceMatrix,
@@ -71,17 +73,19 @@ def _core_metrics(table, sampling_depth, n_jobs, phylogeny=None):
         weighted_unifrac_pcoa_results = pcoa(
             distance_matrix=weighted_unifrac_distance_matrix)
 
-        metrics = (faith_pd_vector, observed_otus_vector, shannon_vector,
-                   evenness_vector, unweighted_unifrac_distance_matrix,
+        metrics = (rarefied_table, faith_pd_vector, observed_otus_vector,
+                   shannon_vector, evenness_vector,
+                   unweighted_unifrac_distance_matrix,
                    weighted_unifrac_distance_matrix, jaccard_distance_matrix,
                    bray_curtis_distance_matrix,
                    unweighted_unifrac_pcoa_results,
                    weighted_unifrac_pcoa_results, jaccard_pcoa_results,
                    bray_curtis_pcoa_results)
     else:
-        metrics = (observed_otus_vector, shannon_vector, evenness_vector,
-                   jaccard_distance_matrix, bray_curtis_distance_matrix,
-                   jaccard_pcoa_results, bray_curtis_pcoa_results)
+        metrics = (rarefied_table, observed_otus_vector, shannon_vector,
+                   evenness_vector, jaccard_distance_matrix,
+                   bray_curtis_distance_matrix, jaccard_pcoa_results,
+                   bray_curtis_pcoa_results)
 
     return metrics
 
