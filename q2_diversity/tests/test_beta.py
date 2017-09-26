@@ -24,7 +24,7 @@ import qiime2
 from qiime2.plugin.testing import TestPluginBase
 
 
-from q2_diversity import (beta, beta_phylogenetic, beta_phylogenetic_hpc,
+from q2_diversity import (beta, beta_phylogenetic, beta_phylogenetic_alt,
                           bioenv, beta_group_significance, beta_correlation,
                           beta_rarefaction)
 from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
@@ -163,7 +163,7 @@ class BetaDiversityTests(unittest.TestCase):
                               metric='weighted_unifrac', n_jobs=-1)
 
 
-class BetaDiversityHPCTests(TestPluginBase):
+class BetaDiversityAltTests(TestPluginBase):
     # Note that some of these tests replicate the cases in biocore/unifrac
     package = 'q2_diversity.tests'
 
@@ -171,9 +171,38 @@ class BetaDiversityHPCTests(TestPluginBase):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic_hpc(table=bt_fp,
+        actual = beta_phylogenetic_alt(table=bt_fp,
                                        phylogeny=tree_fp,
                                        metric='unweighted_unifrac')
+
+        # computed with beta-phylogenetic
+        data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
+                         0.72826674, 0.72065895, 0.72640581, 0.73606053,
+                         0.70302967, 0.73407301, 0.6548042, 0.71547381,
+                         0.78397813, 0.72318399, 0.76138933, 0.61041275,
+                         0.62331299, 0.71848305, 0.70416337, 0.75258475,
+                         0.79249029, 0.64392779, 0.70052733, 0.69832716,
+                         0.77818938, 0.72959894, 0.75782689, 0.71005144,
+                         0.75065046, 0.78944369, 0.63593642, 0.71283615,
+                         0.58314638, 0.69200762, 0.68972056, 0.71514083])
+        ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356', '10084.PC.355',
+               '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
+               '10084.PC.634')
+        expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_beta_unweighted_parallel(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('crawford.nwk')
+
+        actual = beta_phylogenetic_alt(table=bt_fp,
+                                       phylogeny=tree_fp,
+                                       metric='unweighted_unifrac',
+                                       n_jobs=2)
 
         # computed with beta-phylogenetic
         data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
@@ -199,7 +228,7 @@ class BetaDiversityHPCTests(TestPluginBase):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic_hpc(table=bt_fp,
+        actual = beta_phylogenetic_alt(table=bt_fp,
                                        phylogeny=tree_fp,
                                        metric='weighted_unnormalized_unifrac')
 
@@ -227,7 +256,7 @@ class BetaDiversityHPCTests(TestPluginBase):
         bt_fp = self.get_data_path('vaw.biom')
         tree_fp = self.get_data_path('vaw.nwk')
 
-        actual = beta_phylogenetic_hpc(table=bt_fp,
+        actual = beta_phylogenetic_alt(table=bt_fp,
                                        phylogeny=tree_fp,
                                        metric='weighted_normalized_unifrac',
                                        variance_adjusted=True)
@@ -257,7 +286,7 @@ class BetaDiversityHPCTests(TestPluginBase):
         bt_fp = self.get_data_path('vaw.biom')
         tree_fp = self.get_data_path('vaw.nwk')
 
-        actual = beta_phylogenetic_hpc(table=bt_fp,
+        actual = beta_phylogenetic_alt(table=bt_fp,
                                        phylogeny=tree_fp,
                                        metric='generalized_unifrac',
                                        alpha=0.5)
@@ -283,12 +312,23 @@ class BetaDiversityHPCTests(TestPluginBase):
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
+    def test_beta_phylogenetic_alpha_on_non_generalized(self):
+        bt_fp = self.get_data_path('crawford.biom')
+        tree_fp = self.get_data_path('tree.nwk')
+
+        with self.assertRaisesRegex(ValueError, 'The alpha parameter is only '
+                                    'allowed when the choice of metric is '
+                                    'generalized_unifrac'):
+            beta_phylogenetic_alt(table=bt_fp, phylogeny=tree_fp,
+                                  metric='unweighted_unifrac',
+                                  alpha=0.11)
+
     def test_beta_phylogenetic_non_phylo_metric(self):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('tree.nwk')
 
         with self.assertRaises(ValueError):
-            beta_phylogenetic_hpc(table=bt_fp, phylogeny=tree_fp,
+            beta_phylogenetic_alt(table=bt_fp, phylogeny=tree_fp,
                                   metric='braycurtis')
 
     def test_beta_phylogenetic_unknown_metric(self):
@@ -296,7 +336,7 @@ class BetaDiversityHPCTests(TestPluginBase):
         tree_fp = self.get_data_path('tree.nwk')
 
         with self.assertRaises(ValueError):
-            beta_phylogenetic_hpc(table=bt_fp, phylogeny=tree_fp,
+            beta_phylogenetic_alt(table=bt_fp, phylogeny=tree_fp,
                                   metric='not-a-metric')
 
 

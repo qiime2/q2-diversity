@@ -25,6 +25,11 @@ from functools import partial
 def phylogenetic_metrics():
     return {'unweighted_unifrac', 'weighted_unifrac'}
 
+def phylogenetic_metrics_alt_dict():
+    return {'unweighted_unifrac': unifrac.unweighted,
+            'weighted_unnormalized_unifrac': unifrac.weighted_unnormalized,
+            'weighted_normalized_unifrac': unifrac.weighted_normalized,
+            'generalized_unifrac': unifrac.generalized}
 
 def non_phylogenetic_metrics():
     return {'cityblock', 'euclidean', 'seuclidean', 'sqeuclidean', 'cosine',
@@ -69,21 +74,25 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
     return results
 
 
-def beta_phylogenetic_hpc(table: BIOMV210Format, phylogeny: NewickFormat,
+def beta_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
                           metric: str, n_jobs: int=1,
                           variance_adjusted: bool=False,
-                          alpha=1.0,
+                          alpha=None,
                           bypass_tips: bool=False) -> skbio.DistanceMatrix:
-    if metric == 'unweighted_unifrac':
-        f = unifrac.unweighted
-    elif metric == 'weighted_unnormalized_unifrac':
-        f = unifrac.weighted_unnormalized
-    elif metric == 'weighted_normalized_unifrac':
-        f = unifrac.weighted_normalized
-    elif metric == 'generalized_unifrac':
-        f = partial(unifrac.generalized, alpha=alpha)
-    else:
+
+    metrics = phylogenetic_metrics_alt_dict()
+
+    if metric not in metrics:
         raise ValueError("Unknown metric: %s" % metric)
+
+    if alpha is not None and metric != 'generalized_unifrac':
+        raise ValueError('The alpha parameter is only allowed when the choice'
+                         ' of metric is generalized_unifrac')
+
+    if metric == 'generalized_unifrac':
+        f = partial(metrics[metric], alpha=alpha)
+    else:
+        f = metrics[metric]
 
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,

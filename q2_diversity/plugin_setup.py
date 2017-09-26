@@ -41,13 +41,13 @@ plugin = Plugin(
     short_description='Plugin for exploring community diversity.',
     citation_text=('Unweighted UniFrac: '
                    'Lozupone and Knight 2005 Appl Environ Microbiol; DOI: '
-                   '10.1128/AEM.71.12.8228-8235.2005.'
+                   '10.1128/AEM.71.12.8228-8235.2005.\n'
                    'Weighted UniFrac: '
                    'Lozupone et al. 2007 Appl Environ Microbiol; DOI: '
-                   '10.1128/AEM.01996-06.'
+                   '10.1128/AEM.01996-06.\n'
                    'Variance adjusted UniFrac: '
                    'Chang et al. BMC Bioinformatics 2011 '
-                   'https://doi.org/10.1186/1471-2105-12-118.'
+                   'https://doi.org/10.1186/1471-2105-12-118.\n'
                    'Generalized UniFrac: '
                    'Chen et al. 2012 Bioinformatics; DOI: '
                    '10.1093/bioinformatics/bts342')
@@ -58,7 +58,7 @@ plugin.methods.register_function(
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
-                'n_jobs': Int},
+                'n_jobs': Int % Range(1, None)},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -82,16 +82,14 @@ plugin.methods.register_function(
 
 
 plugin.methods.register_function(
-    function=q2_diversity.beta_phylogenetic_hpc,
+    function=q2_diversity.beta_phylogenetic_alt,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(['unweighted_unifrac',
-                                         'weighted_unnormalized_unifrac',
-                                         'weighted_normalized_unifrac',
-                                         'generalized_unifrac']),
+    parameters={'metric': Str % Choices(beta.phylogenetic_metrics_alt_dict()),
                 'n_jobs': Int,
                 'variance_adjusted': Bool,
-                'alpha': Float, 'bypass_tips': Bool},
+                'alpha': Float % Range(0, 1, inclusive_end=True),
+                'bypass_tips': Bool},
     outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -106,21 +104,17 @@ plugin.methods.register_function(
         'metric': 'The beta diversity metric to be computed.',
         'n_jobs': 'The number of workers to use.',
         'variance_adjusted': ('Perform variance adjustment based on Chang et '
-                              'al. BMC Bioinformatics 2011'),
+                              'al. BMC Bioinformatics 2011. Weights distances '
+                              'by the number of tips evaluated for each '
+                              'comparison.'),
         'alpha': ('This parameter is only used when the choice of metric is '
-                  'generalized. The value of alpha controls importance of '
-                  'sample proportions. 1.0 is weighted normalized UniFrac. '
-                  '0.0 is close to unweighted UniFrac, but only if the sample '
-                  'proportions are dichotomized.'),
-        'bypass_tips': ('Compute will be reduced by ~50% with this option '
-                        'yielding an approximate result. The option '
-                        'disregards computing UniFrac at the tips of the '
-                        'phylogeny and instead only computes it on the '
-                        'internal nodes. In a bifurcating tree, the tips '
-                        'correspond to approximately 50% of the vertices in '
-                        'the tree, which is how the compute time reduction is'
-                        ' achieved. The use of this parameter is analogous '
-                        'in concept to switching from 99% OTUs to 97% OTUs.')
+                  'generalized_unifrac. The value of alpha controls importance'
+                  ' of sample proportions. 1.0 is weighted normalized UniFrac.'
+                  ' 0.0 is close to unweighted UniFrac, but only if the sample'
+                  ' proportions are dichotomized.'),
+        'bypass_tips': ('In a bifurcating tree, the tips make up about 50% of '
+                        'the nodes in a tree. By ignoring them, specificity '
+                        'can be traded for reduced compute time.')
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic) - High Performance Computation',
@@ -133,9 +127,8 @@ plugin.methods.register_function(
                  "are available, including Generalized UniFrac (Chen et al. "
                  "2012), Variance Adjusted UniFrac (Chang et al. 2011), "
                  "as well as Weighted normalized and unnormalized UniFrac "
-                 "(Lozupone et al. 2007), unweighted UniFrac "
-                 "(Lozupone et al. 2005), and metagenomic UniFrac "
-                 "(Lozupone et al. 2008).")
+                 "(Lozupone et al. 2007) and unweighted UniFrac "
+                 "(Lozupone et al. 2005)")
 )
 
 
