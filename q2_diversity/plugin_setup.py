@@ -151,7 +151,7 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
-    function=q2_diversity.core_metrics,
+    function=q2_diversity.core_metrics_phylogenetic,
     inputs={
         'table': FeatureTable[Frequency],
         'phylogeny': Phylogeny[Rooted]
@@ -175,13 +175,13 @@ plugin.methods.register_function(
         ('bray_curtis_pcoa_results', PCoAResults)
     ],
     input_descriptions={
-        'table': ('The feature table containing the samples over which '
-                  'diversity metrics should be computed.'),
-        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in the table. '
-                      'This tree can contain tip ids that are not present in '
-                      'the table, but all feature ids in the table must be '
-                      'present in this tree.')
+        'table': 'The feature table containing the samples over which '
+                 'diversity metrics should be computed.',
+        'phylogeny': 'Phylogenetic tree containing tip identifiers that '
+                     'correspond to the feature identifiers in the table. '
+                     'This tree can contain tip ids that are not present in '
+                     'the table, but all feature ids in the table must be '
+                     'present in this tree.'
     },
     parameter_descriptions={
         'sampling_depth': 'The total frequency that each sample should be '
@@ -203,20 +203,66 @@ plugin.methods.register_function(
         'bray_curtis_distance_matrix':
             'Matrix of Bray-Curtis distances between pairs of samples.',
         'unweighted_unifrac_pcoa_results':
-            ('PCoA matrix computed from unweighted UniFrac distances between '
-             'samples.'),
+            'PCoA matrix computed from unweighted UniFrac distances between '
+            'samples.',
         'weighted_unifrac_pcoa_results':
-            ('PCoA matrix computed from weighted UniFrac distances between '
-             'samples.'),
+            'PCoA matrix computed from weighted UniFrac distances between '
+            'samples.',
         'jaccard_pcoa_results':
-            ('PCoA matrix computed from Jaccard distances between '
-             'samples.'),
+            'PCoA matrix computed from Jaccard distances between '
+            'samples.',
         'bray_curtis_pcoa_results':
-            ('PCoA matrix computed from Bray-Curtis distances between '
-             'samples.'),
+            'PCoA matrix computed from Bray-Curtis distances between '
+            'samples.',
     },
-    name='Core diversity metrics',
-    description="Applies a collection of diversity metrics to a feature table."
+    name='Core diversity metrics (phylogenetic and non-phylogenetic)',
+    description="Applies a collection of diversity metrics (both "
+                "phylogenetic and non-phylogenetic) to a feature table.",
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.core_metrics,
+    inputs={
+        'table': FeatureTable[Frequency],
+    },
+    parameters={
+        'sampling_depth': Int,
+        'n_jobs': Int
+    },
+    outputs=[
+        ('observed_otus_vector', SampleData[AlphaDiversity]),
+        ('shannon_vector', SampleData[AlphaDiversity]),
+        ('evenness_vector', SampleData[AlphaDiversity]),
+        ('jaccard_distance_matrix', DistanceMatrix),
+        ('bray_curtis_distance_matrix', DistanceMatrix),
+        ('jaccard_pcoa_results', PCoAResults),
+        ('bray_curtis_pcoa_results', PCoAResults)
+    ],
+    input_descriptions={
+        'table': 'The feature table containing the samples over which '
+                 'diversity metrics should be computed.',
+    },
+    parameter_descriptions={
+        'sampling_depth': 'The total frequency that each sample should be '
+                          'rarefied to prior to computing diversity metrics.',
+        'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
+    },
+    output_descriptions={
+        'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
+        'shannon_vector': 'Vector of Shannon diversity values by sample.',
+        'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',
+        'jaccard_distance_matrix':
+            'Matrix of Jaccard distances between pairs of samples.',
+        'bray_curtis_distance_matrix':
+            'Matrix of Bray-Curtis distances between pairs of samples.',
+        'jaccard_pcoa_results':
+            'PCoA matrix computed from Jaccard distances between samples.',
+        'bray_curtis_pcoa_results':
+            'PCoA matrix computed from Bray-Curtis distances between samples.',
+    },
+    name='Core diversity metrics (non-phylogenetic)',
+    description=("Applies a collection of diversity metrics "
+                 "(non-phylogenetic) to a feature table."),
 )
 
 plugin.methods.register_function(

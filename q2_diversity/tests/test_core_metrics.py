@@ -15,18 +15,17 @@ import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
 
-from q2_diversity import core_metrics
+from q2_diversity import core_metrics_phylogenetic, core_metrics
 
 
 class CoreMetricsTests(unittest.TestCase):
-
-    def test_core_metrics(self):
+    def test_core_metrics_phylogenetic(self):
         table = biom.Table(np.array([[0, 11, 11], [13, 11, 11]]),
                            ['O1', 'O2'],
                            ['S1', 'S2', 'S3'])
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        results = core_metrics(table, tree, 13)
+        results = core_metrics_phylogenetic(table, tree, 13)
 
         self.assertEqual(len(results), 12)
 
@@ -34,16 +33,27 @@ class CoreMetricsTests(unittest.TestCase):
                              name='observed_otus')
         pdt.assert_series_equal(results[1], expected)
 
-    def test_core_metrics_rarefy_drops_sample(self):
+    def test_core_metrics_phylogenetic_rarefy_drops_sample(self):
         table = biom.Table(np.array([[0, 11, 11], [12, 11, 11]]),
                            ['O1', 'O2'],
                            ['S1', 'S2', 'S3'])
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        results = core_metrics(table, tree, 13)
+        results = core_metrics_phylogenetic(table, tree, 13)
 
         self.assertEqual(len(results), 12)
 
         expected = pd.Series({'S2': 2, 'S3': 2},
                              name='observed_otus')
         pdt.assert_series_equal(results[1], expected)
+
+    def test_core_metrics(self):
+        table = biom.Table(np.array([[0, 11, 11], [13, 11, 11]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+        results = core_metrics(table, 13)
+
+        self.assertEqual(len(results), 7)
+
+        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2}, name='observed_otus')
+        pdt.assert_series_equal(results[0], expected)
