@@ -28,7 +28,10 @@ setup(
                       'beta_correlation_assets/index.html',
                       'beta_rarefaction_assets/index.html',
                       'bioenv_assets/index.html',
-                   ]},
+                  ],
+                  'q2_diversity.tests': [
+                      'data/*'
+                  ]},
     author="Greg Caporaso",
     author_email="gregcaporaso@gmail.com",
     description="Core diversity analyses.",
