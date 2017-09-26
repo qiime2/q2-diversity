@@ -207,8 +207,8 @@ def _reindex_with_metadata(category, categories, merged):
     merged = merged.groupby(level=[category])
     counts = merged.count()
     counts.drop(categories, axis=1, inplace=True, level=0)
-    sum_ = merged.sum()
-    return sum_, counts
+    median_ = merged.median()
+    return median_, counts
 
 
 def _compute_summary(data, id_label, counts=None):

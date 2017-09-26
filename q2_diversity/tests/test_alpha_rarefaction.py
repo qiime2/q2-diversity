@@ -355,7 +355,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
-        exp = pd.DataFrame(data=[[5, 6, 7, 8], [10, 12, 14, 16]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
@@ -379,7 +379,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['russ'], name='pet')
-        exp = pd.DataFrame(data=[[15, 18, 21, 24]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
@@ -418,7 +418,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         obs = _reindex_with_metadata('toy', ['pet', 'toy'], data)
 
         exp_ind = pd.Index(['stick', 'yeti'], name='toy')
-        exp = pd.DataFrame(data=[[10, 12, 14, 16], [5, 6, 7, 8]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, obs[0])
