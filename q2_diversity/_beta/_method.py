@@ -25,11 +25,13 @@ from functools import partial
 def phylogenetic_metrics():
     return {'unweighted_unifrac', 'weighted_unifrac'}
 
+
 def phylogenetic_metrics_alt_dict():
     return {'unweighted_unifrac': unifrac.unweighted,
             'weighted_unnormalized_unifrac': unifrac.weighted_unnormalized,
             'weighted_normalized_unifrac': unifrac.weighted_normalized,
             'generalized_unifrac': unifrac.generalized}
+
 
 def non_phylogenetic_metrics():
     return {'cityblock', 'euclidean', 'seuclidean', 'sqeuclidean', 'cosine',
