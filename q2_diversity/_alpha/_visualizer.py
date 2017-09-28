@@ -299,7 +299,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
             raise ValueError('Missing samples in metadata: %r' %
                              table_ids.difference(metadata_ids))
 
-    filenames, categories = [], []
+    filenames, categories, empty_columns = [], [], []
     data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
     for m, data in data.items():
@@ -314,6 +314,12 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
             filenames.append(jsonp_filename)
         else:
             metadata_df = metadata.to_dataframe()
+            metadata_df = metadata_df.loc[data.index]
+
+            all_columns = metadata_df.columns
+            metadata_df.dropna(axis='columns', how='all', inplace=True)
+            empty_columns = set(all_columns) - set(metadata_df.columns)
+
             metadata_df.columns = pd.MultiIndex.from_tuples(
                 [(c, '') for c in metadata_df.columns])
             merged = data.join(metadata_df, how='left')
@@ -340,7 +346,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     q2templates.render(index, output_dir,
                        context={'metrics': list(metrics),
                                 'filenames': filenames,
-                                'categories': list(categories)})
+                                'categories': list(categories),
+                                'empty_columns': sorted(empty_columns)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets',
                                  'dist'),
