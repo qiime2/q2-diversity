@@ -16,7 +16,6 @@ import functools
 import skbio
 import skbio.diversity
 import biom
-import scipy.spatial.distance
 import numpy
 import pandas as pd
 import seaborn as sns

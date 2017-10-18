@@ -446,11 +446,9 @@ mantel_methods = ['spearman', 'pearson']
 plugin.visualizers.register_function(
     function=q2_diversity.mantel,
     inputs={'distance_matrix1': DistanceMatrix,
-            'distance_matrix2': DistanceMatrix
-    },
+            'distance_matrix2': DistanceMatrix},
     parameters={'permutations': Int,
-                'method': Str % Choices(mantel_methods)
-    },
+                'method': Str % Choices(mantel_methods)},
     name=('Mantel test'),
     description=('Apply a two-sided Mantel test to identify correlation '
                  'between two distance matrices.'),
