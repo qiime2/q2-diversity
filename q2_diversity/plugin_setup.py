@@ -441,28 +441,27 @@ plugin.visualizers.register_function(
                  'statistical test.')
 )
 
-beta_correlation_methods = ['spearman', 'pearson']
+mantel_methods = ['spearman', 'pearson']
 
 plugin.visualizers.register_function(
-    function=q2_diversity.beta_correlation,
-    inputs={'distance_matrix': DistanceMatrix},
-    parameters={'metadata': MetadataCategory,
-                'permutations': Int,
-                'method': Str % Choices(beta_correlation_methods)},
-    name=('Beta diversity correlation'),
+    function=q2_diversity.mantel,
+    inputs={'distance_matrix1': DistanceMatrix,
+            'distance_matrix2': DistanceMatrix
+    },
+    parameters={'permutations': Int,
+                'method': Str % Choices(mantel_methods)
+    },
+    name=('Mantel test'),
     description=('Apply a two-sided Mantel test to identify correlation '
-                 'between the distance matrix and a numeric sample metadata '
-                 'category. Sample metadata pairwise distances are computed '
-                 'as the Euclidean distance between each pair of samples in '
-                 'the metadata category.'),
+                 'between two distance matrices.'),
     input_descriptions={
-        'distance_matrix': 'Matrix of distances between pairs of samples.'
+        'distance_matrix1': 'Matrix of distances between pairs of samples.',
+        'distance_matrix1': 'Matrix of distances between pairs of samples.'
     },
     parameter_descriptions={
         'method': 'The correlation test to be applied in the Mantel test.',
         'permutations': ('The number of permutations to be run when computing '
-                         'p-values.'),
-        'metadata': 'The sample metadata.',
+                         'p-values.')
     },
 )
 

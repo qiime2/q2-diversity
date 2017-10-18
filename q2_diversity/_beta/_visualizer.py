@@ -276,53 +276,26 @@ def _get_multiple_rarefaction(beta_func, metric, iterations, table,
     return distance_matrices
 
 
-def _metadata_distance(metadata: pd.Series) -> skbio.DistanceMatrix:
-    # This code is derived from @jairideout's scikit-bio cookbook recipe,
-    # "Exploring Microbial Community Diversity"
-    # https://github.com/biocore/scikit-bio-cookbook
-    distances = scipy.spatial.distance.pdist(
-        metadata.values[:, numpy.newaxis], metric='euclidean')
-    return skbio.DistanceMatrix(distances, ids=metadata.index)
-
-
-def beta_correlation(output_dir: str,
-                     distance_matrix: skbio.DistanceMatrix,
-                     metadata: qiime2.MetadataCategory,
-                     method: str='spearman',
-                     permutations: int=999) -> None:
+def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
+           distance_matrix2: skbio.DistanceMatrix, method: str='spearman',
+           permutations: int=999) -> None:
     test_statistics = {'spearman': 'rho', 'pearson': 'r'}
     alt_hypothesis = 'two-sided'
-    try:
-        metadata = pd.to_numeric(metadata.to_series(), errors='raise')
-    except ValueError as e:
-        raise ValueError('Only numeric data can be used with the Mantel test. '
-                         'Non-numeric data was encountered in the sample '
-                         'metadata. Orignal error message follows:\n%s' %
-                         str(e))
 
-    initial_metadata_length = len(metadata)
-    metadata = metadata.loc[list(distance_matrix.ids)]
-    metadata = metadata.replace(r'', numpy.nan).dropna()
-    filtered_metadata_length = len(metadata)
-
-    ids_with_missing_metadata = set(distance_matrix.ids) - set(metadata.index)
-    if len(ids_with_missing_metadata) > 0:
+    if set(distance_matrix1.ids) != set(distance_matrix2.ids):
         raise ValueError('All samples in distance matrix must be present '
-                         'and contain data in the sample metadata. The '
-                         'following samples were present in the distance '
-                         'matrix, but were missing from the sample metadata '
-                         'or had no data: %s' %
-                         ', '.join(ids_with_missing_metadata))
+                         'and contain data in both matrices.')
 
-    metadata_distances = _metadata_distance(metadata)
-    r, p, n = skbio.stats.distance.mantel(
-        distance_matrix, metadata_distances, method=method,
-        permutations=permutations, alternative=alt_hypothesis, strict=True)
+    r, p, n = skbio.stats.distance.mantel(distance_matrix1, distance_matrix2,
+                                          method=method,
+                                          permutations=permutations,
+                                          alternative=alt_hypothesis,
+                                          strict=True)
 
     result = pd.Series([method.title(), n, permutations, alt_hypothesis,
-                        metadata.name, r, p],
+                        r, p],
                        index=['Method', 'Sample size', 'Permutations',
-                              'Alternative hypothesis', 'Metadata category',
+                              'Alternative hypothesis',
                               '%s %s' % (method.title(),
                                          test_statistics[method]),
                               'p-value'],
@@ -330,21 +303,17 @@ def beta_correlation(output_dir: str,
     result_html = q2templates.df_to_html(result.to_frame())
 
     scatter_data = []
-    for id1, id2 in itertools.combinations(distance_matrix.ids, 2):
-        scatter_data.append((distance_matrix[id1, id2],
-                             metadata_distances[id1, id2]))
-    x = 'Input distance'
-    y = 'Euclidean distance of\n%s' % metadata.name
+    for id1, id2 in itertools.combinations(distance_matrix1.ids, 2):
+        scatter_data.append((distance_matrix1[id1, id2],
+                             distance_matrix2[id1, id2]))
+    x = 'Distance Matrix 1'
+    y = 'Distance Matrix 2'
     plt.figure()
     scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
     sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False)
-    plt.savefig(os.path.join(output_dir, 'beta-correlation-scatter.png'))
-    plt.savefig(os.path.join(output_dir, 'beta-correlation-scatter.pdf'))
+    plt.savefig(os.path.join(output_dir, 'mantel-scatter.png'))
+    plt.savefig(os.path.join(output_dir, 'mantel-scatter.pdf'))
 
     index = os.path.join(
-        TEMPLATES, 'beta_correlation_assets', 'index.html')
-    q2templates.render(index, output_dir, context={
-        'initial_metadata_length': initial_metadata_length,
-        'filtered_metadata_length': filtered_metadata_length,
-        'result': result_html
-    })
+        TEMPLATES, 'mantel_assets', 'index.html')
+    q2templates.render(index, output_dir, context={'result': result_html})
