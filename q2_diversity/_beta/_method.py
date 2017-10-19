@@ -80,7 +80,7 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 def beta_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
                           metric: str, n_jobs: int=1,
                           variance_adjusted: bool=False,
-                          alpha=None,
+                          alpha: float=None,
                           bypass_tips: bool=False) -> skbio.DistanceMatrix:
 
     metrics = phylogenetic_metrics_alt_dict()
