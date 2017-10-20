@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool, Range, Float)
+                           Metadata, Int, Bool, Range, Float, Set)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -487,12 +487,12 @@ plugin.visualizers.register_function(
                  'correlated with alpha diversity.')
 )
 
+_metric_set = Set[Str % Choices(alpha.alpha_rarefaction_supported_metrics)]
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(
-                                    alpha.alpha_rarefaction_supported_metrics),
+    parameters={'metric': _metric_set,
                 'metadata': Metadata,
                 'min_depth': Int % Range(1, None),
                 'max_depth': Int % Range(1, None),

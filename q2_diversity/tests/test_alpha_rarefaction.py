@@ -164,6 +164,19 @@ class AlphaRarefactionTests(unittest.TestCase):
                 alpha_rarefaction(output_dir, t, metadata=bad_metadata,
                                   max_depth=200)
 
+        def test_alpha_rarefaction_with_metric_set(self):
+            t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+            metrics = set(['observed_otus', 'shannon', 'pielou_e'])
+            with tempfile.TemporaryDirectory() as output_dir:
+                alpha_rarefaction(output_dir, t, metric=metrics, max_depth=200)
+                index_fp = os.path.join(output_dir, 'index.html')
+                self.assertTrue(os.path.exists(index_fp))
+                self.assertTrue('observed_otus' in open(index_fp).read())
+                self.assertTrue('shannon' in open(index_fp).read())
+                self.assertTrue('pielou_e' in open(index_fp).read())
+
 
 class ComputeRarefactionDataTests(unittest.TestCase):
     def setUp(self):
