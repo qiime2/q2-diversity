@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool, Range, Float)
+                           Metadata, Int, Bool, Range, Float, Visualization)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -217,15 +217,16 @@ plugin.methods.register_function(
     description=("Apply principal coordinate analysis.")
 )
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.core_metrics_phylogenetic,
     inputs={
         'table': FeatureTable[Frequency],
         'phylogeny': Phylogeny[Rooted]
     },
     parameters={
-        'sampling_depth': Int,
-        'n_jobs': Int
+        'sampling_depth': Int % Range(1, None),
+        'metadata': Metadata,
+        'n_jobs': Int % Range(0, None),
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -240,7 +241,11 @@ plugin.methods.register_function(
         ('unweighted_unifrac_pcoa_results', PCoAResults),
         ('weighted_unifrac_pcoa_results', PCoAResults),
         ('jaccard_pcoa_results', PCoAResults),
-        ('bray_curtis_pcoa_results', PCoAResults)
+        ('bray_curtis_pcoa_results', PCoAResults),
+        ('unweighted_unifrac_pcoa_plot', Visualization),
+        ('weighted_unifrac_pcoa_plot', Visualization),
+        ('jaccard_pcoa_plot', Visualization),
+        ('bray_curtis_pcoa_plot', Visualization),
     ],
     input_descriptions={
         'table': 'The feature table containing the samples over which '
@@ -254,6 +259,7 @@ plugin.methods.register_function(
     parameter_descriptions={
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
+        'metadata': 'The sample metadata to use in the emperor plots.',
         'n_jobs': '[beta/beta-phylogenetic methods only, excluding weighted_'
                   'unifrac] - %s' % sklearn_n_jobs_description
     },
@@ -283,20 +289,29 @@ plugin.methods.register_function(
         'bray_curtis_pcoa_results':
             'PCoA matrix computed from Bray-Curtis distances between '
             'samples.',
+        'unweighted_unifrac_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from unweighted UniFrac.',
+        'weighted_unifrac_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from weighted UniFrac.',
+        'jaccard_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from Jaccard.',
+        'bray_curtis_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from Bray-Curtis.',
     },
     name='Core diversity metrics (phylogenetic and non-phylogenetic)',
     description="Applies a collection of diversity metrics (both "
                 "phylogenetic and non-phylogenetic) to a feature table.",
 )
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.core_metrics,
     inputs={
         'table': FeatureTable[Frequency],
     },
     parameters={
-        'sampling_depth': Int,
-        'n_jobs': Int
+        'sampling_depth': Int % Range(1, None),
+        'metadata': Metadata,
+        'n_jobs': Int % Range(0, None),
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -306,7 +321,9 @@ plugin.methods.register_function(
         ('jaccard_distance_matrix', DistanceMatrix),
         ('bray_curtis_distance_matrix', DistanceMatrix),
         ('jaccard_pcoa_results', PCoAResults),
-        ('bray_curtis_pcoa_results', PCoAResults)
+        ('bray_curtis_pcoa_results', PCoAResults),
+        ('jaccard_pcoa_plot', Visualization),
+        ('bray_curtis_pcoa_plot', Visualization),
     ],
     input_descriptions={
         'table': 'The feature table containing the samples over which '
@@ -315,6 +332,7 @@ plugin.methods.register_function(
     parameter_descriptions={
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
+        'metadata': 'The sample metadata to use in the emperor plots.',
         'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
@@ -330,6 +348,10 @@ plugin.methods.register_function(
             'PCoA matrix computed from Jaccard distances between samples.',
         'bray_curtis_pcoa_results':
             'PCoA matrix computed from Bray-Curtis distances between samples.',
+        'jaccard_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from Jaccard.',
+        'bray_curtis_pcoa_plot':
+            'Emperor plot of the PCoA matrix computed from Bray-Curtis.',
     },
     name='Core diversity metrics (non-phylogenetic)',
     description=("Applies a collection of diversity metrics "
