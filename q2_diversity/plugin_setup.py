@@ -290,7 +290,8 @@ plugin.pipelines.register_function(
             'PCoA matrix computed from Bray-Curtis distances between '
             'samples.',
         'unweighted_unifrac_pcoa_plot':
-            'Emperor plot of the PCoA matrix computed from unweighted UniFrac.',
+            'Emperor plot of the PCoA matrix computed from unweighted'
+            ' UniFrac.',
         'weighted_unifrac_pcoa_plot':
             'Emperor plot of the PCoA matrix computed from weighted UniFrac.',
         'jaccard_pcoa_plot':

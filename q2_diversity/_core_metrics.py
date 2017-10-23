@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+
 def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
     rarefy = ctx.get_action('feature_table', 'rarefy')
     alpha = ctx.get_action('diversity', 'alpha')
@@ -14,14 +15,14 @@ def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
     emperor_plot = ctx.get_action('emperor', 'plot')
 
     results = []
-    rarefied_table, = rarefy(table=table, smapling_depth=sampling_depth)
+    rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth)
     results.append(rarefied_table)
 
     for metric in 'observed_otus', 'shannon', 'pielou_e':
         results += alpha(table=rarefied_table, metric=metric)
 
     dms = []
-    for metric in 'jaccard', 'bray_curtis':
+    for metric in 'jaccard', 'braycurtis':
         beta_results = beta(table=rarefied_table, metric=metric, n_jobs=n_jobs)
         results += beta_results
         dms += beta_results
@@ -40,8 +41,8 @@ def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
 
 def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
                               n_jobs=1):
-    alpha = ctx.get_action('diversity', 'alpha')
-    beta = ctx.get_action('diversity', 'beta')
+    alpha_phylogenetic = ctx.get_action('diversity', 'alpha_phylogenetic')
+    beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
     pcoa = ctx.get_action('diversity', 'pcoa')
     emperor_plot = ctx.get_action('emperor', 'plot')
     core_metrics = ctx.get_action('diversity', 'core_metrics')
@@ -49,11 +50,14 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
                       metadata=metadata, n_jobs=n_jobs)
 
-    faith_pd_vector, = alpha(table=cr.rarefied_table, metric='faith_pd')
+    faith_pd_vector, = alpha_phylogenetic(table=cr.rarefied_table,
+                                          phylogeny=phylogeny,
+                                          metric='faith_pd')
 
     dms = []
     for metric in 'unweighted_unifrac', 'weighted_unifrac':
-        dms += beta(table=cr.rarefied_table, metric=metric, n_jobs=n_jobs)
+        dms += beta_phylogenetic(table=cr.rarefied_table, phylogeny=phylogeny,
+                                 metric=metric, n_jobs=n_jobs)
 
     pcoas = []
     for dm in dms:
@@ -67,5 +71,5 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
         cr.rarefied_table, faith_pd_vector, cr.observed_otus_vector,
         cr.shannon_vector, cr.evenness_vector, *dms,
         cr.jaccard_distance_matrix, cr.bray_curtis_distance_matrix,
-        *pcoas, cr.jaccard_pcoa_results, cr.bray_curtis_distance_matrix,
-        *plots, cr.jaccard_pcoa_plot, cr.bray_curtis_plot)
+        *pcoas, cr.jaccard_pcoa_results, cr.bray_curtis_pcoa_results,
+        *plots, cr.jaccard_pcoa_plot, cr.bray_curtis_pcoa_plot)
