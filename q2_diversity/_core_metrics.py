@@ -72,4 +72,4 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
         cr.shannon_vector, cr.evenness_vector, *dms,
         cr.jaccard_distance_matrix, cr.bray_curtis_distance_matrix,
         *pcoas, cr.jaccard_pcoa_results, cr.bray_curtis_pcoa_results,
-        *plots, cr.jaccard_pcoa_plot, cr.bray_curtis_pcoa_plot)
+        *plots, cr.jaccard_emperor, cr.bray_curtis_emperor)

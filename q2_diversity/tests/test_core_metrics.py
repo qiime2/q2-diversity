@@ -47,7 +47,7 @@ class CoreMetricsTests(TestPluginBase):
 
         self.assertEqual(repr(results.bray_curtis_distance_matrix.type),
                          'DistanceMatrix')
-        self.assertEqual(repr(results.jaccard_pcoa_plot.type), 'Visualization')
+        self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
         # pipelines preserve the output's type, in this case, beta_phylogenetic
         # returns this type, and that is passed through to the final output
@@ -95,7 +95,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(len(results), 10)
         self.assertEqual(repr(results.bray_curtis_distance_matrix.type),
                          'DistanceMatrix')
-        self.assertEqual(repr(results.jaccard_pcoa_plot.type), 'Visualization')
+        self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2}, name='observed_otus')
         pdt.assert_series_equal(results[1].view(pd.Series), expected)

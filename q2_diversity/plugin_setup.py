@@ -242,10 +242,10 @@ plugin.pipelines.register_function(
         ('weighted_unifrac_pcoa_results', PCoAResults),
         ('jaccard_pcoa_results', PCoAResults),
         ('bray_curtis_pcoa_results', PCoAResults),
-        ('unweighted_unifrac_pcoa_plot', Visualization),
-        ('weighted_unifrac_pcoa_plot', Visualization),
-        ('jaccard_pcoa_plot', Visualization),
-        ('bray_curtis_pcoa_plot', Visualization),
+        ('unweighted_unifrac_emperor', Visualization),
+        ('weighted_unifrac_emperor', Visualization),
+        ('jaccard_emperor', Visualization),
+        ('bray_curtis_emperor', Visualization),
     ],
     input_descriptions={
         'table': 'The feature table containing the samples over which '
@@ -289,14 +289,14 @@ plugin.pipelines.register_function(
         'bray_curtis_pcoa_results':
             'PCoA matrix computed from Bray-Curtis distances between '
             'samples.',
-        'unweighted_unifrac_pcoa_plot':
+        'unweighted_unifrac_emperor':
             'Emperor plot of the PCoA matrix computed from unweighted'
             ' UniFrac.',
-        'weighted_unifrac_pcoa_plot':
+        'weighted_unifrac_emperor':
             'Emperor plot of the PCoA matrix computed from weighted UniFrac.',
-        'jaccard_pcoa_plot':
+        'jaccard_emperor':
             'Emperor plot of the PCoA matrix computed from Jaccard.',
-        'bray_curtis_pcoa_plot':
+        'bray_curtis_emperor':
             'Emperor plot of the PCoA matrix computed from Bray-Curtis.',
     },
     name='Core diversity metrics (phylogenetic and non-phylogenetic)',
@@ -323,8 +323,8 @@ plugin.pipelines.register_function(
         ('bray_curtis_distance_matrix', DistanceMatrix),
         ('jaccard_pcoa_results', PCoAResults),
         ('bray_curtis_pcoa_results', PCoAResults),
-        ('jaccard_pcoa_plot', Visualization),
-        ('bray_curtis_pcoa_plot', Visualization),
+        ('jaccard_emperor', Visualization),
+        ('bray_curtis_emperor', Visualization),
     ],
     input_descriptions={
         'table': 'The feature table containing the samples over which '
@@ -349,9 +349,9 @@ plugin.pipelines.register_function(
             'PCoA matrix computed from Jaccard distances between samples.',
         'bray_curtis_pcoa_results':
             'PCoA matrix computed from Bray-Curtis distances between samples.',
-        'jaccard_pcoa_plot':
+        'jaccard_emperor':
             'Emperor plot of the PCoA matrix computed from Jaccard.',
-        'bray_curtis_pcoa_plot':
+        'bray_curtis_emperor':
             'Emperor plot of the PCoA matrix computed from Bray-Curtis.',
     },
     name='Core diversity metrics (non-phylogenetic)',
