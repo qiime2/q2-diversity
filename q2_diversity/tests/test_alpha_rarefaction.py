@@ -145,11 +145,11 @@ class AlphaRarefactionTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, 'phylogeny was not'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
-                                  metadata=md, metric='faith_pd')
+                                  metadata=md, metrics=set(['faith_pd']))
 
             with self.assertRaisesRegex(ValueError, 'Unknown metric: pole'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
-                                  metadata=md, metric='pole-position')
+                                  metadata=md, metrics=set(['pole-position']))
 
             with self.assertRaisesRegex(ValueError, 'max_depth'):
                 alpha_rarefaction(output_dir, t, max_depth=1000)
@@ -164,13 +164,18 @@ class AlphaRarefactionTests(unittest.TestCase):
                 alpha_rarefaction(output_dir, t, metadata=bad_metadata,
                                   max_depth=200)
 
+            with self.assertRaisesRegex(ValueError, 'empty set'):
+                alpha_rarefaction(output_dir, t, max_depth=200,
+                                  metadata=md, metrics=set())
+
         def test_alpha_rarefaction_with_metric_set(self):
             t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                            ['O1', 'O2'],
                            ['S1', 'S2', 'S3'])
             metrics = set(['observed_otus', 'shannon', 'pielou_e'])
             with tempfile.TemporaryDirectory() as output_dir:
-                alpha_rarefaction(output_dir, t, metric=metrics, max_depth=200)
+                alpha_rarefaction(output_dir, t, metrics=metrics,
+                                  max_depth=200)
                 index_fp = os.path.join(output_dir, 'index.html')
                 self.assertTrue(os.path.exists(index_fp))
                 self.assertTrue('observed_otus' in open(index_fp).read())

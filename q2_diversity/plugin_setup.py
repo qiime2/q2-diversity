@@ -492,7 +492,7 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': _metric_set,
+    parameters={'metrics': _metric_set,
                 'metadata': Metadata,
                 'min_depth': Int % Range(1, None),
                 'max_depth': Int % Range(1, None),
@@ -503,9 +503,9 @@ plugin.visualizers.register_function(
         'phylogeny': 'Optional phylogeny for phylogenetic metrics.',
     },
     parameter_descriptions={
-        'metric': ('The metric to be measured. By default computes '
-                   'observed_otus, shannon, and if phylogeny is '
-                   'provided, faith_pd.'),
+        'metrics': ('The metrics to be measured. By default computes '
+                    'observed_otus, shannon, and if phylogeny is '
+                    'provided, faith_pd.'),
         'metadata': 'The sample metadata.',
         'min_depth': 'The minimum rarefaction depth.',
         'max_depth': ('The maximum rarefaction depth. '
