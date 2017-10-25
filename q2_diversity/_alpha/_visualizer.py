@@ -269,9 +269,9 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                       steps: int=10, iterations: int=10) -> None:
 
     if metrics is None:
-        metrics = ['observed_otus', 'shannon']
+        metrics = {'observed_otus', 'shannon'}
         if phylogeny is not None:
-            metrics.append('faith_pd')
+            metrics.add('faith_pd')
     elif not metrics:
         raise ValueError('`metrics` was given an empty set.')
     else:
