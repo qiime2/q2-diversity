@@ -39,6 +39,7 @@ requirements:
     - q2templates {{ release }}.*
     - q2-types {{ release }}.*
     - q2-feature-table {{ release }}.*
+    - q2-emperor {{ release }}.*
 
 test:
   imports:

@@ -6,96 +6,70 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import biom
-import skbio
-import pandas as pd
 
-from q2_diversity import (alpha, alpha_phylogenetic, beta, beta_phylogenetic,
-                          pcoa)
-from q2_feature_table import rarefy
+def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
+    rarefy = ctx.get_action('feature_table', 'rarefy')
+    alpha = ctx.get_action('diversity', 'alpha')
+    beta = ctx.get_action('diversity', 'beta')
+    pcoa = ctx.get_action('diversity', 'pcoa')
+    emperor_plot = ctx.get_action('emperor', 'plot')
 
+    results = []
+    rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth)
+    results.append(rarefied_table)
 
-_core_phylogenetic_output = (biom.Table,
-                             pd.Series,
-                             pd.Series,
-                             pd.Series,
-                             pd.Series,
-                             skbio.DistanceMatrix,
-                             skbio.DistanceMatrix,
-                             skbio.DistanceMatrix,
-                             skbio.DistanceMatrix,
-                             skbio.OrdinationResults,
-                             skbio.OrdinationResults,
-                             skbio.OrdinationResults,
-                             skbio.OrdinationResults)
+    for metric in 'observed_otus', 'shannon', 'pielou_e':
+        results += alpha(table=rarefied_table, metric=metric)
 
-_core_output = (biom.Table,
-                pd.Series,
-                pd.Series,
-                pd.Series,
-                skbio.DistanceMatrix,
-                skbio.DistanceMatrix,
-                skbio.OrdinationResults,
-                skbio.OrdinationResults)
+    dms = []
+    for metric in 'jaccard', 'braycurtis':
+        beta_results = beta(table=rarefied_table, metric=metric, n_jobs=n_jobs)
+        results += beta_results
+        dms += beta_results
 
+    pcoas = []
+    for dm in dms:
+        pcoa_results = pcoa(distance_matrix=dm)
+        results += pcoa_results
+        pcoas += pcoa_results
 
-def _core_metrics(table, sampling_depth, n_jobs, phylogeny=None):
-    rarefied_table = rarefy(table=table, sampling_depth=sampling_depth)
+    for pcoa in pcoas:
+        results += emperor_plot(pcoa=pcoa, metadata=metadata)
 
-    # Non-Phylogenetic Metrics
-    observed_otus_vector = alpha(table=rarefied_table, metric='observed_otus')
-    shannon_vector = alpha(table=rarefied_table, metric='shannon')
-    evenness_vector = alpha(table=rarefied_table, metric='pielou_e')
-
-    jaccard_distance_matrix = beta(table=rarefied_table, metric='jaccard',
-                                   n_jobs=n_jobs)
-    bray_curtis_distance_matrix = beta(
-        table=rarefied_table, metric='braycurtis', n_jobs=n_jobs)
-
-    jaccard_pcoa_results = pcoa(distance_matrix=jaccard_distance_matrix)
-    bray_curtis_pcoa_results = pcoa(
-        distance_matrix=bray_curtis_distance_matrix)
-
-    # Phylogenetic Metrics
-    if phylogeny is not None:
-        faith_pd_vector = alpha_phylogenetic(
-            table=rarefied_table, phylogeny=phylogeny, metric='faith_pd')
-
-        unweighted_unifrac_distance_matrix = beta_phylogenetic(
-            table=rarefied_table, phylogeny=phylogeny,
-            metric='unweighted_unifrac', n_jobs=n_jobs)
-        weighted_unifrac_distance_matrix = beta_phylogenetic(
-            table=rarefied_table, phylogeny=phylogeny,
-            metric='weighted_unifrac')
-
-        unweighted_unifrac_pcoa_results = pcoa(
-            distance_matrix=unweighted_unifrac_distance_matrix)
-        weighted_unifrac_pcoa_results = pcoa(
-            distance_matrix=weighted_unifrac_distance_matrix)
-
-        metrics = (rarefied_table, faith_pd_vector, observed_otus_vector,
-                   shannon_vector, evenness_vector,
-                   unweighted_unifrac_distance_matrix,
-                   weighted_unifrac_distance_matrix, jaccard_distance_matrix,
-                   bray_curtis_distance_matrix,
-                   unweighted_unifrac_pcoa_results,
-                   weighted_unifrac_pcoa_results, jaccard_pcoa_results,
-                   bray_curtis_pcoa_results)
-    else:
-        metrics = (rarefied_table, observed_otus_vector, shannon_vector,
-                   evenness_vector, jaccard_distance_matrix,
-                   bray_curtis_distance_matrix, jaccard_pcoa_results,
-                   bray_curtis_pcoa_results)
-
-    return metrics
+    return tuple(results)
 
 
-def core_metrics_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
-                              sampling_depth: int,
-                              n_jobs: int=1) -> _core_phylogenetic_output:
-    return _core_metrics(table, sampling_depth, n_jobs, phylogeny)
+def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
+                              n_jobs=1):
+    alpha_phylogenetic = ctx.get_action('diversity', 'alpha_phylogenetic')
+    beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
+    pcoa = ctx.get_action('diversity', 'pcoa')
+    emperor_plot = ctx.get_action('emperor', 'plot')
+    core_metrics = ctx.get_action('diversity', 'core_metrics')
 
+    cr = core_metrics(table=table, sampling_depth=sampling_depth,
+                      metadata=metadata, n_jobs=n_jobs)
 
-def core_metrics(table: biom.Table, sampling_depth: int,
-                 n_jobs: int=1) -> _core_output:
-    return _core_metrics(table, sampling_depth, n_jobs)
+    faith_pd_vector, = alpha_phylogenetic(table=cr.rarefied_table,
+                                          phylogeny=phylogeny,
+                                          metric='faith_pd')
+
+    dms = []
+    for metric in 'unweighted_unifrac', 'weighted_unifrac':
+        dms += beta_phylogenetic(table=cr.rarefied_table, phylogeny=phylogeny,
+                                 metric=metric, n_jobs=n_jobs)
+
+    pcoas = []
+    for dm in dms:
+        pcoas += pcoa(distance_matrix=dm)
+
+    plots = []
+    for pcoa in pcoas:
+        plots += emperor_plot(pcoa=pcoa, metadata=metadata)
+
+    return (
+        cr.rarefied_table, faith_pd_vector, cr.observed_otus_vector,
+        cr.shannon_vector, cr.evenness_vector, *dms,
+        cr.jaccard_distance_matrix, cr.bray_curtis_distance_matrix,
+        *pcoas, cr.jaccard_pcoa_results, cr.bray_curtis_pcoa_results,
+        *plots, cr.jaccard_emperor, cr.bray_curtis_emperor)
