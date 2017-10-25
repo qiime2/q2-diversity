@@ -277,42 +277,79 @@ def _get_multiple_rarefaction(beta_func, metric, iterations, table,
 
 def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
            distance_matrix2: skbio.DistanceMatrix, method: str='spearman',
-           permutations: int=999) -> None:
+           permutations: int=999, intersect_ids: bool=False,
+           label1: str='Distance Matrix 1',
+           label2: str='Distance Matrix 2') -> None:
     test_statistics = {'spearman': 'rho', 'pearson': 'r'}
     alt_hypothesis = 'two-sided'
 
-    if set(distance_matrix1.ids) != set(distance_matrix2.ids):
-        raise ValueError('All samples in distance matrix must be present '
-                         'and contain data in both matrices.')
+    # The following code to handle mismatched IDs, and subsequently filter the
+    # distance matrices, is not technically necessary because skbio's mantel
+    # function will raise an error on mismatches with `strict=True`, and will
+    # handle intersection if `strict=False`. However, we need to handle the ID
+    # matching explicitly to find *which* IDs are mismatched -- the error
+    # message coming from scikit-bio doesn't describe those. We also need to
+    # have the mismatched IDs to display as a warning in the viz if
+    # `intersect_ids=True`. Finally, the distance matrices are explicitly
+    # filtered to matching IDs only because their data are used elsewhere in
+    # this function (e.g. extracting scatter plot data).
 
-    r, p, n = skbio.stats.distance.mantel(distance_matrix1, distance_matrix2,
-                                          method=method,
-                                          permutations=permutations,
-                                          alternative=alt_hypothesis,
-                                          strict=True)
+    # Find the symmetric difference between ID sets.
+    ids1 = set(distance_matrix1.ids)
+    ids2 = set(distance_matrix2.ids)
+    mismatched_ids = ids1 ^ ids2
 
-    result = pd.Series([method.title(), n, permutations, alt_hypothesis,
-                        r, p],
+    if not intersect_ids and mismatched_ids:
+        raise ValueError(
+            "The following ID(s) are not contained in both distance "
+            "matrices. Use `intersect_ids` to discard these mismatches "
+            "and apply the Mantel test to only those IDs that are found "
+            "in both distance matrices.\n\n%s"
+            % ', '.join(sorted(mismatched_ids)))
+
+    if mismatched_ids:
+        matched_ids = ids1 & ids2
+        # Run in `strict` mode because the matches should all be found in both
+        # matrices.
+        distance_matrix1 = distance_matrix1.filter(matched_ids, strict=True)
+        distance_matrix2 = distance_matrix2.filter(matched_ids, strict=True)
+
+    # Run in `strict` mode because all IDs should be matched at this point.
+    r, p, sample_size = skbio.stats.distance.mantel(
+            distance_matrix1, distance_matrix2, method=method,
+            permutations=permutations, alternative=alt_hypothesis,
+            strict=True)
+
+    result = pd.Series([method.title(), sample_size, permutations,
+                       alt_hypothesis, r, p],
                        index=['Method', 'Sample size', 'Permutations',
                               'Alternative hypothesis',
                               '%s %s' % (method.title(),
                                          test_statistics[method]),
                               'p-value'],
                        name='Mantel test results')
-    result_html = q2templates.df_to_html(result.to_frame())
+    table_html = q2templates.df_to_html(result.to_frame())
 
+    # We know the distance matrices have matching ID sets at this point, so we
+    # can safely generate all pairs of IDs using one of the matrices' ID sets
+    # (it doesn't matter which one).
     scatter_data = []
     for id1, id2 in itertools.combinations(distance_matrix1.ids, 2):
         scatter_data.append((distance_matrix1[id1, id2],
                              distance_matrix2[id1, id2]))
-    x = 'Distance Matrix 1'
-    y = 'Distance Matrix 2'
+
     plt.figure()
+    x = 'Pairwise Distance (%s)' % label1
+    y = 'Pairwise Distance (%s)' % label2
     scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
     sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False)
-    plt.savefig(os.path.join(output_dir, 'mantel-scatter.png'))
-    plt.savefig(os.path.join(output_dir, 'mantel-scatter.pdf'))
+    plt.savefig(os.path.join(output_dir, 'mantel-scatter.svg'))
 
+    context = {
+        'table': table_html,
+        'sample_size': sample_size,
+        'mismatched_ids': mismatched_ids
+    }
     index = os.path.join(
         TEMPLATES, 'mantel_assets', 'index.html')
-    q2templates.render(index, output_dir, context={'result': result_html})
+    q2templates.render(index, output_dir, context=context)

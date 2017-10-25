@@ -1,16 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  <h1>Mantel Test</h1>
+
+  {% if mismatched_ids %}
+    <p class="alert alert-warning">
+    <strong>Warning</strong>: There were
+    <strong>{{ mismatched_ids|length }} ID(s)</strong> that weren't contained
+    in both distance matrices. These ID(s) were ignored before applying the
+    Mantel test to the remaining <strong>{{ sample_size }} IDs</strong> that
+    were shared between the distance matrices. The following ID(s) were
+    ignored:<br/><br/>
+    <strong>{{ mismatched_ids|sort(case_sensitive=True)|join(', ') }}</strong>
+    </p>
+  {% endif %}
 
   <div class="row">
     <div class="col-lg-12">
-      {{ result }}
+      {{ table }}
       <div class="text-center">
-        <a href="mantel-scatter.pdf">
-          <img src="mantel-scatter.png">
-          <br>
-          <p>Download as PDF</p>
-        </a>
+        <img src="mantel-scatter.svg"/>
+        <div>
+          <a href="mantel-scatter.svg" target="_blank" rel="noopener noreferrer" class="btn btn-default">
+            Download SVG
+          </a>
+        </div>
       </div>
     </div>
   </div>
