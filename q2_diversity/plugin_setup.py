@@ -443,8 +443,8 @@ plugin.visualizers.register_function(
 
 plugin.visualizers.register_function(
     function=q2_diversity.mantel,
-    inputs={'distance_matrix1': DistanceMatrix,
-            'distance_matrix2': DistanceMatrix},
+    inputs={'dm1': DistanceMatrix,
+            'dm2': DistanceMatrix},
     parameters={'permutations': Int % Range(0, None),
                 'method': Str % Choices(['spearman', 'pearson']),
                 'intersect_ids': Bool,
@@ -463,8 +463,8 @@ plugin.visualizers.register_function(
                 'http://scikit-bio.org/docs/latest/generated/generated/'
                 'skbio.stats.distance.mantel.html',
     input_descriptions={
-        'distance_matrix1': 'Matrix of distances between pairs of samples.',
-        'distance_matrix2': 'Matrix of distances between pairs of samples.'
+        'dm1': 'Matrix of distances between pairs of samples.',
+        'dm2': 'Matrix of distances between pairs of samples.'
     },
     parameter_descriptions={
         'method': 'The correlation test to be applied in the Mantel test.',
@@ -477,8 +477,8 @@ plugin.visualizers.register_function(
                          'distance matrices will be discarded before applying '
                          'the Mantel test. Default behavior is to error on '
                          'any mismatched IDs.',
-        'label1': 'Label for `distance_matrix1` in the output visualization.',
-        'label2': 'Label for `distance_matrix2` in the output visualization.'
+        'label1': 'Label for `dm1` in the output visualization.',
+        'label2': 'Label for `dm2` in the output visualization.'
     },
 )
 

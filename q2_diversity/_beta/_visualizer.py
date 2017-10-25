@@ -275,8 +275,8 @@ def _get_multiple_rarefaction(beta_func, metric, iterations, table,
     return distance_matrices
 
 
-def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
-           distance_matrix2: skbio.DistanceMatrix, method: str='spearman',
+def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
+           dm2: skbio.DistanceMatrix, method: str='spearman',
            permutations: int=999, intersect_ids: bool=False,
            label1: str='Distance Matrix 1',
            label2: str='Distance Matrix 2') -> None:
@@ -295,8 +295,8 @@ def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
     # this function (e.g. extracting scatter plot data).
 
     # Find the symmetric difference between ID sets.
-    ids1 = set(distance_matrix1.ids)
-    ids2 = set(distance_matrix2.ids)
+    ids1 = set(dm1.ids)
+    ids2 = set(dm2.ids)
     mismatched_ids = ids1 ^ ids2
 
     if not intersect_ids and mismatched_ids:
@@ -311,14 +311,13 @@ def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
         matched_ids = ids1 & ids2
         # Run in `strict` mode because the matches should all be found in both
         # matrices.
-        distance_matrix1 = distance_matrix1.filter(matched_ids, strict=True)
-        distance_matrix2 = distance_matrix2.filter(matched_ids, strict=True)
+        dm1 = dm1.filter(matched_ids, strict=True)
+        dm2 = dm2.filter(matched_ids, strict=True)
 
     # Run in `strict` mode because all IDs should be matched at this point.
     r, p, sample_size = skbio.stats.distance.mantel(
-            distance_matrix1, distance_matrix2, method=method,
-            permutations=permutations, alternative=alt_hypothesis,
-            strict=True)
+            dm1, dm2, method=method, permutations=permutations,
+            alternative=alt_hypothesis, strict=True)
 
     result = pd.Series([method.title(), sample_size, permutations,
                        alt_hypothesis, r, p],
@@ -334,9 +333,8 @@ def mantel(output_dir: str, distance_matrix1: skbio.DistanceMatrix,
     # can safely generate all pairs of IDs using one of the matrices' ID sets
     # (it doesn't matter which one).
     scatter_data = []
-    for id1, id2 in itertools.combinations(distance_matrix1.ids, 2):
-        scatter_data.append((distance_matrix1[id1, id2],
-                             distance_matrix2[id1, id2]))
+    for id1, id2 in itertools.combinations(dm1.ids, 2):
+        scatter_data.append((dm1[id1, id2], dm2[id1, id2]))
 
     plt.figure()
     x = 'Pairwise Distance (%s)' % label1
