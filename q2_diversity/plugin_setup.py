@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
-                           Metadata, Int, Bool, Range, Float, Set, 
+                           Metadata, Int, Bool, Range, Float, Set,
                            Visualization)
 
 import q2_diversity
