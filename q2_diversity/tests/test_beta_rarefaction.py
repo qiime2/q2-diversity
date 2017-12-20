@@ -214,7 +214,7 @@ class UPGMATests(unittest.TestCase):
         c = tree.find('c')
         d = tree.find('d')
 
-        # Check topology quickly. If the IDs where flipped or wrong, these
+        # Check topology quickly. If the IDs were flipped or wrong, these
         # checks would fail, as we're starting from the tips and working to the
         # root.
         self.assertIs(a.parent, b.parent)

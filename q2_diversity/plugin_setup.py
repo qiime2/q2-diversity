@@ -618,9 +618,9 @@ plugin.visualizers.register_function(
     name='Beta diversity rarefaction',
     description='Repeatedly rarefy a feature table to compare beta diversity '
                 'results within a given rarefaction depth.\n\n'
-                'For a given beta-diversity metric, this visualizer will '
+                'For a given beta diversity metric, this visualizer will '
                 'provide: an Emperor jackknifed PCoA plot, samples clustered '
                 'by UPGMA or neighbor joining with support calculation, and '
                 'a heatmap showing the correlation between rarefaction trials '
-                'of that beta-diversity metric.'
+                'of that beta diversity metric.'
 )
