@@ -12,23 +12,19 @@ import os
 import tempfile
 import glob
 import collections
-import functools
 
 import skbio
 import numpy as np
 import numpy.testing as npt
 from biom.table import Table
 import pandas as pd
-import scipy.misc
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
 
 
 from q2_diversity import (beta, beta_phylogenetic, beta_phylogenetic_alt,
-                          bioenv, beta_group_significance, mantel,
-                          beta_rarefaction)
-from q2_diversity._beta._visualizer import (_get_distance_boxplot_data,
-                                            _get_multiple_rarefaction)
+                          bioenv, beta_group_significance, mantel)
+from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
 class BetaDiversityTests(unittest.TestCase):
@@ -897,129 +893,3 @@ class TestMantel(unittest.TestCase):
         self.assertBasicVizValidity(self.output_dir, 3,
                                     mismatched_ids={'foo', 'x'},
                                     exp_test_stat=1, exp_p_value=1)
-
-
-class BetaRarefactionTests(unittest.TestCase):
-    def setUp(self):
-        self.table = Table(np.array([[0, 1, 3],
-                                     [1, 1, 2],
-                                     [2, 1, 0]]),
-                           ['O1', 'O2', 'O3'], ['S1', 'S2', 'S3'])
-        self.tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-
-        self.output_dir_obj = tempfile.TemporaryDirectory(
-                prefix='q2-diversity-test-temp-')
-        self.output_dir = self.output_dir_obj.name
-
-    def tearDown(self):
-        self.output_dir_obj.cleanup()
-
-    def assertBetaRarefactionValidity(self, viz_dir, iterations,
-                                      correlation_method):
-        index_fp = os.path.join(viz_dir, 'index.html')
-        self.assertTrue(os.path.exists(index_fp))
-        with open(index_fp, 'r') as fh:
-            index_contents = fh.read()
-        self.assertIn('Beta rarefaction', index_contents)
-
-        svg_fp = os.path.join(viz_dir, 'heatmap.svg')
-        self.assertTrue(os.path.exists(svg_fp))
-        with open(svg_fp, 'r') as fh:
-            svg_contents = fh.read()
-
-        self.assertIn('Mantel correlation', svg_contents)
-        self.assertIn('Iteration', svg_contents)
-        test_statistics = {'spearman': "Spearman's rho",
-                           'pearson': "Pearson's r"}
-        self.assertIn(test_statistics[correlation_method], svg_contents)
-
-        tsv_fp = os.path.join(viz_dir, 'rarefaction-iteration-correlation.tsv')
-        self.assertTrue(os.path.exists(tsv_fp))
-        with open(tsv_fp, 'r') as fh:
-            tsv_contents = fh.read()
-        self.assertIn(correlation_method, tsv_contents)
-
-        # TSV has a header line and trailing newline, substract 2 to get the
-        # number of data lines in the file. Each data line represents a
-        # pairwise comparison; assert the number of comparisons is equal to
-        # nCr (n Choose r), where n=`iterations` and r=2.
-        self.assertEqual(len(tsv_contents.split('\n')) - 2,
-                         scipy.misc.comb(iterations, 2))
-
-    def test_beta_rarefaction_with_phylogeny(self):
-        beta_rarefaction(self.output_dir, self.table, 'weighted_unifrac', 2,
-                         phylogeny=self.tree)
-
-        self.assertBetaRarefactionValidity(self.output_dir, 10, 'spearman')
-
-    def test_beta_rarefaction_without_phylogeny(self):
-        beta_rarefaction(self.output_dir, self.table, 'braycurtis', 2)
-
-        self.assertBetaRarefactionValidity(self.output_dir, 10, 'spearman')
-
-    def test_beta_rarefaction_minimum_iterations(self):
-        beta_rarefaction(self.output_dir, self.table, 'braycurtis', 2,
-                         iterations=2)
-
-        self.assertBetaRarefactionValidity(self.output_dir, 2, 'spearman')
-
-    def test_beta_rarefaction_pearson_correlation(self):
-        beta_rarefaction(self.output_dir, self.table, 'jaccard', 2,
-                         iterations=7, correlation_method='pearson')
-
-        self.assertBetaRarefactionValidity(self.output_dir, 7, 'pearson')
-
-    def test_beta_rarefaction_non_default_color_scheme(self):
-        beta_rarefaction(self.output_dir, self.table, 'euclidean', 3,
-                         iterations=5, color_scheme='PiYG')
-
-        self.assertBetaRarefactionValidity(self.output_dir, 5, 'spearman')
-
-    def test_beta_rarefaction_empty_table(self):
-        table = Table(np.array([[]]), [], [])
-        with self.assertRaisesRegex(ValueError,
-                                    'shallow enough sampling depth'):
-            beta_rarefaction(self.output_dir, table, 'braycurtis', 1)
-
-    def test_beta_rarefaction_all_samples_dropped(self):
-        with self.assertRaisesRegex(ValueError,
-                                    'shallow enough sampling depth'):
-            beta_rarefaction(self.output_dir, self.table, 'braycurtis', 100)
-
-    def test_beta_rarefaction_too_many_samples_dropped(self):
-        # mantel needs 3x3 or larger distance matrix
-        table = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                      ['O1', 'O2'], ['S1', 'S2', 'S3'])
-        with self.assertRaisesRegex(ValueError, '3x3 in size'):
-            beta_rarefaction(self.output_dir, table, 'braycurtis', 2)
-
-    def test_beta_rarefaction_missing_phylogeny(self):
-        with self.assertRaisesRegex(ValueError, 'Phylogeny must be provided'):
-            beta_rarefaction(self.output_dir, self.table, 'weighted_unifrac',
-                             2)
-
-    def test_get_multiple_rarefaction_with_phylogeny(self):
-        beta_func = functools.partial(beta_phylogenetic, phylogeny=self.tree)
-        for iterations in range(1, 4):
-            obs_dms = _get_multiple_rarefaction(beta_func, 'weighted_unifrac',
-                                                iterations, self.table, 2)
-
-            self.assertEqual(len(obs_dms), iterations)
-            for obs in obs_dms:
-                self.assertEqual(obs.shape, (3, 3))
-                self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
-
-    def test_get_multiple_rarefaction_without_phylogeny(self):
-        for iterations in range(1, 4):
-            obs_dms = _get_multiple_rarefaction(beta, 'braycurtis', iterations,
-                                                self.table, 2)
-
-            self.assertEqual(len(obs_dms), iterations)
-            for obs in obs_dms:
-                self.assertEqual(obs.shape, (3, 3))
-                self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
-
-
-if __name__ == "__main__":
-    unittest.main()

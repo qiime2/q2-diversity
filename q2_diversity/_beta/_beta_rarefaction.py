@@ -71,12 +71,12 @@ def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
     context = {
         'metric': metric,
         'clustering_method': clustering_method,
-        'tabs': [{'url': 'heatmap.html',
+        'tabs': [{'url': 'emperor.html',
+                  'title': 'PCoA'},
+                 {'url': 'heatmap.html',
                   'title': 'Heatmap'},
                  {'url': 'tree.html',
-                  'title': 'Clustering'},
-                 {'url': 'emperor.html',
-                  'title': 'PCoA'}]
+                  'title': 'Clustering'}]
     }
 
     q2templates.render(templates, output_dir, context=context)
@@ -135,7 +135,9 @@ def _cluster_samples(primary, support, clustering_method):
 def _upgma(dm):
     upper_triangle = dm.condensed_form()
     linkage = scipy.cluster.hierarchy.average(upper_triangle)
-    return skbio.TreeNode.from_linkage_matrix(linkage, dm.ids)
+    tree = skbio.TreeNode.from_linkage_matrix(linkage, dm.ids)
+    tree.name = "root"  # root_at_midpoint for _nj labels the root
+    return tree
 
 
 def _nj(dm):

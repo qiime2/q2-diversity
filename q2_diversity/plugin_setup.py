@@ -598,10 +598,15 @@ plugin.visualizers.register_function(
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
         'sampling_depth': 'The total frequency that each sample should be '
-                          'rarefied to prior to computing diversity '
-                          'metrics.',
-        'clustering_method': 'TODO',
-        'metadata': 'TODO',
+                          'rarefied to prior to computing the diversity '
+                          'metric.',
+        'clustering_method': 'Samples can be clustered with neighbor joining '
+                             'or UPGMA. An arbitrary rarefaction trial will '
+                             'be used for the tree, and the remaining trials '
+                             'are used to calculate the support of the '
+                             'internal nodes of that tree.',
+        'metadata': 'The sample-metadata used for the Emperor jackknifed PCoA '
+                    'plot.',
         'iterations': 'Number of times to rarefy the feature table at a given '
                       'sampling depth.',
         'correlation_method': 'The Mantel correlation test to be applied when '
@@ -612,14 +617,10 @@ plugin.visualizers.register_function(
     },
     name='Beta diversity rarefaction',
     description='Repeatedly rarefy a feature table to compare beta diversity '
-                'results across and within rarefaction depths.\n\n'
-                'This visualizer provides a heatmap showing the correlation '
-                'between beta diversity distance matrices computed by '
-                'repeatedly rarefying at a given sampling depth.\n\n'
-                'Note: currently only a single sampling depth is supported. A '
-                'range of sampling depths (e.g. similar to '
-                '`alpha_rarefaction`) will be supported in the future to '
-                'allow comparison between sampling depths. Additional '
-                'visualizations will be supported, such as Emperor plots and '
-                'UPGMA trees.'
+                'results within a given rarefaction depth.\n\n'
+                'For a given beta-diversity metric, this visualizer will '
+                'provide: an Emperor jackknifed PCoA plot, samples clustered '
+                'by UPGMA or neighbor joining with support calculation, and '
+                'a heatmap showing the correlation between rarefaction trials '
+                'of that beta-diversity metric.'
 )
