@@ -39,6 +39,9 @@ requirements:
     - q2templates {{ release }}.*
     - q2-types {{ release }}.*
     - q2-feature-table {{ release }}.*
+    # TODO: `emperor` is also a dependency, but q2-emperor should be in charge
+    # of the version pin. Eventually there will not be a direct dependency on
+    # `emperor` and this comment can be removed.
     - q2-emperor {{ release }}.*
 
 test:
