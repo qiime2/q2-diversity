@@ -26,7 +26,7 @@ setup(
                   'q2_diversity._beta': [
                       'beta_group_significance_assets/index.html',
                       'mantel_assets/index.html',
-                      'beta_rarefaction_assets/index.html',
+                      'beta_rarefaction_assets/*',
                       'bioenv_assets/index.html',
                   ],
                   'q2_diversity.tests': [

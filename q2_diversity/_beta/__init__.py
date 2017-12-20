@@ -9,8 +9,8 @@
 from ._method import (beta_phylogenetic, beta_phylogenetic_alt, beta,
                       phylogenetic_metrics, non_phylogenetic_metrics,
                       all_metrics, phylogenetic_metrics_alt_dict)
-from ._visualizer import (bioenv, beta_group_significance, mantel,
-                          beta_rarefaction)
+from ._visualizer import (bioenv, beta_group_significance, mantel)
+from ._beta_rarefaction import beta_rarefaction
 
 __all__ = ['beta_phylogenetic', 'beta_phylogenetic_alt', 'beta', 'bioenv',
            'beta_group_significance', 'phylogenetic_metrics',

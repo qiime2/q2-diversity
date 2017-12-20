@@ -571,12 +571,14 @@ _beta_rarefaction_color_schemes = [
     'RdYlBu', 'RdYlBu_r', 'RdYlGn', 'RdYlGn_r']
 
 plugin.visualizers.register_function(
-    function=q2_diversity._beta._visualizer.beta_rarefaction,
+    function=q2_diversity._beta.beta_rarefaction,
     inputs={
         'table': FeatureTable[Frequency],
         'phylogeny': Phylogeny[Rooted]},
     parameters={
         'metric': Str % Choices(beta.all_metrics()),
+        'clustering_method': Str % Choices({'nj', 'upgma'}),
+        'metadata': Metadata,
         'sampling_depth': Int % Range(1, None),
         # Need at least two iterations to do a comparison.
         'iterations': Int % Range(2, None),
@@ -598,6 +600,8 @@ plugin.visualizers.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity '
                           'metrics.',
+        'clustering_method': 'TODO',
+        'metadata': 'TODO',
         'iterations': 'Number of times to rarefy the feature table at a given '
                       'sampling depth.',
         'correlation_method': 'The Mantel correlation test to be applied when '

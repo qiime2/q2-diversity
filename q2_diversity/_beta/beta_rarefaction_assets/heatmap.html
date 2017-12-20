@@ -1,0 +1,20 @@
+{% extends "tab-child.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Heatmap - {{ metric }}</h1>
+    <div class="row">
+      <a href='heatmap.svg' target="_blank" rel="noopener noreferrer" class='btn btn-default'>
+        Download Heatmap SVG
+      </a>
+      <a href='rarefaction-iteration-correlation.tsv' target="_blank" rel="noopener noreferrer" class='btn btn-default'>
+        Download Heatmap Data as TSV
+      </a>
+    </div>
+    <div class="row">
+      <img src="heatmap.svg", height=600>
+    </div>
+  </div>
+</div>
+{% endblock %}

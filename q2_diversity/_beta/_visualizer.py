@@ -11,11 +11,9 @@ import collections
 import urllib.parse
 import pkg_resources
 import itertools
-import functools
 
 import skbio
 import skbio.diversity
-import biom
 import numpy
 import pandas as pd
 import seaborn as sns
@@ -23,9 +21,6 @@ import matplotlib.pyplot as plt
 from statsmodels.sandbox.stats.multicomp import multipletests
 import qiime2
 import q2templates
-import q2_feature_table
-
-from ._method import beta, beta_phylogenetic, phylogenetic_metrics
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -221,58 +216,6 @@ def beta_group_significance(output_dir: str,
         'result': result_html,
         'pairwise_results': pairwise_results_html
     })
-
-
-def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
-                     sampling_depth: int, iterations: int=10,
-                     phylogeny: skbio.TreeNode=None,
-                     correlation_method: str='spearman',
-                     color_scheme: str='BrBG') -> None:
-    if metric in phylogenetic_metrics():
-        if phylogeny is None:
-            raise ValueError("A phylogenetic metric (%s) was requested, "
-                             "but a phylogenetic tree was not provided. "
-                             "Phylogeny must be provided when using a "
-                             "phylogenetic diversity metric." % metric)
-        beta_func = functools.partial(beta_phylogenetic, phylogeny=phylogeny)
-    else:
-        beta_func = beta
-
-    distance_matrices = _get_multiple_rarefaction(
-        beta_func, metric, iterations, table, sampling_depth)
-
-    sm_df = skbio.stats.distance.pwmantel(
-        distance_matrices, method=correlation_method, permutations=0,
-        strict=True)
-    sm = sm_df[['statistic']]  # Drop all other DF columns
-    sm = sm.unstack(level=0)  # Reshape for seaborn
-
-    test_statistics = {'spearman': "Spearman's rho", 'pearson': "Pearson's r"}
-    ax = sns.heatmap(
-        sm, cmap=color_scheme, vmin=-1.0, vmax=1.0, center=0.0, annot=False,
-        square=True, xticklabels=False, yticklabels=False,
-        cbar_kws={'ticks': [1, 0.5, 0, -0.5, -1],
-                  'label': test_statistics[correlation_method]})
-    ax.set(xlabel='Iteration', ylabel='Iteration',
-           title='Mantel correlation between iterations')
-    ax.get_figure().savefig(os.path.join(output_dir, 'heatmap.svg'))
-
-    similarity_mtx_fp = os.path.join(output_dir,
-                                     'rarefaction-iteration-correlation.tsv')
-    sm_df.to_csv(similarity_mtx_fp, sep='\t')
-
-    index_fp = os.path.join(TEMPLATES, 'beta_rarefaction_assets', 'index.html')
-    q2templates.render(index_fp, output_dir)
-
-
-def _get_multiple_rarefaction(beta_func, metric, iterations, table,
-                              sampling_depth):
-    distance_matrices = []
-    for _ in range(iterations):
-        rarefied_table = q2_feature_table.rarefy(table, sampling_depth)
-        distance_matrix = beta_func(table=rarefied_table, metric=metric)
-        distance_matrices.append(distance_matrix)
-    return distance_matrices
 
 
 def mantel(output_dir: str, dm1: skbio.DistanceMatrix,

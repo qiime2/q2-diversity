@@ -1,0 +1,17 @@
+{% extends 'tab-child.html' %}
+
+{% block head %}
+<style>
+iframe {
+    height: 800px; /* q2templates can only handle static heights at the moment */
+    width: 100%;
+    border: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="row text-center">
+        <iframe src="./emperor/index.html"></iframe>
+    </div>
+{% endblock %}
