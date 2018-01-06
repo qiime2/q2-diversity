@@ -6,9 +6,9 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime2.plugin import (Plugin, Str, Properties, MetadataCategory, Choices,
+from qiime2.plugin import (Plugin, Str, Properties, MetadataColumn, Choices,
                            Metadata, Int, Bool, Range, Float, Set,
-                           Visualization)
+                           Visualization, Numeric, Categorical)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -444,7 +444,7 @@ plugin.visualizers.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={'method': Str % Choices(beta_group_significance_methods),
                 'permutations': Int,
-                'metadata': MetadataCategory,
+                'metadata': MetadataColumn[Categorical],
                 'pairwise': Bool},
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'

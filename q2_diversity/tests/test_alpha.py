@@ -113,7 +113,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -131,7 +131,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md, method='pearson')
             index_fp = os.path.join(output_dir, 'index.html')
@@ -147,9 +147,9 @@ class AlphaCorrelationTests(unittest.TestCase):
     def test_bad_method(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
-        md = qiime2.MetadataCategory(
-            pd.Series(['1.0', '2.0', '3.0'], name='value',
-                      index=['sample1', 'sample2', 'sample3']))
+        md = qiime2.Metadata(
+            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaises(ValueError):
                 alpha_correlation(output_dir, alpha_div, md, method='bad!')
@@ -159,7 +159,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['a', 'b', 'c']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaises(ValueError):
                 alpha_correlation(output_dir, alpha_div, md)
@@ -168,8 +168,8 @@ class AlphaCorrelationTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '']},
-                         index=['sample1', 'sample2', 'sample3']))
+            pd.DataFrame({'value': ['1.0', '2.0', np.nan]},
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -185,7 +185,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['1.0', '2.0', '3.0', '4.0']},
-                         index=['sample1', 'sample2', 'sample3', 'sample4']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -201,7 +201,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                                      'sample4'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -219,7 +219,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'a or b': ['a', 'b', 'b']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -239,7 +239,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         md = qiime2.Metadata(
             pd.DataFrame({'a or b': ['a', 'b', 'b'],
                           'bad': ['1.0', '2.0', '3.0']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -260,7 +260,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         md = qiime2.Metadata(
             pd.DataFrame({'a or b': ['a', 'b', 'b'],
                           'bad': ['x', 'y', 'z']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -281,7 +281,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         md = qiime2.Metadata(
             pd.DataFrame({'a or b': ['a', 'b', 'b'],
                           'bad': ['x', 'x', 'x']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -302,7 +302,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                                      'sample4'])
         md = qiime2.Metadata(
             pd.DataFrame({'x': ['a', 'b', 'b', 'c']},
-                         index=['sample1', 'sample2', 'sample3', 'sample4']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -320,7 +320,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaisesRegex(ValueError, 'Only numeric'):
@@ -331,7 +331,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame({'a or b': ['a', "b'", 'b']},
-                         index=['sample1', 'sample2', 'sample3']))
+                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)

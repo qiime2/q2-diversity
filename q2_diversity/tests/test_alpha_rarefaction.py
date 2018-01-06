@@ -41,7 +41,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['S1', 'S2', 'S3'])
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
-                         index=['S1', 'S2', 'S3']))
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -55,7 +55,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['S1', 'S2', 'S3'])
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer']},
-                         index=['S1', 'S2', 'S3', 'S4']))
+                         index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -72,7 +72,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer'],
                           'foo': [np.nan, np.nan, np.nan, 'bar']},
-                         index=['S1', 'S2', 'S3', 'S4']))
+                         index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
 
@@ -113,7 +113,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
-                         index=['S1', 'S2', 'S3']))
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p,
@@ -130,13 +130,13 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['S1', 'S2', 'S3'])
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
-                         index=['S1', 'S2', 'S3']))
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         empty_table = biom.Table(np.array([]), [], [])
 
         bad_metadata = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'summer']},
-                         index=['S1', 'S2', 'S4']))
+                         index=pd.Index(['S1', 'S2', 'S4'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaisesRegex(ValueError, 'must be greater'):
@@ -160,7 +160,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'empty'):
                 alpha_rarefaction(output_dir, empty_table, max_depth=200)
 
-            with self.assertRaisesRegex(ValueError, 'Missing'):
+            with self.assertRaisesRegex(ValueError, 'not present'):
                 alpha_rarefaction(output_dir, t, metadata=bad_metadata,
                                   max_depth=200)
 

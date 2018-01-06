@@ -50,7 +50,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     filenames = []
     filtered_categories = []
     for category in categories:
-        metadata_category = metadata.get_category(category).to_series()
+        metadata_category = metadata.get_column(category).to_series()
         metadata_category = metadata_category.loc[alpha_diversity.index]
         metadata_category = metadata_category.replace(r'', np.nan).dropna()
 
@@ -295,14 +295,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
         raise ValueError('Provided max_depth of %d is greater than '
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
-    if metadata is not None:
-        metadata_ids = metadata.ids()
-        table_ids = set(table.ids(axis='sample'))
-        if not table_ids.issubset(metadata_ids):
-            raise ValueError('Missing samples in metadata: %r' %
-                             table_ids.difference(metadata_ids))
 
-    filenames, categories, empty_columns = [], [], []
+    filenames, columns, empty_columns = [], [], []
     data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
     for m, data in data.items():
@@ -316,26 +310,27 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                                      n_df, '')
             filenames.append(jsonp_filename)
         else:
-            metadata_df = metadata.to_dataframe()
-            metadata_df = metadata_df.loc[data.index]
+            metadata_df = metadata.filter_ids(data.index).to_dataframe()
 
-            all_columns = metadata_df.columns
+            # TODO: metadata overhaul - filter columns from Metadata when
+            # all values are nan
+            all_columns = metadata.columns
             metadata_df.dropna(axis='columns', how='all', inplace=True)
             empty_columns = set(all_columns) - set(metadata_df.columns)
 
             metadata_df.columns = pd.MultiIndex.from_tuples(
                 [(c, '') for c in metadata_df.columns])
             merged = data.join(metadata_df, how='left')
-            categories = metadata_df.columns.get_level_values(0)
-            for category in categories:
-                category_name = quote(category)
-                reindexed_df, counts = _reindex_with_metadata(category,
-                                                              categories,
+            columns = metadata_df.columns.get_level_values(0)
+            for column in columns:
+                column_name = quote(column)
+                reindexed_df, counts = _reindex_with_metadata(column,
+                                                              columns,
                                                               merged)
-                c_df = _compute_summary(reindexed_df, category, counts=counts)
-                jsonp_filename = "%s-%s.jsonp" % (metric_name, category_name)
+                c_df = _compute_summary(reindexed_df, column, counts=counts)
+                jsonp_filename = "%s-%s.jsonp" % (metric_name, column_name)
                 _alpha_rarefaction_jsonp(output_dir, jsonp_filename,
-                                         metric_name, c_df, category_name)
+                                         metric_name, c_df, column_name)
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
@@ -349,7 +344,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     q2templates.render(index, output_dir,
                        context={'metrics': list(metrics),
                                 'filenames': filenames,
-                                'categories': list(categories),
+                                'categories': list(columns),
                                 'empty_columns': sorted(empty_columns)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets',
