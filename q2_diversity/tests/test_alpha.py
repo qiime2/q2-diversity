@@ -211,6 +211,24 @@ class AlphaCorrelationTests(unittest.TestCase):
 
             self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
 
+    def test_metadata_superset(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'value': ['1.0', '2.0', '3.0', '4.0']},
+                         index=['sample1', 'sample2', 'sample3', 'sample4']))
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_correlation(output_dir, alpha_div, md, method='pearson')
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
+            self.assertTrue(os.path.exists(jsonp_fp))
+
+            self.assertTrue('Pearson' in open(jsonp_fp).read())
+            self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
+            self.assertTrue('"data":' in open(jsonp_fp).read())
+            self.assertFalse('filtered' in open(jsonp_fp).read())
+
 
 class AlphaGroupSignificanceTests(unittest.TestCase):
 
@@ -337,3 +355,22 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             alpha_group_significance(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue("\'" in open(index_fp).read())
+
+    def test_alpha_group_significance_superset(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'a or b': ['a', 'b', 'b', 'B']},
+                         index=['sample1', 'sample2', 'sample3', 'sample4']))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_group_significance(output_dir, alpha_div, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'category-a%20or%20b.jsonp')))
+            self.assertTrue('Kruskal-Wallis (all groups)'
+                            in open(index_fp).read())
+            self.assertTrue('Kruskal-Wallis (pairwise)'
+                            in open(index_fp).read())

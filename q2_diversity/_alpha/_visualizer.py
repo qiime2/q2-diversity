@@ -34,6 +34,7 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                              metadata: qiime2.Metadata) -> None:
     metadata_df = metadata.to_dataframe()
+    metadata_df = metadata_df.loc[alpha_diversity.index].copy()
     metadata_df = metadata_df.apply(pd.to_numeric, errors='ignore')
     pre_filtered_cols = set(metadata_df.columns)
     metadata_df = metadata_df.select_dtypes(exclude=[np.number])
@@ -51,7 +52,6 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     filtered_categories = []
     for category in categories:
         metadata_category = metadata.get_category(category).to_series()
-        metadata_category = metadata_category.loc[alpha_diversity.index]
         metadata_category = metadata_category.replace(r'', np.nan).dropna()
 
         initial_data_length = alpha_diversity.shape[0]
@@ -142,6 +142,7 @@ def alpha_correlation(output_dir: str,
                          'options are %s.' %
                          (method, ', '.join(_alpha_correlation_fns.keys())))
     metadata_df = metadata.to_dataframe()
+    metadata_df = metadata_df.loc[alpha_diversity.index].copy()
     metadata_df = metadata_df.apply(pd.to_numeric, errors='ignore')
     pre_filtered_cols = set(metadata_df.columns)
     metadata_df = metadata_df.select_dtypes(include=[np.number])
@@ -156,7 +157,6 @@ def alpha_correlation(output_dir: str,
     filenames = []
     for category in categories:
         metadata_category = metadata_df[category]
-        metadata_category = metadata_category.loc[alpha_diversity.index]
         metadata_category = metadata_category.dropna()
 
         # create a dataframe containing the data to be correlated, and drop
