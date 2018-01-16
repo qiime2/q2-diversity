@@ -226,6 +226,20 @@ class AlphaCorrelationTests(unittest.TestCase):
                                         'not present.*Metadata.*sample4'):
                 alpha_correlation(output_dir, alpha_div, md)
 
+    def test_all_metadata_columns_filtered(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        # Non-numeric and empty columns are filtered.
+        md = qiime2.Metadata(
+            pd.DataFrame(
+                {'col1': ['a', 'b', 'a'],
+                 'col2': [np.nan, np.nan, np.nan]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+        with tempfile.TemporaryDirectory() as output_dir:
+            with self.assertRaisesRegex(
+                    ValueError, 'contains only non-numeric or empty columns'):
+                alpha_correlation(output_dir, alpha_div, md)
+
 
 class AlphaGroupSignificanceTests(unittest.TestCase):
 
@@ -346,25 +360,17 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_group_significance(output_dir, alpha_div, md)
-            index_fp = os.path.join(output_dir, 'index.html')
-            self.assertTrue(os.path.exists(index_fp))
-            self.assertFalse(os.path.exists(
-                             os.path.join(output_dir,
-                                          'column-col1.jsonp')))
-            self.assertFalse(os.path.exists(
-                             os.path.join(output_dir,
-                                          'column-col2.jsonp')))
-            self.assertTrue(
-                "contain categorical data:" in open(index_fp).read())
-            self.assertTrue('<strong>col1, col2' in open(index_fp).read())
+            err_msg = ("does not contain any columns that satisfy this "
+                       "visualizer's requirements")
+            with self.assertRaisesRegex(ValueError, err_msg):
+                alpha_group_significance(output_dir, alpha_div, md)
 
     def test_alpha_group_significance_single_quote(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
             pd.DataFrame(
-                {'a or b': ['a', "b'", 'b']},
+                {'a or b': ['a', "b'", "b'"]},
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:

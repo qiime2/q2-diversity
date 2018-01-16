@@ -50,6 +50,14 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
         drop_all_unique=True, drop_zero_variance=True, drop_all_missing=True)
     filtered_columns = pre_filtered_cols - set(metadata.columns)
 
+    if len(metadata.columns) == 0:
+        raise ValueError(
+            "Metadata does not contain any columns that satisfy this "
+            "visualizer's requirements. There must be at least one metadata "
+            "column that contains categorical data, isn't empty, doesn't "
+            "consist of unique values, and doesn't consist of exactly one "
+            "value.")
+
     metric_name = alpha_diversity.name
 
     filenames = []
@@ -151,6 +159,12 @@ def alpha_correlation(output_dir: str,
     metadata = metadata.filter_columns(column_type='numeric',
                                        drop_all_missing=True)
     filtered_columns = pre_filtered_cols - set(metadata.columns)
+
+    if len(metadata.columns) == 0:
+        raise ValueError(
+            "Metadata contains only non-numeric or empty columns. This "
+            "visualizer requires at least one numeric metadata column to "
+            "execute.")
 
     filenames = []
     for column in metadata.columns:
