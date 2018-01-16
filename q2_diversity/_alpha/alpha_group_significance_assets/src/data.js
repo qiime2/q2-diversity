@@ -67,7 +67,7 @@ export default function setupData(data) {
     xLabels: data.data.index,
     min: min(minVals),
     max: max(maxVals),
-    category: data.category,
+    column: data.column,
     metric: data.metricName,
   };
 }

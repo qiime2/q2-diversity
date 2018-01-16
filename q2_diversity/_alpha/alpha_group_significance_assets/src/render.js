@@ -16,7 +16,7 @@ export function render(svg, data) {
   const margin = { top: 20, left: 70, right: 50, bottom: 50 };
   const chart = svg.select('g');
 
-  const { xLabels, min, max, category, metric } = data;
+  const { xLabels, min, max, column, metric } = data;
 
   const x = scaleBand().padding(0.1).domain(xLabels).range([0, width]);
   const y = scaleLinear().domain([min, max]).range([height, 0]).nice();
@@ -29,7 +29,7 @@ export function render(svg, data) {
 
   chart.attr('transform', `translate(${margin.left},${margin.top})`);
 
-  const maxLabelX = setupXLabel(svg, width, height, category, xAxis);
+  const maxLabelX = setupXLabel(svg, width, height, column, xAxis);
   setupYLabel(svg, height, metric, yAxis);
 
   plotBoxes(chart, data, x, y);

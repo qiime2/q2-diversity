@@ -5,22 +5,22 @@
 {% endblock %}
 
 {% block content %}
-  {% if filtered_numeric_categories %}
+  {% if non_categorical_columns %}
   <div class="row">
     <p class="alert alert-warning col-md-12">
-      The following metadata categories have been omitted because the
-      metadata was numerical, not categorical:
-      <strong>{{ filtered_numeric_categories }}</strong>
+      The following metadata columns have been omitted because they didn't
+      contain categorical data:
+      <strong>{{ non_categorical_columns }}</strong>
     </p>
   </div>
   {% endif %}
-  {% if filtered_categories %}
+  {% if filtered_columns %}
   <div class="row">
     <p class="alert alert-warning col-md-12">
-      The following metadata categories have been omitted because the number
-      of groups was equal to the number of samples, or there was only a single
-      category:
-      <strong>{{ filtered_categories }}</strong>
+      The following categorical metadata columns have been omitted because the
+      number of groups was equal to the number of samples, there was only a
+      single group, or the column consisted only of missing data:
+      <strong>{{ filtered_columns }}</strong>
     </p>
   </div>
   {% endif %}
@@ -72,9 +72,9 @@
 </div>
 <script>
   var d = [];
-  function load_data(categoryName, data, filtered, kwAll, kwPairwise, kwCSVPath, metricName) {
+  function load_data(columnName, data, filtered, kwAll, kwPairwise, kwCSVPath, metricName) {
     d.push({
-      category: categoryName,
+      column: columnName,
       data: data,
       kwAll: kwAll,
       kwPairwise: kwPairwise,
@@ -84,8 +84,8 @@
     });
   }
 </script>
-{% for category in categories %}
-<script src='{{ category }}?callback=load_data'></script>
+{% for column in columns %}
+<script src='{{ column }}?callback=load_data'></script>
 {% endfor %}
 <script src='dist/bundle.js'></script>
 {% endblock %}

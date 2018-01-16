@@ -6,9 +6,9 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime2.plugin import (Plugin, Str, Properties, MetadataColumn, Choices,
-                           Metadata, Int, Bool, Range, Float, Set,
-                           Visualization, Numeric, Categorical)
+from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
+                           Float, Set, Visualization, Metadata, MetadataColumn,
+                           Categorical)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -453,11 +453,11 @@ plugin.visualizers.register_function(
         'method': 'The group significance test to be applied.',
         'permutations': ('The number of permutations to be run when computing '
                          'p-values.'),
-        'metadata': 'The sample metadata.',
+        'metadata': 'Categorical sample metadata column.',
         'pairwise': ('Perform pairwise tests between all pairs of groups '
                      'in addition to the test across all groups. '
                      'This can be very slow if there are a lot of groups '
-                     'in the category.')
+                     'in the metadata column.')
     },
     name='Beta diversity group significance',
     description=('Determine whether groups of samples are significantly '
@@ -523,7 +523,7 @@ plugin.visualizers.register_function(
         'metadata': 'The sample metadata.'
     },
     name='Alpha diversity correlation',
-    description=('Determine whether numeric sample metadata category is '
+    description=('Determine whether numeric sample metadata columns are '
                  'correlated with alpha diversity.')
 )
 
@@ -605,7 +605,7 @@ plugin.visualizers.register_function(
                              'be used for the tree, and the remaining trials '
                              'are used to calculate the support of the '
                              'internal nodes of that tree.',
-        'metadata': 'The sample-metadata used for the Emperor jackknifed PCoA '
+        'metadata': 'The sample metadata used for the Emperor jackknifed PCoA '
                     'plot.',
         'iterations': 'Number of times to rarefy the feature table at a given '
                       'sampling depth.',

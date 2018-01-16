@@ -14,7 +14,6 @@ import itertools
 
 import skbio
 import skbio.diversity
-import numpy
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -29,26 +28,32 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
 
 def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
            metadata: qiime2.Metadata) -> None:
-    # convert metadata to numeric values where applicable, drop the non-numeric
-    # values, and then drop samples that contain NaNs
+    # Filter metadata to only include IDs present in the distance matrix.
+    # Also ensures every distance matrix ID is present in the metadata.
+    metadata = metadata.filter_ids(distance_matrix.ids)
+
+    # drop non-numeric columns and empty columns
+    pre_filtered_cols = set(metadata.columns)
+    metadata = metadata.filter_columns(column_type='numeric')
+    non_numeric_cols = pre_filtered_cols - set(metadata.columns)
+
+    # filter 0 variance numerical columns and empty columns
+    pre_filtered_cols = set(metadata.columns)
+    metadata = metadata.filter_columns(drop_zero_variance=True,
+                                       drop_all_missing=True)
+    zero_variance_cols = pre_filtered_cols - set(metadata.columns)
+
+    # Drop samples that have any missing values.
+    # TODO use Metadata API if this type of filtering is supported in the
+    # future.
     df = metadata.to_dataframe()
-    df = df.apply(lambda x: pd.to_numeric(x, errors='ignore'))
-
-    # filter categorical columns
-    pre_filtered_cols = set(df.columns)
-    df = df.select_dtypes([numpy.number]).dropna()
-    filtered_categorical_cols = pre_filtered_cols - set(df.columns)
-
-    # filter 0 variance numerical columns
-    pre_filtered_cols = set(df.columns)
-    df = df.loc[:, df.var() != 0]
-    filtered_zero_variance_cols = pre_filtered_cols - set(df.columns)
+    df = df.dropna(axis='index', how='any')
 
     # filter the distance matrix to exclude samples that were dropped from
     # the metadata, and keep track of how many samples survived the filtering
     # so that information can be presented to the user.
     initial_dm_length = distance_matrix.shape[0]
-    distance_matrix = distance_matrix.filter(df.index, strict=False)
+    distance_matrix = distance_matrix.filter(df.index)
     filtered_dm_length = distance_matrix.shape[0]
 
     result = skbio.stats.distance.bioenv(distance_matrix, df)
@@ -58,8 +63,8 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     q2templates.render(index, output_dir, context={
         'initial_dm_length': initial_dm_length,
         'filtered_dm_length': filtered_dm_length,
-        'filtered_categorical_cols': ', '.join(filtered_categorical_cols),
-        'filtered_zero_variance_cols': ', '.join(filtered_zero_variance_cols),
+        'non_numeric_cols': ', '.join(sorted(non_numeric_cols)),
+        'zero_variance_cols': ', '.join(sorted(zero_variance_cols)),
         'result': result})
 
 
@@ -107,7 +112,7 @@ def _get_pairwise_group_significance_stats(
 
 def beta_group_significance(output_dir: str,
                             distance_matrix: skbio.DistanceMatrix,
-                            metadata: qiime2.NumericMetadataColumn,
+                            metadata: qiime2.CategoricalMetadataColumn,
                             method: str='permanova',
                             pairwise: bool=False,
                             permutations: int=999) -> None:
@@ -119,14 +124,14 @@ def beta_group_significance(output_dir: str,
                          (method,
                           ', '.join(_beta_group_significance_fns)))
 
-    # TODO: metadata overhaul - natsort ids
-    ids_missing_metadata = metadata.get_ids(with_missing_value=True)
-    ids_to_keep = set(distance_matrix.ids) - ids_missing_metadata
-    metadata = metadata.filter_ids(ids_to_keep)
+    # Filter metadata to only include IDs present in the distance matrix.
+    # Also ensures every distance matrix ID is present in the metadata.
+    metadata = metadata.filter_ids(distance_matrix.ids)
+    metadata = metadata.drop_missing_values()
 
     # filter the distance matrix to exclude samples that were dropped from
-    # the metadata, and keep track of how many samples survived the filtering
-    # so that information can be presented to the user.
+    # the metadata due to missing values, and keep track of how many samples
+    # survived the filtering so that information can be presented to the user.
     initial_dm_length = distance_matrix.shape[0]
     distance_matrix = distance_matrix.filter(metadata.ids)
     filtered_dm_length = distance_matrix.shape[0]

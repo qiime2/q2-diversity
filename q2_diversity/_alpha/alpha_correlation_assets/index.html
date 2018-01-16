@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block content %}
-  {% if filtered_categories %}
+  {% if filtered_columns %}
   <div class="row">
     <p class="alert alert-warning col-md-12">
-      The following metadata categories have been omitted because the
-      metadata was categorical, not numerical:
-      <strong>{{ filtered_categories }}</strong>
+      The following metadata columns have been omitted because they didn't
+      contain numeric data, or they consisted only of missing data:
+      <strong>{{ filtered_columns }}</strong>
     </p>
   </div>
   {% endif %}
@@ -53,17 +53,17 @@
 
 <script>
   var d = [];
-  function load_data(categoryName, data, filtered, stats) {
+  function load_data(columnName, data, filtered, stats) {
     d.push({
-      category: categoryName,
+      column: columnName,
       data: data,
       filtered: filtered,
       stats: stats,
     });
   }
 </script>
-{% for category in categories %}
-<script src='{{ category }}?callback=load_data'></script>
+{% for column in columns %}
+<script src='{{ column }}?callback=load_data'></script>
 {% endfor %}
 <script src='dist/bundle.js'></script>
 {% endblock %}

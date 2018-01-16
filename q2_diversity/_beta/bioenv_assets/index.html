@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% if filtered_categorical_cols %}
+    {% if non_numeric_cols %}
       <div class="alert alert-warning col-md-12">
-        The following metadata categories have been omitted because the
-        metadata was categorical, not numerical:
-        <strong>{{ filtered_categorical_cols }}</strong>
+        The following metadata columns have been omitted because the metadata
+        column was not numeric:
+        <strong>{{ non_numeric_cols }}</strong>
       </div>
     {% endif %}
-    {% if filtered_zero_variance_cols %}
+    {% if zero_variance_cols %}
       <div class="alert alert-warning col-md-12">
-        The following metadata categories have been omitted because the
-        metadata column had no variance:
-        <strong>{{ filtered_zero_variance_cols }}</strong>
+        The following metadata columns have been omitted because the metadata
+        column had no variance, or consisted only of missing values:
+        <strong>{{ zero_variance_cols }}</strong>
       </div>
     {% endif %}
     {% if initial_dm_length != filtered_dm_length %}

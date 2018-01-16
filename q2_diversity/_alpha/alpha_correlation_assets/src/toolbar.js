@@ -8,12 +8,12 @@ import setupData from './data';
 import { render, stats, warnings } from './render';
 
 
-export function addCategoryPicker(row, categories, selectedCategory) {
-  const grp = row.append('div').attr('class', 'col-lg-2 form-group categoryPicker');
-  grp.append('label').text('Category');
+export function addColumnPicker(row, columns, selectedColumn) {
+  const grp = row.append('div').attr('class', 'col-lg-2 form-group columnPicker');
+  grp.append('label').text('Column');
   grp.append('select')
     .attr('class', 'form-control')
-    .on('change', function changeCategory() {
+    .on('change', function changeColumn() {
       const data = d[this.selectedIndex];
       const svg = select('svg');
       const preppedData = setupData(data);
@@ -23,12 +23,12 @@ export function addCategoryPicker(row, categories, selectedCategory) {
       warnings(body, data);
     })
     .selectAll('option')
-    .data(categories)
+    .data(columns)
     .enter()
       .append('option')
       .attr('value', d => d)
       .text(d => d)
-      .property('selected', d => (d === selectedCategory));
+      .property('selected', d => (d === selectedColumn));
   return grp;
 }
 

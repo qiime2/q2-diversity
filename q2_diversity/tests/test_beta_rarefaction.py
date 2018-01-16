@@ -34,8 +34,9 @@ class SharedSetup:
         self.tree = skbio.TreeNode.read([
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'])
 
-        self.md = qiime2.Metadata(pd.DataFrame({'a': ['1', '2', '3']},
-                                               index=['S1', 'S2', 'S3']))
+        self.md = qiime2.Metadata(
+            pd.DataFrame({'a': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         self.output_dir_obj = tempfile.TemporaryDirectory(
                 prefix='q2-diversity-test-temp-')
@@ -146,8 +147,7 @@ class BetaRarefactionTests(SharedSetup, unittest.TestCase):
 
     def test_beta_rarefaction_empty_table(self):
         table = Table(np.array([[]]), [], [])
-        with self.assertRaisesRegex(ValueError,
-                                    'shallow enough sampling depth'):
+        with self.assertRaisesRegex(ValueError, 'feature table is empty'):
             beta_rarefaction(self.output_dir, table, 'braycurtis', 'upgma',
                              self.md, 1)
 

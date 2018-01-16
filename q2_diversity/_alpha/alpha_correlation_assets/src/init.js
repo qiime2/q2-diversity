@@ -3,12 +3,12 @@ import { select } from 'd3';
 
 import setupData from './data';
 import { render, warnings, stats } from './render';
-import { addDownloadLinks, addCategoryPicker } from './toolbar';
+import { addDownloadLinks, addColumnPicker } from './toolbar';
 
 
 export default function init(groupIndex) {
   const data = d[groupIndex];
-  const categories = d.map(d => d.category);
+  const columns = d.map(d => d.column);
 
   // DOM
   const body = select('#main');
@@ -33,7 +33,7 @@ export default function init(groupIndex) {
 
   // CONTROLS
   addDownloadLinks(controlsRow, svg);
-  addCategoryPicker(controlsRow, categories, data.category);
+  addColumnPicker(controlsRow, columns, data.column);
 
   // STATS
   stats(body, data);

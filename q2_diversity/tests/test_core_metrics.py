@@ -38,8 +38,9 @@ class CoreMetricsTests(TestPluginBase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
-        metadata = Metadata(pd.DataFrame({'foo': ['1', '2', '3']},
-                                         index=['S1', 'S2', 'S3']))
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         results = self.core_metrics_phylogenetic(table, tree, 13, metadata)
 
@@ -70,8 +71,9 @@ class CoreMetricsTests(TestPluginBase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
-        metadata = Metadata(pd.DataFrame({'foo': ['1', '2', '3']},
-                                         index=['S1', 'S2', 'S3']))
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         results = self.core_metrics_phylogenetic(table, tree, 13, metadata,
                                                  n_jobs=2)
@@ -103,8 +105,9 @@ class CoreMetricsTests(TestPluginBase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
-        metadata = Metadata(pd.DataFrame({'foo': ['1', '2', '3']},
-                                         index=['S1', 'S2', 'S3']))
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         results = self.core_metrics_phylogenetic(table, tree, 13, metadata)
 
@@ -120,8 +123,9 @@ class CoreMetricsTests(TestPluginBase):
                            ['S1', 'S2', 'S3'])
         table = Artifact.import_data('FeatureTable[Frequency]', table)
 
-        metadata = Metadata(pd.DataFrame({'foo': ['1', '2', '3']},
-                                         index=['S1', 'S2', 'S3']))
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         results = self.core_metrics(table, 13, metadata)
 

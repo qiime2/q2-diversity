@@ -42,6 +42,13 @@ def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
     else:
         beta_func = beta
 
+    if table.is_empty():
+        raise ValueError("Input feature table is empty.")
+
+    # Filter metadata to only include sample IDs present in the feature table.
+    # Also ensures every feature table sample ID is present in the metadata.
+    metadata = metadata.filter_ids(table.ids(axis='sample'))
+
     distance_matrices = _get_multiple_rarefaction(
         beta_func, metric, iterations, table, sampling_depth)
     primary = distance_matrices[0]

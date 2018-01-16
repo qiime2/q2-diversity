@@ -2,44 +2,44 @@
 import { setupData } from './data';
 import render from './render';
 
-function updateData(metric, category, svg, href, legend, legendTitle) {
+function updateData(metric, column, svg, href, legend, legendTitle) {
   href.attr('href', `${metric}.csv`);
   let data = d[metric];
-  if (category) {
-    data = d[metric][category];
+  if (column) {
+    data = d[metric][column];
   }
   const preppedData = setupData(data, metric);
-  render(svg, preppedData, category, legend, legendTitle);
+  render(svg, preppedData, column, legend, legendTitle);
 }
 
 class State {
   constructor() {
-    this.category = '';
+    this.column = '';
     this.metric = '';
     this.svg = null;
     this.href = null;
     this.legend = null;
     this.legendTitle = null;
   }
-  initialize(metric, category, row, svg, legend, legendTitle) {
+  initialize(metric, column, row, svg, legend, legendTitle) {
     this.href = row.select('.downloadCSV a');
     this.svg = svg;
     this.metric = metric;
-    this.category = category;
+    this.column = column;
     this.legend = legend;
     this.legendTitle = legendTitle;
-    updateData(metric, category, this.svg, this.href, this.legend, this.legendTitle);
+    updateData(metric, column, this.svg, this.href, this.legend, this.legendTitle);
   }
-  setCategory(c) {
-    this.category = c;
-    updateData(this.metric, this.category, this.svg, this.href, this.legend, this.legendTitle);
+  setColumn(c) {
+    this.column = c;
+    updateData(this.metric, this.column, this.svg, this.href, this.legend, this.legendTitle);
   }
   setMetric(m) {
     this.metric = m;
-    updateData(this.metric, this.category, this.svg, this.href, this.legend, this.legendTitle);
+    updateData(this.metric, this.column, this.svg, this.href, this.legend, this.legendTitle);
   }
-  getCategory() {
-    return this.category;
+  getColumn() {
+    return this.column;
   }
   getMetric() {
     return this.metric;

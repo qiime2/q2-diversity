@@ -112,13 +112,14 @@ class AlphaCorrelationTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
+            jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
             self.assertTrue('Spearman' in open(jsonp_fp).read())
@@ -130,13 +131,14 @@ class AlphaCorrelationTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md, method='pearson')
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
+            jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
             self.assertTrue('Pearson' in open(jsonp_fp).read())
@@ -148,33 +150,47 @@ class AlphaCorrelationTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaises(ValueError):
                 alpha_correlation(output_dir, alpha_div, md, method='bad!')
 
-    def test_bad_metadata(self):
+    def test_non_numeric_metadata(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['a', 'b', 'c']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'col1': [4, 5, 6],
+                 'col2': ['a', 'b', 'c']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            with self.assertRaises(ValueError):
-                alpha_correlation(output_dir, alpha_div, md)
+            alpha_correlation(output_dir, alpha_div, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue(os.path.exists(
+                            os.path.join(output_dir,
+                                         'column-col1.jsonp')))
+            self.assertFalse(os.path.exists(
+                             os.path.join(output_dir,
+                                          'column-col2.jsonp')))
+            self.assertTrue(
+                "contain numeric data" in open(index_fp).read())
+            self.assertTrue('<strong>col2' in open(index_fp).read())
 
     def test_nan_metadata(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', np.nan]},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, np.nan]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
+            jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
             self.assertTrue('"filtered": 2' in open(jsonp_fp).read())
@@ -184,13 +200,15 @@ class AlphaCorrelationTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0', '4.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0, 4.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3',
+                                'sample4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_correlation(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
+            jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
             self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
@@ -200,16 +218,13 @@ class AlphaCorrelationTests(unittest.TestCase):
                               index=['sample1', 'sample2', 'sample3',
                                      'sample4'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_correlation(output_dir, alpha_div, md)
-            index_fp = os.path.join(output_dir, 'index.html')
-            self.assertTrue(os.path.exists(index_fp))
-            jsonp_fp = os.path.join(output_dir, 'category-value.jsonp')
-            self.assertTrue(os.path.exists(jsonp_fp))
-
-            self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
+            with self.assertRaisesRegex(ValueError,
+                                        'not present.*Metadata.*sample4'):
+                alpha_correlation(output_dir, alpha_div, md)
 
 
 class AlphaGroupSignificanceTests(unittest.TestCase):
@@ -218,8 +233,9 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'a or b': ['a', 'b', 'b']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'a or b': ['a', 'b', 'b']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -227,7 +243,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
-                                         'category-a%20or%20b.jsonp')))
+                                         'column-a%20or%20b.jsonp')))
             self.assertTrue('Kruskal-Wallis (all groups)'
                             in open(index_fp).read())
             self.assertTrue('Kruskal-Wallis (pairwise)'
@@ -237,9 +253,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'a or b': ['a', 'b', 'b'],
-                          'bad': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'a or b': ['a', 'b', 'b'],
+                 'bad': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -247,20 +264,22 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
-                                         'category-a%20or%20b.jsonp')))
+                                         'column-a%20or%20b.jsonp')))
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
-                                          'bad-value.jsonp')))
-            self.assertTrue('not categorical:' in open(index_fp).read())
+                                          'column-bad.jsonp')))
+            self.assertTrue(
+                "contain categorical data:" in open(index_fp).read())
             self.assertTrue('<strong>bad' in open(index_fp).read())
 
     def test_alpha_group_significance_one_group_all_unique_values(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'a or b': ['a', 'b', 'b'],
-                          'bad': ['x', 'y', 'z']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'a or b': ['a', 'b', 'b'],
+                 'bad': ['x', 'y', 'z']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -268,10 +287,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
-                                         'category-a%20or%20b.jsonp')))
+                                         'column-a%20or%20b.jsonp')))
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
-                                          'category-bad.jsonp')))
+                                          'column-bad.jsonp')))
             self.assertTrue('number of samples' in open(index_fp).read())
             self.assertTrue('<strong>bad' in open(index_fp).read())
 
@@ -279,9 +298,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'a or b': ['a', 'b', 'b'],
-                          'bad': ['x', 'x', 'x']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'a or b': ['a', 'b', 'b'],
+                 'bad': ['x', 'x', 'x']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -289,11 +309,11 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
-                                         'category-a%20or%20b.jsonp')))
+                                         'column-a%20or%20b.jsonp')))
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
-                                          'category-bad.jsonp')))
-            self.assertTrue('only a single' in open(index_fp).read())
+                                          'column-bad.jsonp')))
+            self.assertTrue('single group' in open(index_fp).read())
             self.assertTrue('<strong>bad' in open(index_fp).read())
 
     def test_alpha_group_significance_KW_value_error(self):
@@ -302,7 +322,8 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                                      'sample4'])
         md = qiime2.Metadata(
             pd.DataFrame({'x': ['a', 'b', 'b', 'c']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
+                         index=pd.Index(['sample1', 'sample2', 'sample3',
+                                         'sample4'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
@@ -310,7 +331,7 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
-                                         'category-x.jsonp')))
+                                         'column-x.jsonp')))
             self.assertTrue('pairwise group comparisons have been omitted'
                             in open(index_fp).read())
             self.assertTrue('x:c (n=1) vs x:a (n=1)' in open(index_fp).read())
@@ -319,21 +340,38 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'value': ['1.0', '2.0', '3.0']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'col1': [1, 2, 1],
+                 'col2': [4.2, 4.2, 4.3]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            with self.assertRaisesRegex(ValueError, 'Only numeric'):
-                alpha_group_significance(output_dir, alpha_div, md)
+            alpha_group_significance(output_dir, alpha_div, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertFalse(os.path.exists(
+                             os.path.join(output_dir,
+                                          'column-col1.jsonp')))
+            self.assertFalse(os.path.exists(
+                             os.path.join(output_dir,
+                                          'column-col2.jsonp')))
+            self.assertTrue(
+                "contain categorical data:" in open(index_fp).read())
+            self.assertTrue('<strong>col1, col2' in open(index_fp).read())
 
     def test_alpha_group_significance_single_quote(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame({'a or b': ['a', "b'", 'b']},
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            pd.DataFrame(
+                {'a or b': ['a', "b'", 'b']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue("\'" in open(index_fp).read())
+
+
+if __name__ == '__main__':
+    unittest.main()

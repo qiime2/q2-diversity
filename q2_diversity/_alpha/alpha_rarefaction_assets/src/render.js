@@ -14,7 +14,7 @@ import appendLegendKey from './legend';
 import { curData, appendSeries, toggle } from './data';
 
 // re-render chart and legend whenever selection changes
-function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
+function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
   const chart = svg.select('#chart');
   const subChart = svg.select('#subChart');
   const legendBox = select(legend.node().parentNode);
@@ -24,7 +24,7 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
   const countIndex = data.data.columns.indexOf('count');
   let groupIndex = data.data.columns.indexOf('sample-id');
   if (groupIndex === -1) {
-    groupIndex = data.data.columns.indexOf(category);
+    groupIndex = data.data.columns.indexOf(column);
   }
   const points = [data.data.data][0];
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
@@ -118,7 +118,7 @@ function renderPlot(svg, data, x, y, subY, category, legend, legendTitle) {
 }
 
 // re-render chart edges, exis, formatting, etc. when selection changes
-export default function render(svg, data, category, legend, legendTitle) {
+export default function render(svg, data, column, legend, legendTitle) {
   const height = 400;
   const width = 1000;
   const margin = { top: 20, left: 80, right: 50, bottom: 50 };
@@ -164,5 +164,5 @@ export default function render(svg, data, category, legend, legendTitle) {
     .style('height', `${2 * (height + margin.bottom + margin.top)}px`);
   chart.attr('transform', `translate(${moveX},${margin.top})`);
   subChart.attr('transform', `translate(${moveX},${height + margin.bottom + margin.top})`);
-  renderPlot(svg, data, x, y, subY, category, legend, legendTitle);
+  renderPlot(svg, data, x, y, subY, column, legend, legendTitle);
 }

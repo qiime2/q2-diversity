@@ -33,92 +33,93 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
                              metadata: qiime2.Metadata) -> None:
-    metadata_df = metadata.to_dataframe()
-    metadata_df = metadata_df.apply(pd.to_numeric, errors='ignore')
-    pre_filtered_cols = set(metadata_df.columns)
-    metadata_df = metadata_df.select_dtypes(exclude=[np.number])
-    post_filtered_cols = set(metadata_df.columns)
-    filtered_numeric_categories = pre_filtered_cols - post_filtered_cols
-    filtered_group_comparisons = []
+    # Filter metadata to only include IDs present in the alpha diversity data.
+    # Also ensures every alpha diversity ID is present in the metadata.
+    metadata = metadata.filter_ids(alpha_diversity.index)
 
-    categories = metadata_df.columns
+    # Metadata column filtering could be done in one pass, but this visualizer
+    # displays separate warnings for non-categorical columns, and categorical
+    # columns that didn't satisfy the requirements of the statistics being
+    # computed.
+    pre_filtered_cols = set(metadata.columns)
+    metadata = metadata.filter_columns(column_type='categorical')
+    non_categorical_columns = pre_filtered_cols - set(metadata.columns)
+
+    pre_filtered_cols = set(metadata.columns)
+    metadata = metadata.filter_columns(
+        drop_all_unique=True, drop_zero_variance=True, drop_all_missing=True)
+    filtered_columns = pre_filtered_cols - set(metadata.columns)
+
     metric_name = alpha_diversity.name
 
-    if len(categories) == 0:
-        raise ValueError('Only numeric data is present in metadata file.')
-
     filenames = []
-    filtered_categories = []
-    for category in categories:
-        metadata_category = metadata.get_column(category).to_series()
-        metadata_category = metadata_category.loc[alpha_diversity.index]
-        metadata_category = metadata_category.replace(r'', np.nan).dropna()
+    filtered_group_comparisons = []
+    for column in metadata.columns:
+        metadata_column = metadata.get_column(column)
+        metadata_column = metadata_column.drop_missing_values()
 
         initial_data_length = alpha_diversity.shape[0]
-        data = pd.concat([alpha_diversity, metadata_category], axis=1,
-                         join='inner')
+        data = pd.concat([alpha_diversity, metadata_column.to_series()],
+                         axis=1, join='inner')
         filtered_data_length = data.shape[0]
 
         names = []
         groups = []
-        for name, group in data.groupby(metadata_category.name):
+        for name, group in data.groupby(metadata_column.name):
             names.append('%s (n=%d)' % (name, len(group)))
-            groups.append(list(group[alpha_diversity.name]))
+            groups.append(list(group[metric_name]))
 
-        if (len(groups) > 1 and len(groups) != len(data.index)):
-            escaped_category = quote(category)
-            filename = 'category-%s.jsonp' % escaped_category
-            filenames.append(filename)
+        escaped_column = quote(column)
+        filename = 'column-%s.jsonp' % escaped_column
+        filenames.append(filename)
 
-            # perform Kruskal-Wallis across all groups
-            kw_H_all, kw_p_all = scipy.stats.mstats.kruskalwallis(*groups)
+        # perform Kruskal-Wallis across all groups
+        kw_H_all, kw_p_all = scipy.stats.mstats.kruskalwallis(*groups)
 
-            # perform pairwise Kruskal-Wallis across all pairs of groups and
-            # correct for multiple comparisons
-            kw_H_pairwise = []
-            for i in range(len(names)):
-                for j in range(i):
-                    try:
-                        H, p = scipy.stats.mstats.kruskalwallis(groups[i],
-                                                                groups[j])
-                        kw_H_pairwise.append([names[j], names[i], H, p])
-                    except ValueError:
-                        filtered_group_comparisons.append(
-                            ['%s:%s' % (category, names[i]),
-                             '%s:%s' % (category, names[j])])
-            kw_H_pairwise = pd.DataFrame(
-                kw_H_pairwise, columns=['Group 1', 'Group 2', 'H', 'p-value'])
-            kw_H_pairwise.set_index(['Group 1', 'Group 2'], inplace=True)
-            kw_H_pairwise['q-value'] = multipletests(
-                kw_H_pairwise['p-value'], method='fdr_bh')[1]
-            kw_H_pairwise.sort_index(inplace=True)
-            pairwise_fn = 'kruskal-wallis-pairwise-%s.csv' % escaped_category
-            pairwise_path = os.path.join(output_dir, pairwise_fn)
-            kw_H_pairwise.to_csv(pairwise_path)
+        # perform pairwise Kruskal-Wallis across all pairs of groups and
+        # correct for multiple comparisons
+        kw_H_pairwise = []
+        for i in range(len(names)):
+            for j in range(i):
+                try:
+                    H, p = scipy.stats.mstats.kruskalwallis(groups[i],
+                                                            groups[j])
+                    kw_H_pairwise.append([names[j], names[i], H, p])
+                except ValueError:
+                    filtered_group_comparisons.append(
+                        ['%s:%s' % (column, names[i]),
+                         '%s:%s' % (column, names[j])])
+        kw_H_pairwise = pd.DataFrame(
+            kw_H_pairwise, columns=['Group 1', 'Group 2', 'H', 'p-value'])
+        kw_H_pairwise.set_index(['Group 1', 'Group 2'], inplace=True)
+        kw_H_pairwise['q-value'] = multipletests(
+            kw_H_pairwise['p-value'], method='fdr_bh')[1]
+        kw_H_pairwise.sort_index(inplace=True)
+        pairwise_fn = 'kruskal-wallis-pairwise-%s.csv' % escaped_column
+        pairwise_path = os.path.join(output_dir, pairwise_fn)
+        kw_H_pairwise.to_csv(pairwise_path)
 
-            with open(os.path.join(output_dir, filename), 'w') as fh:
-                df = pd.Series(groups, index=names)
+        with open(os.path.join(output_dir, filename), 'w') as fh:
+            series = pd.Series(groups, index=names)
 
-                fh.write("load_data('%s'," % category)
-                df.to_json(fh, orient='split')
-                fh.write(",")
-                json.dump({'initial': initial_data_length,
-                           'filtered': filtered_data_length}, fh)
-                fh.write(",")
-                json.dump({'H': kw_H_all, 'p': kw_p_all}, fh)
-                fh.write(",'")
-                table = q2templates.df_to_html(kw_H_pairwise)
-                fh.write(table.replace('\n', '').replace("'", "\\'"))
-                fh.write("','%s', '%s');" % (quote(pairwise_fn), metric_name))
-        else:
-            filtered_categories.append(category)
+            fh.write("load_data('%s'," % column)
+            series.to_json(fh, orient='split')
+            fh.write(",")
+            json.dump({'initial': initial_data_length,
+                       'filtered': filtered_data_length}, fh)
+            fh.write(",")
+            json.dump({'H': kw_H_all, 'p': kw_p_all}, fh)
+            fh.write(",'")
+            table = q2templates.df_to_html(kw_H_pairwise)
+            fh.write(table.replace('\n', '').replace("'", "\\'"))
+            fh.write("','%s', '%s');" % (quote(pairwise_fn), metric_name))
 
     index = os.path.join(
         TEMPLATES, 'alpha_group_significance_assets', 'index.html')
     q2templates.render(index, output_dir, context={
-        'categories': [quote(fn) for fn in filenames],
-        'filtered_numeric_categories': ', '.join(filtered_numeric_categories),
-        'filtered_categories': ', '.join(filtered_categories),
+        'columns': [quote(fn) for fn in filenames],
+        'non_categorical_columns': ', '.join(sorted(non_categorical_columns)),
+        'filtered_columns': ', '.join(sorted(filtered_columns)),
         'filtered_group_comparisons':
             '; '.join([' vs '.join(e) for e in filtered_group_comparisons])})
 
@@ -141,31 +142,28 @@ def alpha_correlation(output_dir: str,
         raise ValueError('Unknown alpha correlation method %s. The available '
                          'options are %s.' %
                          (method, ', '.join(_alpha_correlation_fns.keys())))
-    metadata_df = metadata.to_dataframe()
-    metadata_df = metadata_df.apply(pd.to_numeric, errors='ignore')
-    pre_filtered_cols = set(metadata_df.columns)
-    metadata_df = metadata_df.select_dtypes(include=[np.number])
-    post_filtered_cols = set(metadata_df.columns)
-    filtered_categories = pre_filtered_cols - post_filtered_cols
 
-    categories = metadata_df.columns
+    # Filter metadata to only include IDs present in the alpha diversity data.
+    # Also ensures every alpha diversity ID is present in the metadata.
+    metadata = metadata.filter_ids(alpha_diversity.index)
 
-    if len(categories) == 0:
-        raise ValueError('Only non-numeric data is present in metadata file.')
+    pre_filtered_cols = set(metadata.columns)
+    metadata = metadata.filter_columns(column_type='numeric',
+                                       drop_all_missing=True)
+    filtered_columns = pre_filtered_cols - set(metadata.columns)
 
     filenames = []
-    for category in categories:
-        metadata_category = metadata_df[category]
-        metadata_category = metadata_category.loc[alpha_diversity.index]
-        metadata_category = metadata_category.dropna()
+    for column in metadata.columns:
+        metadata_column = metadata.get_column(column)
+        metadata_column = metadata_column.drop_missing_values()
 
         # create a dataframe containing the data to be correlated, and drop
         # any samples that have no data in either column
-        df = pd.concat([metadata_category, alpha_diversity], axis=1,
+        df = pd.concat([metadata_column.to_series(), alpha_diversity], axis=1,
                        join='inner')
 
         # compute correlation
-        correlation_result = alpha_correlation_fn(df[metadata_category.name],
+        correlation_result = alpha_correlation_fn(df[metadata_column.name],
                                                   df[alpha_diversity.name])
 
         warning = None
@@ -174,12 +172,12 @@ def alpha_correlation(output_dir: str,
                        'method': method.title(),
                        'filtered': df.shape[0]}
 
-        escaped_category = quote(category)
-        filename = 'category-%s.jsonp' % escaped_category
+        escaped_column = quote(column)
+        filename = 'column-%s.jsonp' % escaped_column
         filenames.append(filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            fh.write("load_data('%s'," % category)
+            fh.write("load_data('%s'," % column)
             df.to_json(fh, orient='split')
             fh.write(",")
             json.dump(warning, fh)
@@ -193,20 +191,20 @@ def alpha_correlation(output_dir: str,
 
     index = os.path.join(TEMPLATES, 'alpha_correlation_assets', 'index.html')
     q2templates.render(index, output_dir, context={
-        'categories': [quote(fn) for fn in filenames],
-        'filtered_categories': ', '.join(filtered_categories)})
+        'columns': [quote(fn) for fn in filenames],
+        'filtered_columns': ', '.join(sorted(filtered_columns))})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_correlation_assets',
                                  'dist'),
                     os.path.join(output_dir, 'dist'))
 
 
-def _reindex_with_metadata(category, categories, merged):
-    merged.set_index(category, inplace=True)
+def _reindex_with_metadata(column, columns, merged):
+    merged.set_index(column, inplace=True)
     merged.sort_index(axis=0, ascending=True, inplace=True)
-    merged = merged.groupby(level=[category])
+    merged = merged.groupby(level=[column])
     counts = merged.count()
-    counts.drop(categories, axis=1, inplace=True, level=0)
+    counts.drop(columns, axis=1, inplace=True, level=0)
     median_ = merged.median()
     return median_, counts
 
@@ -233,9 +231,9 @@ def _compute_summary(data, id_label, counts=None):
     return summary_df
 
 
-def _alpha_rarefaction_jsonp(output_dir, filename, metric, data, category):
+def _alpha_rarefaction_jsonp(output_dir, filename, metric, data, column):
     with open(os.path.join(output_dir, filename), 'w') as fh:
-        fh.write("load_data('%s', '%s'," % (metric, category))
+        fh.write("load_data('%s', '%s'," % (metric, column))
         data.to_json(fh, orient='split')
         fh.write(");")
 
@@ -296,9 +294,30 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                          'the maximum sample total frequency of the '
                          'feature_table (%d).' % (max_depth, max_frequency))
 
-    filenames, columns, empty_columns = [], [], []
+    if metadata is None:
+        columns, filtered_columns = set(), set()
+    else:
+        # Filter metadata to only include sample IDs present in the feature
+        # table. Also ensures every feature table sample ID is present in the
+        # metadata.
+        metadata = metadata.filter_ids(table.ids(axis='sample'))
+
+        # Drop metadata columns that aren't categorical, or consist solely of
+        # missing values.
+        pre_filtered_cols = set(metadata.columns)
+        metadata = metadata.filter_columns(column_type='categorical',
+                                           drop_all_missing=True)
+        filtered_columns = pre_filtered_cols - set(metadata.columns)
+
+        metadata_df = metadata.to_dataframe()
+        metadata_df.columns = pd.MultiIndex.from_tuples(
+            [(c, '') for c in metadata_df.columns])
+        columns = metadata_df.columns.get_level_values(0)
+
     data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
+
+    filenames = []
     for m, data in data.items():
         metric_name = quote(m)
         filename = '%s.csv' % metric_name
@@ -310,18 +329,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                                      n_df, '')
             filenames.append(jsonp_filename)
         else:
-            metadata_df = metadata.filter_ids(data.index).to_dataframe()
-
-            # TODO: metadata overhaul - filter columns from Metadata when
-            # all values are nan
-            all_columns = metadata.columns
-            metadata_df.dropna(axis='columns', how='all', inplace=True)
-            empty_columns = set(all_columns) - set(metadata_df.columns)
-
-            metadata_df.columns = pd.MultiIndex.from_tuples(
-                [(c, '') for c in metadata_df.columns])
             merged = data.join(metadata_df, how='left')
-            columns = metadata_df.columns.get_level_values(0)
             for column in columns:
                 column_name = quote(column)
                 reindexed_df, counts = _reindex_with_metadata(column,
@@ -344,8 +352,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     q2templates.render(index, output_dir,
                        context={'metrics': list(metrics),
                                 'filenames': filenames,
-                                'categories': list(columns),
-                                'empty_columns': sorted(empty_columns)})
+                                'columns': list(columns),
+                                'filtered_columns': sorted(filtered_columns)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets',
                                  'dist'),

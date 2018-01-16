@@ -382,16 +382,17 @@ class BioenvTests(unittest.TestCase):
                                    [0.25, 0.00, 0.00]],
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame([['1.0', 'a'], ['2.0', 'b'], ['3.0', 'c']],
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
-                         columns=['metadata1', 'metadata2']))
+            pd.DataFrame(
+                [[1.0, 'a'], [2.0, 'b'], [3.0, 'c']],
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
+                columns=['metadata1', 'metadata2']))
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
 
-            self.assertTrue('not numerical' in open(index_fp).read())
+            self.assertTrue('not numeric:' in open(index_fp).read())
             self.assertTrue('<strong>metadata2' in open(index_fp).read())
 
             self.assertFalse('Warning' in open(index_fp).read())
@@ -402,9 +403,10 @@ class BioenvTests(unittest.TestCase):
                                    [0.25, 0.00, 0.00]],
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame([['1.0', '2.0'], ['2.0', np.nan], ['3.0', '42.0']],
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
-                         columns=['metadata1', 'metadata2']))
+            pd.DataFrame(
+                [[1.0, 2.0], [2.0, np.nan], [3.0, 42.0]],
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
+                columns=['metadata1', 'metadata2']))
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -421,17 +423,18 @@ class BioenvTests(unittest.TestCase):
                                    [0.25, 0.00, 0.00]],
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame([['1.0', 'a'], ['2.0', 'b'], ['3.0', 'c'],
-                          ['4.0', 'd']],
-                         index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id'),
-                         columns=['metadata1', 'metadata2']))
+            pd.DataFrame(
+                [[1.0, 'a'], [2.0, 'b'], [3.0, 'c'], [4.0, 'd']],
+                index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'],
+                               name='id'),
+                columns=['metadata1', 'metadata2']))
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             self.assertTrue('metadata1' in open(index_fp).read())
 
-            self.assertTrue('not numerical' in open(index_fp).read())
+            self.assertTrue('not numeric:' in open(index_fp).read())
             self.assertTrue('<strong>metadata2' in open(index_fp).read())
 
             self.assertFalse('Warning' in open(index_fp).read())
@@ -442,9 +445,10 @@ class BioenvTests(unittest.TestCase):
                                    [0.25, 0.00, 0.00]],
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.Metadata(
-            pd.DataFrame([['1.0', '2.0'], ['2.0', '2.0'], ['3.0', '2.0']],
-                         index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
-                         columns=['metadata1', 'metadata2']))
+            pd.DataFrame(
+                [[1.0, 2.0], [2.0, 2.0], [3.0, 2.0]],
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
+                columns=['metadata1', 'metadata2']))
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -497,7 +501,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md, method='anosim',
@@ -530,7 +535,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md, pairwise=True)
@@ -561,7 +567,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md, method='anosim',
@@ -594,7 +601,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md, permutations=42)
@@ -608,7 +616,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
 
         with self.assertRaises(ValueError):
             with tempfile.TemporaryDirectory() as output_dir:
@@ -623,7 +632,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                        'sample4'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['1.0', '2.0', '2.0', np.nan], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3',
+                                      'sample4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -638,7 +648,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                        'sample4'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b', np.nan], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3',
+                                      'sample4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
@@ -651,7 +662,8 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                                   ids=['sample1', 'sample2', 'sample3'])
         md = qiime2.CategoricalMetadataColumn(
             pd.Series(['a', 'b', 'b', 'c'], name='a or b',
-                      index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'], name='id')))
+                      index=pd.Index(['sample1', 'sample2', 'sample3',
+                                      'sample4'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             beta_group_significance(output_dir, dm, md, permutations=42)
@@ -894,3 +906,7 @@ class TestMantel(unittest.TestCase):
         self.assertBasicVizValidity(self.output_dir, 3,
                                     mismatched_ids={'foo', 'x'},
                                     exp_test_stat=1, exp_p_value=1)
+
+
+if __name__ == '__main__':
+    unittest.main()

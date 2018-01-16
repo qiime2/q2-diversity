@@ -65,13 +65,15 @@ class AlphaRarefactionTests(unittest.TestCase):
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
             self.assertTrue('summer' not in open(metric_fp).read())
 
-    def test_alpha_rarefaction_with_empty_column_in_metadata(self):
+    def test_alpha_rarefaction_with_filtered_metadata_columns(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
+        # Empty column and numeric column should both be filtered.
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer'],
-                          'foo': [np.nan, np.nan, np.nan, 'bar']},
+                          'foo': [np.nan, np.nan, np.nan, 'bar'],
+                          'bar': [42, 4.2, 99.9, 100.0]},
                          index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
@@ -83,12 +85,16 @@ class AlphaRarefactionTests(unittest.TestCase):
 
             self.assertTrue('observed_otus' in contents)
             self.assertTrue('shannon' in contents)
-            self.assertTrue('did not contain any values:' in contents)
+            self.assertTrue('didn\'t contain categorical data' in contents)
+            self.assertTrue('consisted only of missing values:' in contents)
+            self.assertTrue('<strong>bar, foo' in contents)
 
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
             self.assertTrue('summer' not in open(metric_fp).read())
             self.assertFalse(
                 os.path.exists(os.path.join(output_dir, 'shannon-foo.jsonp')))
+            self.assertFalse(
+                os.path.exists(os.path.join(output_dir, 'shannon-bar.jsonp')))
 
     def test_alpha_rarefaction_with_phylogeny(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -160,7 +166,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'empty'):
                 alpha_rarefaction(output_dir, empty_table, max_depth=200)
 
-            with self.assertRaisesRegex(ValueError, 'not present'):
+            with self.assertRaisesRegex(ValueError, 'not present.*S3'):
                 alpha_rarefaction(output_dir, t, metadata=bad_metadata,
                                   max_depth=200)
 
@@ -168,19 +174,19 @@ class AlphaRarefactionTests(unittest.TestCase):
                 alpha_rarefaction(output_dir, t, max_depth=200,
                                   metadata=md, metrics=set())
 
-        def test_alpha_rarefaction_with_metric_set(self):
-            t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
-                           ['O1', 'O2'],
-                           ['S1', 'S2', 'S3'])
-            metrics = set(['observed_otus', 'shannon', 'pielou_e'])
-            with tempfile.TemporaryDirectory() as output_dir:
-                alpha_rarefaction(output_dir, t, metrics=metrics,
-                                  max_depth=200)
-                index_fp = os.path.join(output_dir, 'index.html')
-                self.assertTrue(os.path.exists(index_fp))
-                self.assertTrue('observed_otus' in open(index_fp).read())
-                self.assertTrue('shannon' in open(index_fp).read())
-                self.assertTrue('pielou_e' in open(index_fp).read())
+    def test_alpha_rarefaction_with_metric_set(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        metrics = set(['observed_otus', 'shannon', 'pielou_e'])
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, metrics=metrics,
+                              max_depth=200)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            self.assertTrue('observed_otus' in open(index_fp).read())
+            self.assertTrue('shannon' in open(index_fp).read())
+            self.assertTrue('pielou_e' in open(index_fp).read())
 
 
 class ComputeRarefactionDataTests(unittest.TestCase):
@@ -384,7 +390,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         pdt.assert_frame_equal(exp, obs[1])
 
-    def test_some_duplicates_in_category(self):
+    def test_some_duplicates_in_column(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
                                              (200, 2), ('pet', '')],
                                             names=['depth', 'iter'])
@@ -432,7 +438,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         pdt.assert_frame_equal(exp, obs[1])
 
-    def test_multiple_categories(self):
+    def test_multiple_columns(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
                                              (200, 2), ('pet', ''),
                                              ('toy', '')],
@@ -472,7 +478,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, obs[1])
 
 
-class BetaRarefactionJSONPTests(unittest.TestCase):
+class AlphaRarefactionJSONPTests(unittest.TestCase):
     def test_simple(self):
         d = [[1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S1'],
              [1.04, 1.5, 2., 2.5, 1.18, 2.82, 2.96, 3., 1, 3., 1., 'S2'],

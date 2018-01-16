@@ -25,7 +25,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_without_where_no_filtering(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -41,7 +41,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
         df = pd.DataFrame(
             {'Subject': ['subject-1', 'subject-1', 'subject-2', 'subject-2'],
              'SampleType': ['gut', 'tongue', 'gut', 'tongue']},
-            index=['S1', 'S4', 'S2', 'S5'])
+            index=pd.Index(['S1', 'S4', 'S2', 'S5'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -55,7 +55,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_without_where_all_filtered(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -67,7 +67,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_without_where_some_filtered(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
                            'SampleType': ['gut', 'tongue']},
-                          index=['S1', 'S2'])
+                          index=pd.Index(['S1', 'S2'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -81,7 +81,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_where_no_filtering(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -96,7 +96,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
         df = pd.DataFrame(
             {'Subject': ['subject-1', 'subject-1', 'subject-2', 'subject-2'],
              'SampleType': ['gut', 'tongue', 'gut', 'tongue']},
-            index=['S1', 'S4', 'S2', 'S5'])
+            index=pd.Index(['S1', 'S4', 'S2', 'S5'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -111,7 +111,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_where_all_filtered(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -123,7 +123,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_where_some_filtered(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -138,7 +138,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_filter_nothing(self):
         df = pd.DataFrame({'Subject': ['subject-1'],
                            'SampleType': ['tongue']},
-                          index=['S2000'])
+                          index=pd.Index(['S2000'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -152,7 +152,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_filter_one(self):
         df = pd.DataFrame({'Subject': ['subject-1'],
                            'SampleType': ['tongue']},
-                          index=['S2'])
+                          index=pd.Index(['S2'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -167,7 +167,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_filter_two(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
                            'SampleType': ['gut', 'tongue']},
-                          index=['S1', 'S2'])
+                          index=pd.Index(['S1', 'S2'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -182,7 +182,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_filter_all(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -194,7 +194,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_where_filter_nothing(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -208,7 +208,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_where_filter_one(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -224,7 +224,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_where_filter_two(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['elbow', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
@@ -241,7 +241,7 @@ class TestFilterDistanceMatrix(unittest.TestCase):
     def test_with_exclude_ids_where_filter_all(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
                            'SampleType': ['gut', 'tongue', 'gut']},
-                          index=['S1', 'S2', 'S3'])
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
         metadata = qiime2.Metadata(df)
 
         dm = skbio.DistanceMatrix([[0, 1, 2], [1, 0, 3], [2, 3, 0]],
