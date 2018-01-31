@@ -32,8 +32,10 @@ class AlphaRarefactionTests(unittest.TestCase):
             alpha_rarefaction(output_dir, t, max_depth=200)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
 
     def test_alpha_rarefaction_with_metadata(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -46,8 +48,10 @@ class AlphaRarefactionTests(unittest.TestCase):
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
 
     def test_alpha_rarefaction_with_superset_metadata(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -60,10 +64,13 @@ class AlphaRarefactionTests(unittest.TestCase):
             alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
-            self.assertTrue('summer' not in open(metric_fp).read())
+            with open(metric_fp) as metric_fh:
+                self.assertTrue('summer' not in metric_fh.read())
 
     def test_alpha_rarefaction_with_filtered_metadata_columns(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -82,7 +89,6 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp, 'r') as fh:
                 contents = fh.read()
-
             self.assertTrue('observed_otus' in contents)
             self.assertTrue('shannon' in contents)
             self.assertTrue('didn\'t contain categorical data' in contents)
@@ -90,7 +96,8 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue('<strong>bar, foo' in contents)
 
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
-            self.assertTrue('summer' not in open(metric_fp).read())
+            with open(metric_fp) as metric_fh:
+                self.assertTrue('summer' not in metric_fh.read())
             self.assertFalse(
                 os.path.exists(os.path.join(output_dir, 'shannon-foo.jsonp')))
             self.assertFalse(
@@ -107,9 +114,11 @@ class AlphaRarefactionTests(unittest.TestCase):
             alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
-            self.assertTrue('faith_pd' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
+            self.assertTrue('faith_pd' in index_content)
 
     def test_alpha_rarefaction_with_phylogeny_and_metadata(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -126,9 +135,11 @@ class AlphaRarefactionTests(unittest.TestCase):
                               metadata=md)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
-            self.assertTrue('faith_pd' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
+            self.assertTrue('faith_pd' in index_content)
 
     def test_invalid_invocations(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -184,9 +195,11 @@ class AlphaRarefactionTests(unittest.TestCase):
                               max_depth=200)
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('observed_otus' in open(index_fp).read())
-            self.assertTrue('shannon' in open(index_fp).read())
-            self.assertTrue('pielou_e' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
+            self.assertTrue('pielou_e' in index_content)
 
 
 class ComputeRarefactionDataTests(unittest.TestCase):
@@ -494,7 +507,8 @@ class AlphaRarefactionJSONPTests(unittest.TestCase):
 
             jsonp_fp = os.path.join(output_dir, 'peanut.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
-            jsonp_content = open(jsonp_fp).read()
+            with open(jsonp_fp) as jsonp_fh:
+                jsonp_content = jsonp_fh.read()
             self.assertTrue('load_data' in jsonp_content)
             self.assertTrue('columns' in jsonp_content)
             self.assertTrue('index' in jsonp_content)

@@ -122,10 +122,12 @@ class AlphaCorrelationTests(unittest.TestCase):
             jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
-            self.assertTrue('Spearman' in open(jsonp_fp).read())
-            self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
-            self.assertTrue('"data":' in open(jsonp_fp).read())
-            self.assertFalse('filtered' in open(jsonp_fp).read())
+            with open(jsonp_fp) as jsonp_fh:
+                jsonp_content = jsonp_fh.read()
+            self.assertTrue('Spearman' in jsonp_content)
+            self.assertTrue('"sampleSize": 3' in jsonp_content)
+            self.assertTrue('"data":' in jsonp_content)
+            self.assertFalse('filtered' in jsonp_content)
 
     def test_pearson(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -141,10 +143,12 @@ class AlphaCorrelationTests(unittest.TestCase):
             jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
-            self.assertTrue('Pearson' in open(jsonp_fp).read())
-            self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
-            self.assertTrue('"data":' in open(jsonp_fp).read())
-            self.assertFalse('filtered' in open(jsonp_fp).read())
+            with open(jsonp_fp) as jsonp_fh:
+                jsonp_content = jsonp_fh.read()
+            self.assertTrue('Pearson' in jsonp_content)
+            self.assertTrue('"sampleSize": 3' in jsonp_content)
+            self.assertTrue('"data":' in jsonp_content)
+            self.assertFalse('filtered' in jsonp_content)
 
     def test_bad_method(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -175,9 +179,10 @@ class AlphaCorrelationTests(unittest.TestCase):
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
                                           'column-col2.jsonp')))
-            self.assertTrue(
-                "contain numeric data" in open(index_fp).read())
-            self.assertTrue('<strong>col2' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('contain numeric data' in index_content)
+            self.assertTrue('<strong>col2' in index_content)
 
     def test_nan_metadata(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -192,9 +197,10 @@ class AlphaCorrelationTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
-
-            self.assertTrue('"filtered": 2' in open(jsonp_fp).read())
-            self.assertTrue('"initial": 3' in open(jsonp_fp).read())
+            with open(jsonp_fp) as jsonp_fh:
+                jsonp_content = jsonp_fh.read()
+            self.assertTrue('"filtered": 2' in jsonp_content)
+            self.assertTrue('"initial": 3' in jsonp_content)
 
     def test_extra_metadata(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -211,7 +217,8 @@ class AlphaCorrelationTests(unittest.TestCase):
             jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
 
-            self.assertTrue('"sampleSize": 3' in open(jsonp_fp).read())
+            with open(jsonp_fp) as jsonp_fh:
+                self.assertTrue('"sampleSize": 3' in jsonp_fh.read())
 
     def test_extra_alpha_div(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0, 8.0], name='alpha-div',
@@ -258,10 +265,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
                                          'column-a%20or%20b.jsonp')))
-            self.assertTrue('Kruskal-Wallis (all groups)'
-                            in open(index_fp).read())
-            self.assertTrue('Kruskal-Wallis (pairwise)'
-                            in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('Kruskal-Wallis (all groups)' in index_content)
+            self.assertTrue('Kruskal-Wallis (pairwise)' in index_content)
 
     def test_alpha_group_significance_some_numeric(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -282,9 +289,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
                                           'column-bad.jsonp')))
-            self.assertTrue(
-                "contain categorical data:" in open(index_fp).read())
-            self.assertTrue('<strong>bad' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('contain categorical data:' in index_content)
+            self.assertTrue('<strong>bad' in index_content)
 
     def test_alpha_group_significance_one_group_all_unique_values(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -305,8 +313,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
                                           'column-bad.jsonp')))
-            self.assertTrue('number of samples' in open(index_fp).read())
-            self.assertTrue('<strong>bad' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('number of samples' in index_content)
+            self.assertTrue('<strong>bad' in index_content)
 
     def test_alpha_group_significance_one_group_single_value(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -327,8 +337,10 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertFalse(os.path.exists(
                              os.path.join(output_dir,
                                           'column-bad.jsonp')))
-            self.assertTrue('single group' in open(index_fp).read())
-            self.assertTrue('<strong>bad' in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('single group' in index_content)
+            self.assertTrue('<strong>bad' in index_content)
 
     def test_alpha_group_significance_KW_value_error(self):
         alpha_div = pd.Series([2.0, 2.0, 3.0, 2.0], name='alpha-div',
@@ -346,9 +358,11 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             self.assertTrue(os.path.exists(
                             os.path.join(output_dir,
                                          'column-x.jsonp')))
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
             self.assertTrue('pairwise group comparisons have been omitted'
-                            in open(index_fp).read())
-            self.assertTrue('x:c (n=1) vs x:a (n=1)' in open(index_fp).read())
+                            in index_content)
+            self.assertTrue('x:c (n=1) vs x:a (n=1)' in index_content)
 
     def test_alpha_group_significance_numeric_only(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
@@ -376,7 +390,8 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_group_significance(output_dir, alpha_div, md)
             index_fp = os.path.join(output_dir, 'index.html')
-            self.assertTrue("\'" in open(index_fp).read())
+            with open(index_fp) as index_fh:
+                self.assertTrue("\'" in index_fh.read())
 
 
 if __name__ == '__main__':
