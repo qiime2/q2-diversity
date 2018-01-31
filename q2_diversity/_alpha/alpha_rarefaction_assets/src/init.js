@@ -16,5 +16,7 @@ export default function init() {
   addMetricPicker(controlsRow, metrics, metric);
   if (columns.length > 0) {
     addColumnPicker(controlsRow, columns, column);
+  } else {
+    controlsRow.selectAll('.columnPicker').remove();
   }
 }

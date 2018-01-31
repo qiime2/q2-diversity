@@ -352,7 +352,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                 c_df = _compute_summary(reindexed_df, column, counts=counts)
                 jsonp_filename = "%s-%s.jsonp" % (metric_name, column_name)
                 _alpha_rarefaction_jsonp(output_dir, jsonp_filename,
-                                         metric_name, c_df, column_name)
+                                         metric_name, c_df, column)
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
@@ -365,7 +365,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     index = os.path.join(TEMPLATES, 'alpha_rarefaction_assets', 'index.html')
     q2templates.render(index, output_dir,
                        context={'metrics': list(metrics),
-                                'filenames': filenames,
+                                'filenames': [quote(f) for f in filenames],
                                 'columns': list(columns),
                                 'filtered_columns': sorted(filtered_columns)})
 
