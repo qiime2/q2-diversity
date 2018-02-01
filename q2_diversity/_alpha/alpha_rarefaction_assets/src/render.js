@@ -1,3 +1,4 @@
+/* global steps */
 import {
   scaleLinear,
   axisBottom,
@@ -20,12 +21,20 @@ function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
   const legendBox = select(legend.node().parentNode);
 
   const depthIndex = data.data.columns.indexOf('depth');
+  const lowerWhiskerIndex = data.data.columns.indexOf('9%');
+  const lowerBoxIndex = data.data.columns.indexOf('25%');
   const medianIndex = data.data.columns.indexOf('50%');
+  const upperBoxIndex = data.data.columns.indexOf('75%');
+  const upperWhiskerIndex = data.data.columns.indexOf('91%');
   const countIndex = data.data.columns.indexOf('count');
   let groupIndex = data.data.columns.indexOf('sample-id');
   if (groupIndex === -1) {
     groupIndex = data.data.columns.indexOf(column);
   }
+  const symbolWidth = 2;
+  const maxBoxWidth = 10;
+  let boxWidth = (x(data.maxX) - x(data.minX)) / steps;
+  boxWidth = boxWidth > maxBoxWidth ? maxBoxWidth : boxWidth;
   const points = [data.data.data][0];
   const setGroups = new Set(Array.from(points, d => d[groupIndex]));
   const color = scaleOrdinal(schemeCategory20)
@@ -39,7 +48,7 @@ function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
   let ly = 0;
   const all = 'Select%20All';
   appendSeries(all, [], 'black');
-  toggle(all, 'white', null);
+  toggle(all, null, null);
   appendLegendKey(legendTitle, all, 10, color);
   const sortedGroupEntries = arrGroups.sort((a, b) => {
     const aIsNaN = isNaN(a);
@@ -63,30 +72,23 @@ function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
                     .sort((a, b) => a[depthIndex] - b[depthIndex]);
     const curColor = color(entry);
     appendSeries(entry, subset, curColor);
-    toggle(entry, 'white', null);
+    toggle(entry, null, null);
     appendLegendKey(legend, entry, ly, color);
   }
-  // DOTS
+  // SUBPLOT DOTS
   function plotDots(selection, index, yScale) {
     selection.transition()
-      .attr('class', d => `circle ${d[groupIndex]}`)
+      .attr('class', d => `symbol ${d[groupIndex]}`)
       .attr('fill', d => color(d[groupIndex]))
       .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
       .attr('stroke', d => color(d[groupIndex]))
       .attr('cx', d => x(d[depthIndex]))
       .attr('cy', d => yScale(d[index]));
   }
-  const dotsUpdate = chart.selectAll('.circle').data(points);
-  dotsUpdate.exit().remove();
-  const dotsEnter = dotsUpdate.enter().append('circle')
-    .attr('r', 4);
-  dotsUpdate.call(plotDots, medianIndex, y);
-  dotsEnter.call(plotDots, medianIndex, y);
-
-  const subDotsUpdate = subChart.selectAll('.circle').data(points);
+  const subDotsUpdate = subChart.selectAll('.symbol').data(points);
   subDotsUpdate.exit().remove();
   const subDotsEnter = subDotsUpdate.enter().append('circle')
-    .attr('r', 4);
+    .attr('r', symbolWidth);
   subDotsUpdate.call(plotDots, countIndex, subY);
   subDotsEnter.call(plotDots, countIndex, subY);
 
@@ -111,6 +113,53 @@ function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
   linesUpdate.enter().append('path').call(plotLines, y, medianIndex);
   linesUpdate.call(plotLines, y, medianIndex);
 
+  // BOX PLOTS
+  const containersUpdate = chart.selectAll('.symbol').data(data.data.data);
+  containersUpdate.exit().remove();
+  const containersEnter = containersUpdate.enter().append('g');
+  const containers = containersUpdate.merge(containersEnter)
+    .attr('class', d => `symbol ${d[groupIndex]}`)
+    .attr('opacity', d => curData[d[groupIndex]].dotsOpacity)
+    .attr('transform', d => `translate(${x(d[depthIndex])}, 0)`);
+
+  const centerUpdate = containers.selectAll('line.center').data(d => [d]);
+  centerUpdate.exit().remove();
+  const centerEnter = centerUpdate.enter().append('line');
+  centerUpdate.merge(centerEnter)
+    .attr('class', 'center')
+    .attr('x1', 0)
+    .attr('y1', d => y(d[lowerWhiskerIndex]))
+    .attr('x2', 0)
+    .attr('y2', d => y(d[upperWhiskerIndex]))
+    .attr('stroke-width', 1)
+    .attr('stroke', d => color(d[groupIndex]));
+
+  const boxUpdate = containers.selectAll('rect.box').data(d => [d]);
+  boxUpdate.exit().remove();
+  const boxEnter = boxUpdate.enter().append('rect');
+  boxUpdate.merge(boxEnter)
+    .attr('class', 'box')
+    .attr('x', -(boxWidth / 2))
+    .attr('y', d => y(d[upperBoxIndex]))
+    .attr('width', boxWidth)
+    .attr('height', d => (y(d[lowerBoxIndex]) - y(d[upperBoxIndex])))
+    .attr('fill', 'white')
+    .attr('stroke-width', 1)
+    .attr('stroke', d => color(d[groupIndex]));
+
+  const medianUpdate = containers.selectAll('line.median').data(d => [d]);
+  medianUpdate.exit().remove();
+  const medianEnter = medianUpdate.enter().append('line');
+  medianUpdate.merge(medianEnter)
+    .attr('class', 'median')
+    .attr('x1', -(boxWidth / 2))
+    .attr('y1', d => y(d[medianIndex]))
+    .attr('x2', (boxWidth / 2))
+    .attr('y2', d => y(d[medianIndex]))
+    .attr('stroke-width', 1)
+    .attr('stroke', d => color(d[groupIndex]));
+
+  // SUBPLOT LINES
   const subLinesUpdate = subChart.selectAll('.line').data(datum);
   subLinesUpdate.exit().remove();
   subLinesUpdate.enter().append('path').call(plotLines, subY, countIndex);

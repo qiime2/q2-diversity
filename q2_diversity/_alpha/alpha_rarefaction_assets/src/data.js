@@ -9,15 +9,17 @@ export function setupData(data, metric) {
   let minSubY = Infinity;
   let maxSubY = 0;
   const depthIndex = data.columns.indexOf('depth');
-  const medianIndex = data.columns.indexOf('50%');
+  const lowerWhiskerIndex = data.columns.indexOf('9%');
+  const upperWhiskerIndex = data.columns.indexOf('91%');
   const countIndex = data.columns.indexOf('count');
   data.data.forEach((d) => {
     const x = d[depthIndex];
-    const y = d[medianIndex];
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
-    if (y < minY) minY = y;
-    if (y > maxY) maxY = y;
+    const yMin = d[lowerWhiskerIndex];
+    const yMax = d[upperWhiskerIndex];
+    if (yMin < minY) minY = yMin;
+    if (yMax > maxY) maxY = yMax;
     const count = d[countIndex];
     if (count > maxSubY) maxSubY = count;
     if (count < minSubY) minSubY = count;
@@ -51,7 +53,7 @@ export function toggle(name, dots, line) {
     curData[name].dotsOpacity = dots === 'white' ? 0 : 1;
     // update chart
     state.getSvg()
-      .selectAll(`[class="circle ${name}"]`)
+      .selectAll(`[class="symbol ${name}"]`)
       .attr('opacity', curData[name].dotsOpacity);
   }
   if (line !== null) {

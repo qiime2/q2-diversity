@@ -52,7 +52,57 @@
           </g>
         </svg>
       </div>
-      <div class='col-lg-2' style='height: 1000px;'>
+      <div class='col-lg-2' style='height: 1050px;'>
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#helpModal">
+          Help
+        </button>
+        <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>
+                    &times;
+                  </span>
+                </button>
+                <h4 class="modal-title" id="helpModalLabel">
+                  Alpha Diversity Help
+                </h4>
+              </div>
+              <div class="modal-body">
+                <p>
+                  In the legend below, click the box symbols to toggle the
+                  display of the line charts and click the circles to toggle
+                  the display of the box plots and scatter plots. If a color is
+                  visible in the symbol, the corresponding plot elements are
+                  displayed, otherwise they are hidden.
+                </p>
+
+                <p>
+                  The box plots in the upper figure represent the distribution
+                  of the selected alpha diversity metric at various depths.
+                  The lower and upper whiskers of the box plot are the 9th and
+                  91st percentiles of the distribution (respectively), while
+                  the lower and upper extents of the box are the 25th and 75th
+                  percentiles of the distribution (respectively). The
+                  horizontal bar through the middle of the box is the 50th
+                  percentile.
+                </p>
+
+                <p>
+                  The line chart in the upper figure is based on the 50th
+                  percentile values of the alpha diversity metric distribution
+                  at the specified sampling depths.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div style='height: 25px; width: 300px; overflow-x: auto; overflow-y: hidden'>
           <svg width='200' height='20' class='legendTitleSvg'>
             <g class='legendTitle'></g>
@@ -72,6 +122,7 @@
   var d = {};
   var columns = {{ columns | safe }};
   var metrics = {{ metrics | safe }};
+  var steps = {{ steps | safe }};
   function load_data(metric, column, data) {
     if (column) {
       if (!d[metric]) {

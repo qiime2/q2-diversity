@@ -367,6 +367,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                        context={'metrics': list(metrics),
                                 'filenames': [quote(f) for f in filenames],
                                 'columns': list(columns),
+                                'steps': steps,
                                 'filtered_columns': sorted(filtered_columns)})
 
     shutil.copytree(os.path.join(TEMPLATES, 'alpha_rarefaction_assets',
