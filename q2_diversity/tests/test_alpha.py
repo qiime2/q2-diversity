@@ -230,7 +230,7 @@ class AlphaCorrelationTests(unittest.TestCase):
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
             with self.assertRaisesRegex(ValueError,
-                                        'not present.*Metadata.*sample4'):
+                                        'not present.*metadata.*sample4'):
                 alpha_correlation(output_dir, alpha_div, md)
 
     def test_all_metadata_columns_filtered(self):
