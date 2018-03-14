@@ -78,6 +78,7 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
             groups.append(list(group[metric_name]))
 
         escaped_column = quote(column)
+        escaped_column = escaped_column.replace('/', '%2F')
         filename = 'column-%s.jsonp' % escaped_column
         filenames.append(filename)
 

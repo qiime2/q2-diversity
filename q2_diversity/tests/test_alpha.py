@@ -393,6 +393,25 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             with open(index_fp) as index_fh:
                 self.assertTrue("\'" in index_fh.read())
 
+    def test_alpha_group_significance_forward_slash_in_metadata_col(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        md = qiime2.Metadata(
+            pd.DataFrame(
+                {'a/b': ['a', 'b', 'b']},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_group_significance(output_dir, alpha_div, md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            with open(index_fp) as index_fh:
+                self.assertTrue("/" in index_fh.read())
+            jsonp_fp = os.path.join(output_dir, 'column-a%2Fb.jsonp')
+            self.assertTrue(os.path.exists(jsonp_fp))
+            csv_fp = os.path.join(output_dir,
+                                  'kruskal-wallis-pairwise-a%2Fb.csv')
+            self.assertTrue(os.path.exists(csv_fp))
+
 
 if __name__ == '__main__':
     unittest.main()
