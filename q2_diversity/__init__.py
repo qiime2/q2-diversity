@@ -11,6 +11,7 @@ from ._alpha import (alpha, alpha_phylogenetic, alpha_group_significance,
 from ._beta import (beta, beta_phylogenetic, beta_phylogenetic_alt, bioenv,
                     beta_group_significance, mantel, beta_rarefaction)
 from ._ordination import pcoa
+from ._procrustes import procrustes_analysis
 from ._core_metrics import core_metrics_phylogenetic, core_metrics
 from ._filter import filter_distance_matrix
 from ._version import get_versions
@@ -25,4 +26,4 @@ __all__ = ['beta', 'beta_phylogenetic', 'beta_phylogenetic_alt', 'alpha',
            'beta_group_significance', 'alpha_correlation',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
-           'beta_rarefaction']
+           'beta_rarefaction', 'procrustes_analysis']

@@ -218,6 +218,29 @@ plugin.methods.register_function(
     description=("Apply principal coordinate analysis.")
 )
 
+plugin.methods.register_function(
+    function=q2_diversity.procrustes_analysis,
+    inputs={'reference': PCoAResults, 'other': PCoAResults},
+    parameters={'dimensions': Int % Range(1, None)},
+    outputs=[
+        ('transformed_reference', PCoAResults),
+        ('transformed_other', PCoAResults)
+    ],
+    input_descriptions={
+        'reference': ('The ordination matrix to which data is fitted to'),
+        'other': ("The ordination matrix that's fitted to the reference "
+                  "ordination.")
+    },
+    parameter_descriptions={},
+    output_descriptions={
+        'transformed_reference': 'A normalized version of the original '
+                                 '"reference" ordination matrix',
+        'transformed_other': 'A normalized and fitted version of the original'
+                             ' "other" ordination matrix'},
+    name='Procrustes Analysis',
+    description=("Fit two ordination matrices with Procrustes analysis")
+)
+
 plugin.pipelines.register_function(
     function=q2_diversity.core_metrics_phylogenetic,
     inputs={
