@@ -92,23 +92,23 @@ class PCoATests(unittest.TestCase):
         self.other.proportion_explained = self.other.proportion_explained[:4]
 
         with self.assertRaisesRegex(ValueError, 'The matrices cannot be '):
-            _ = procrustes_analysis(self.reference, self.other)
+            procrustes_analysis(self.reference, self.other)
 
     def test_procrustes_over_dimensions(self):
         with self.assertRaisesRegex(ValueError, 'Cannot fit fewer dimensions '
                                     'than available'):
-            _ = procrustes_analysis(self.reference, self.other, 11)
+            procrustes_analysis(self.reference, self.other, 11)
 
     def test_procrustes_id_mismatch(self):
         msg = 'The ordinations represent two different sets of samples'
         self.other.samples.index = pd.Index([':L', ':D', ':)', ':('])
         with self.assertRaisesRegex(ValueError, msg):
-            _ = procrustes_analysis(self.reference, self.other)
+            procrustes_analysis(self.reference, self.other)
 
         self.other.samples.index = pd.Index([':L', 'B', 'C', 'D'])
         with self.assertRaisesRegex(ValueError, msg):
-            _ = procrustes_analysis(self.reference, self.other)
+            procrustes_analysis(self.reference, self.other)
 
         self.other.samples.index = pd.Index(['a', 'b', 'c', 'd'])
         with self.assertRaisesRegex(ValueError, msg):
-            _ = procrustes_analysis(self.reference, self.other)
+            procrustes_analysis(self.reference, self.other)

@@ -13,7 +13,8 @@ from scipy.spatial import procrustes
 
 
 def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
-                        dimensions: int=5) -> (OrdinationResults, OrdinationResults):
+                        dimensions: int=5) -> (OrdinationResults,
+                                               OrdinationResults):
 
     if reference.samples.shape != other.samples.shape:
         raise ValueError('The matrices cannot be fitted unless they have the '
