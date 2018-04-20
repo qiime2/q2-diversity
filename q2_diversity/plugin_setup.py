@@ -302,15 +302,7 @@ plugin.pipelines.register_function(
     },
     name='Core diversity metrics (phylogenetic and non-phylogenetic)',
     description="Applies a collection of diversity metrics (both "
-                "phylogenetic and non-phylogenetic) to a feature table.",
-    citations=[
-        citations['lozupone2005unifrac'],
-        citations['lozupone2007quantitative'],
-        citations['faith1992conservation'],
-        citations['vazquez2013emperor'],
-        citations['jaccard1908nouvelles'],
-        citations['pielou1966measurement'],
-        citations['sorensen1948method']]
+                "phylogenetic and non-phylogenetic) to a feature table."
 )
 
 plugin.pipelines.register_function(
@@ -365,13 +357,7 @@ plugin.pipelines.register_function(
     },
     name='Core diversity metrics (non-phylogenetic)',
     description=("Applies a collection of diversity metrics "
-                 "(non-phylogenetic) to a feature table."),
-    citations=[
-        citations['faith1992conservation'],
-        citations['vazquez2013emperor'],
-        citations['jaccard1908nouvelles'],
-        citations['pielou1966measurement'],
-        citations['sorensen1948method']]
+                 "(non-phylogenetic) to a feature table.")
 )
 
 plugin.methods.register_function(
