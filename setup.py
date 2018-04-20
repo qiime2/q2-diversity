@@ -23,6 +23,7 @@ setup(
                       'alpha_rarefaction_assets/index.html',
                       'alpha_rarefaction_assets/dist/*',
                   ],
+                  'q2_diversity': ['citations.bib'],
                   'q2_diversity._beta': [
                       'beta_group_significance_assets/index.html',
                       'mantel_assets/index.html',

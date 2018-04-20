@@ -8,7 +8,7 @@
 
 from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
                            Float, Set, Visualization, Metadata, MetadataColumn,
-                           Categorical)
+                           Categorical, Citations)
 
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -19,6 +19,8 @@ from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults
 
+
+citations = Citations.load('citations.bib', package='q2_diversity')
 
 sklearn_n_jobs_description = (
     'The number of jobs to use for the computation. This works by breaking '
@@ -40,18 +42,6 @@ plugin = Plugin(
                  'statistics and visualizations in the context of sample '
                  'metadata.'),
     short_description='Plugin for exploring community diversity.',
-    citation_text=('Unweighted UniFrac: '
-                   'Lozupone and Knight 2005 Appl Environ Microbiol; DOI: '
-                   '10.1128/AEM.71.12.8228-8235.2005.\n'
-                   'Weighted UniFrac: '
-                   'Lozupone et al. 2007 Appl Environ Microbiol; DOI: '
-                   '10.1128/AEM.01996-06.\n'
-                   'Variance adjusted UniFrac: '
-                   'Chang et al. BMC Bioinformatics 2011 '
-                   'https://doi.org/10.1186/1471-2105-12-118.\n'
-                   'Generalized UniFrac: '
-                   'Chen et al. 2012 Bioinformatics; DOI: '
-                   '10.1093/bioinformatics/bts342')
 )
 
 plugin.methods.register_function(
@@ -78,7 +68,10 @@ plugin.methods.register_function(
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
-                 " for all pairs of samples in a feature table.")
+                 " for all pairs of samples in a feature table."),
+    citations=[
+        citations['lozupone2005unifrac'],
+        citations['lozupone2007quantitative']]
 )
 
 
@@ -132,7 +125,12 @@ plugin.methods.register_function(
                  "2012), Variance Adjusted UniFrac (Chang et al. 2011), "
                  "as well as Weighted normalized and unnormalized UniFrac "
                  "(Lozupone et al. 2007) and unweighted UniFrac "
-                 "(Lozupone et al. 2005)")
+                 "(Lozupone et al. 2005)"),
+    citations=[
+        citations['lozupone2005unifrac'],
+        citations['lozupone2007quantitative'],
+        citations['chang2011variance'],
+        citations['chen2012associating']]
 )
 
 
@@ -180,7 +178,9 @@ plugin.methods.register_function(
     },
     name='Alpha diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic alpha diversity "
-                 "metric for all samples in a feature table.")
+                 "metric for all samples in a feature table."),
+    citations=[
+        citations['faith1992conservation']]
 )
 
 plugin.methods.register_function(
@@ -303,6 +303,14 @@ plugin.pipelines.register_function(
     name='Core diversity metrics (phylogenetic and non-phylogenetic)',
     description="Applies a collection of diversity metrics (both "
                 "phylogenetic and non-phylogenetic) to a feature table.",
+    citations=[
+        citations['lozupone2005unifrac'],
+        citations['lozupone2007quantitative'],
+        citations['faith1992conservation'],
+        citations['vazquez2013emperor'],
+        citations['jaccard1908nouvelles'],
+        citations['pielou1966measurement'],
+        citations['sorensen1948method']]
 )
 
 plugin.pipelines.register_function(
@@ -358,6 +366,12 @@ plugin.pipelines.register_function(
     name='Core diversity metrics (non-phylogenetic)',
     description=("Applies a collection of diversity metrics "
                  "(non-phylogenetic) to a feature table."),
+    citations=[
+        citations['faith1992conservation'],
+        citations['vazquez2013emperor'],
+        citations['jaccard1908nouvelles'],
+        citations['pielou1966measurement'],
+        citations['sorensen1948method']]
 )
 
 plugin.methods.register_function(
@@ -413,7 +427,8 @@ plugin.visualizers.register_function(
     },
     name='Alpha diversity comparisons',
     description=("Visually and statistically compare groups of alpha diversity"
-                 " values.")
+                 " values."),
+    citations=[citations['kruskal1952use']]
 )
 
 plugin.visualizers.register_function(
@@ -433,7 +448,8 @@ plugin.visualizers.register_function(
                  "considered, and samples which are missing data will be "
                  "dropped. The output visualization will indicate how many "
                  "samples were dropped due to missing data, if any were "
-                 "dropped.")
+                 "dropped."),
+    citations=[citations['clarke1993method']]
 )
 
 beta_group_significance_methods = \
@@ -462,7 +478,8 @@ plugin.visualizers.register_function(
     name='Beta diversity group significance',
     description=('Determine whether groups of samples are significantly '
                  'different from one another using a permutation-based '
-                 'statistical test.')
+                 'statistical test.'),
+    citations=[citations['anderson2001new']]
 )
 
 plugin.visualizers.register_function(
@@ -504,6 +521,10 @@ plugin.visualizers.register_function(
         'label1': 'Label for `dm1` in the output visualization.',
         'label2': 'Label for `dm2` in the output visualization.'
     },
+    citations=[
+        citations['mantel1967detection'],
+        citations['pearson1895note'],
+        citations['spearman1904proof']]
 )
 
 
@@ -524,7 +545,8 @@ plugin.visualizers.register_function(
     },
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata columns are '
-                 'correlated with alpha diversity.')
+                 'correlated with alpha diversity.'),
+    citations=[citations['pearson1895note'], citations['spearman1904proof']]
 )
 
 _metric_set = Set[Str % Choices(alpha.alpha_rarefaction_supported_metrics)]
@@ -622,5 +644,9 @@ plugin.visualizers.register_function(
                 'provide: an Emperor jackknifed PCoA plot, samples clustered '
                 'by UPGMA or neighbor joining with support calculation, and '
                 'a heatmap showing the correlation between rarefaction trials '
-                'of that beta diversity metric.'
+                'of that beta diversity metric.',
+    citations=[
+        citations['mantel1967detection'],
+        citations['pearson1895note'],
+        citations['spearman1904proof']]
 )
