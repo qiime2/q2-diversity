@@ -227,18 +227,18 @@ plugin.methods.register_function(
         ('transformed_other', PCoAResults)
     ],
     input_descriptions={
-        'reference': ('The ordination matrix to which data is fitted to'),
+        'reference': ('The ordination matrix to which data is fitted to.'),
         'other': ("The ordination matrix that's fitted to the reference "
                   "ordination.")
     },
     parameter_descriptions={},
     output_descriptions={
-        'transformed_reference': 'A normalized version of the original '
-                                 '"reference" ordination matrix',
-        'transformed_other': 'A normalized and fitted version of the original'
-                             ' "other" ordination matrix'},
+        'transformed_reference': 'A normalized version of the "reference" '
+                                 'ordination matrix.',
+        'transformed_other': 'A normalized and fitted version of the "other" '
+                             'ordination matrix.'},
     name='Procrustes Analysis',
-    description=("Fit two ordination matrices with Procrustes analysis")
+    description='Fit two ordination matrices with Procrustes analysis'
 )
 
 plugin.pipelines.register_function(
