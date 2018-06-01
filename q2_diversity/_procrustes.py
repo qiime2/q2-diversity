@@ -18,7 +18,7 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
 
     if reference.samples.shape != other.samples.shape:
         raise ValueError('The matrices cannot be fitted unless they have the '
-                         'dimensions and samples')
+                         'same dimensions')
 
     if reference.samples.shape[1] < dimensions:
         raise ValueError('Cannot fit fewer dimensions than available')
