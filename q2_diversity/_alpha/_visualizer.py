@@ -60,6 +60,11 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
 
     metric_name = alpha_diversity.name
 
+    # save out metadata for download in viz
+    md = pd.concat([alpha_diversity, metadata.to_dataframe()],
+                   axis=1, join='inner')
+    md.to_csv(os.path.join(output_dir, 'metadata.tsv'), sep='\t')
+
     filenames = []
     filtered_group_comparisons = []
     for column in metadata.columns:
