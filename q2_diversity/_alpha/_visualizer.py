@@ -169,7 +169,7 @@ def alpha_correlation(output_dir: str,
 
     # save out metadata for download in viz
     md = pd.concat([alpha_diversity, metadata.to_dataframe()],
-                    axis=1, join='inner')
+                   axis=1, join='inner')
     md.to_csv(os.path.join(output_dir, 'metadata.tsv'), sep='\t')
 
     filenames = []
