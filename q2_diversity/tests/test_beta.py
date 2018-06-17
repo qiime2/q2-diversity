@@ -699,8 +699,16 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         obs = _get_distance_boxplot_data(dm, 'g1', groupings)
         exp_data = [[0.12], [0.13, 0.14, 0.15, 0.22, 0.23, 0.24]]
         exp_labels = ['g1 (n=1)', 'g2 (n=6)']
+        exp_summary = [('s2', 's1', 'g1', 'g1', 0.12),
+                       ('s1', 's3', 'g1', 'g2', 0.13),
+                       ('s1', 's4', 'g1', 'g2', 0.14000000000000001),
+                       ('s1', 's5', 'g1', 'g2', 0.14999999999999999),
+                       ('s2', 's3', 'g1', 'g2', 0.22),
+                       ('s2', 's4', 'g1', 'g2', 0.23000000000000001),
+                       ('s2', 's5', 'g1', 'g2', 0.23999999999999999)]
         self.assertEqual(obs[0], exp_data)
         self.assertEqual(obs[1], exp_labels)
+        self.assertEqual(obs[2], exp_summary)
 
     def test_get_distance_boxplot_data_three_groups(self):
         dm = skbio.DistanceMatrix([[0.00, 0.12, 0.13, 0.14, 0.15],

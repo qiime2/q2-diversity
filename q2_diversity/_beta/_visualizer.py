@@ -78,10 +78,13 @@ def _get_distance_boxplot_data(distance_matrix, group_id, groupings):
 
     # extract the within group distances
     within_group_distances = []
+    pairs_summary = []
     group = groupings[group_id]
     for i, sid1 in enumerate(group):
         for sid2 in group[:i]:
-            within_group_distances.append(distance_matrix[sid1, sid2])
+            dist = distance_matrix[sid1, sid2]
+            within_group_distances.append(dist)
+            pairs_summary.append((sid1, sid2, group_id, group_id, dist))
     x_ticklabels.append('%s (n=%d)' %
                         (group_id, len(within_group_distances)))
     all_group_distances.append(within_group_distances)
@@ -93,11 +96,14 @@ def _get_distance_boxplot_data(distance_matrix, group_id, groupings):
             continue
         for sid1 in group:
             for sid2 in other_group:
-                between_group_distances.append(distance_matrix[sid1, sid2])
+                dist = distance_matrix[sid1, sid2]
+                between_group_distances.append(dist)
+                pairs_summary.append(
+                    (sid1, sid2, group_id, other_group_id, dist))
         x_ticklabels.append('%s (n=%d)' %
                             (other_group_id, len(between_group_distances)))
         all_group_distances.append(between_group_distances)
-    return all_group_distances, x_ticklabels
+    return all_group_distances, x_ticklabels, pairs_summary
 
 
 def _get_pairwise_group_significance_stats(
@@ -155,9 +161,17 @@ def beta_group_significance(output_dir: str,
         [(id, list(series.index))
          for id, series in natsorted(metadata.groupby(metadata))])
 
+    pairs_summary = pd.DataFrame(columns=['SubjectID1', 'SubjectID2', 'Group1',
+                                          'Group2', 'Distance'])
     for group_id in groupings:
-        group_distances, x_ticklabels = \
+        group_distances, x_ticklabels, group_pairs_summary = \
             _get_distance_boxplot_data(distance_matrix, group_id, groupings)
+
+        group_pairs_summary = pd.DataFrame(
+            group_pairs_summary, columns=['SubjectID1', 'SubjectID2',
+                                          'Group1', 'Group2', 'Distance'])
+
+        pairs_summary = pd.concat([pairs_summary, group_pairs_summary])
 
         ax = sns.boxplot(data=group_distances, flierprops={
             'marker': 'o', 'markeredgecolor': 'black', 'markeredgewidth': 0.5,
@@ -177,6 +191,8 @@ def beta_group_significance(output_dir: str,
         fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' %
                                  urllib.parse.quote_plus(str(group_id))))
         fig.clear()
+
+    pairs_summary.to_csv(os.path.join(output_dir, 'raw_data.tsv'), sep='\t')
 
     result_html = q2templates.df_to_html(result.to_frame())
 
