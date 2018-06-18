@@ -61,9 +61,10 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     metric_name = alpha_diversity.name
 
     # save out metadata for download in viz
-    md = pd.concat([alpha_diversity, metadata.to_dataframe()],
-                   axis=1, join='inner')
-    md.to_csv(os.path.join(output_dir, 'metadata.tsv'), sep='\t')
+    alpha_diversity.index.name = 'id'
+    alpha = qiime2.Metadata(alpha_diversity.to_frame())
+    md = metadata.merge(alpha)
+    md.save(os.path.join(output_dir, 'metadata.tsv'))
 
     filenames = []
     filtered_group_comparisons = []
