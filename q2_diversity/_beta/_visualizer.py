@@ -229,13 +229,23 @@ def beta_group_significance(output_dir: str,
     else:
         pairwise_results_html = None
 
+    # repartition groupings for rendering
+    group_ids = list(groupings.keys())
+    row_count, group_count = 3, len(group_ids) # Start at three plots per row
+    while group_count % row_count != 0:
+        row_count = row_count - 1
+
+    group_rows = [group_ids[g:g+row_count] for g in range(0, group_count,
+                                                          row_count)]
+
     index = os.path.join(
         TEMPLATES, 'beta_group_significance_assets', 'index.html')
     q2templates.render(index, output_dir, context={
         'initial_dm_length': initial_dm_length,
         'filtered_dm_length': filtered_dm_length,
         'method': method,
-        'groupings': groupings,
+        'group_rows': group_rows,
+        'bootstrap_group_col_size': int(12 / row_count),
         'result': result_html,
         'pairwise_results': pairwise_results_html
     })

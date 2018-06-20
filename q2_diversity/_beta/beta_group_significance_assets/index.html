@@ -10,32 +10,43 @@
     </p>
   {% endif %}
 
-  <div class="col-lg-12">
-    <a href="raw_data.tsv" target="_blank" rel="noopener noreferrer">
-      <p>Download raw data as tsv</p>
-    </a>
+  <div class="row">
+    <div class="col-lg-12">
+      <h2>Overview</h2>
+      {{ result }}
+    </div>
   </div>
 
   <div class="row">
     <div class="col-lg-12">
-      {{ result }}
-      <hr>
-      {% for group_id in groupings %}
-      <div class="text-center">
-        <a href="{{ group_id | replace(' ', '+') }}-boxplots.pdf">
-          <img src="{{ group_id | replace(' ', '+') }}-boxplots.png">
-          <br>
-          <p>Download as PDF</p>
-        </a>
-      </div>
+      <h2>Group significance plots</h2>
+      <a href="raw_data.tsv" target="_blank" rel="noopener noreferrer">
+        <p>Download raw data as tsv</p>
+      </a>
+      {% for group_row in group_rows %}
+        <div class="row">
+          {% for group_id in group_row %}
+            <div class="col-lg-{{ bootstrap_group_col_size }} text-center">
+              <a href="{{ group_id | replace(' ', '+') }}-boxplots.pdf">
+                <img src="{{ group_id | replace(' ', '+') }}-boxplots.png">
+                <br>
+                <p>Download as PDF</p>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
       {% endfor %}
-      {% if pairwise_results %}
-        <hr>
+    </div>
+  </div>
+
+  {% if pairwise_results %}
+    <div class="row">
+      <div class="col-lg-12">
         <h2>Pairwise {{ method }} results</h2>
         <a href="{{ method }}-pairwise.csv">Download CSV</a>
         {{ pairwise_results }}
-      {% endif %}
+      </div>
     </div>
-  </div>
+  {% endif %}
 
 {% endblock %}
