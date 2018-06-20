@@ -231,7 +231,7 @@ def beta_group_significance(output_dir: str,
 
     # repartition groupings for rendering
     group_ids = list(groupings.keys())
-    row_count, group_count = 3, len(group_ids) # Start at three plots per row
+    row_count, group_count = 3, len(group_ids)  # Start at three plots per row
     while group_count % row_count != 0:
         row_count = row_count - 1
 
