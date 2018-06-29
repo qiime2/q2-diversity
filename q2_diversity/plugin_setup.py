@@ -138,7 +138,7 @@ plugin.methods.register_function(
     function=q2_diversity.beta,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
-                'pseudocount': Float,
+                'pseudocount': Int,
                 'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
