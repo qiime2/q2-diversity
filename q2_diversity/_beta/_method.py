@@ -24,10 +24,6 @@ from skbio.stats.composition import clr
 from scipy.spatial.distance import euclidean
 
 
-def aitchison(x, y):
-    return euclidean(clr(x), clr(y))
-
-
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
 def phylogenetic_metrics():
@@ -123,8 +119,8 @@ def beta(table: biom.Table, metric: str,
         raise ValueError("Unknown metric: %s" % metric)
 
     if metric == 'aitchison':
-        counts = table.matrix_data.toarray().astype(int).T + pseudocount
-        metric = partial(metrics[metric])
+        counts = clr(table.matrix_data.toarray().astype(int).T + pseudocount)
+        metric = 'euclidean'
     else:
         counts = table.matrix_data.toarray().astype(int).T
 
