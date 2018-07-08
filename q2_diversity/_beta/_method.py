@@ -123,13 +123,10 @@ def beta(table: biom.Table, metric: str,
     if not (metric in non_phylogenetic_metrics()):
         raise ValueError("Unknown metric: %s" % metric)
 
+    counts = table.matrix_data.toarray().T
     if metric == 'aitchison':
-        counts = table.matrix_data.toarray().astype(int).T + pseudocount
+        counts += pseudocount
         metric = aitchison
-    else:
-        counts = table.matrix_data.toarray().astype(int).T
-
-    validate = True
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")
@@ -140,7 +137,7 @@ def beta(table: biom.Table, metric: str,
         metric=metric,
         counts=counts,
         ids=sample_ids,
-        validate=validate,
+        validate=True,
         pairwise_func=sklearn.metrics.pairwise_distances,
         n_jobs=n_jobs
     )

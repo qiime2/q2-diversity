@@ -460,6 +460,22 @@ class BioenvTests(unittest.TestCase):
             self.assertFalse('Warning' in open(index_fp).read())
 
 
+    def test_aitchison(self):
+        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                  ['O1', 'O2'],
+                  ['S1', 'S2', 'S3'])
+        actual = beta(table=t, metric='aitchison')
+        expected = skbio.DistanceMatrix([[0.0000000, 0.4901290, 0.6935510],
+                                         [0.4901290, 0.0000000, 0.2034219],
+                                         [0.6935510, 0.2034219, 0.0000000]],
+                                        ids=['S1', 'S2', 'S3'])
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+
 class BetaGroupSignificanceTests(unittest.TestCase):
 
     def test_permanova(self):
