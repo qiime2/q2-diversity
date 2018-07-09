@@ -459,7 +459,6 @@ class BioenvTests(unittest.TestCase):
 
             self.assertFalse('Warning' in open(index_fp).read())
 
-
     def test_aitchison(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
