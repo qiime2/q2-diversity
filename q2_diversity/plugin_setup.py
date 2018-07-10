@@ -138,7 +138,7 @@ plugin.methods.register_function(
     function=q2_diversity.beta,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
-                'pseudocount': Int,
+                'pseudocount': Int % Range(1, None),
                 'n_jobs': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
@@ -147,8 +147,8 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
-        'pseudocount': ('A pseudocount to handle zeros '
-                        'for compositional metrics'),
+        'pseudocount': ('A pseudocount to handle zeros for compositional '
+                        'metrics.  This is ignored for other metrics.'),
         'n_jobs': sklearn_n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
