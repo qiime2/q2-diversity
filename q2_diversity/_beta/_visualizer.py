@@ -251,6 +251,7 @@ def beta_group_significance(output_dir: str,
     })
 
 
+# crk
 def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
            dm2: skbio.DistanceMatrix, method: str='spearman',
            permutations: int=999, intersect_ids: bool=False,
