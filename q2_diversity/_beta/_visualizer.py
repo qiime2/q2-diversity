@@ -149,7 +149,7 @@ def beta_group_significance(output_dir: str,
                                         permutations=permutations)
 
     # Generate distance boxplots
-    sns.set_style("white")
+    sns.set_style('white')
     # Identify the groups, then compute the within group distances and the
     # between group distances, and generate one boxplot per group.
     # groups will be an OrderedDict mapping group id to the sample ids in that
@@ -277,10 +277,11 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
 
     if not intersect_ids and mismatched_ids:
         raise ValueError(
-            "The following ID(s) are not contained in both distance "
-            "matrices. Use `intersect_ids` to discard these mismatches "
-            "and apply the Mantel test to only those IDs that are found "
-            "in both distance matrices.\n\n%s"
+            'The following ID(s) are not contained in both distance matrices. '
+            'This sometimes occurs when mismatched files are passed. If this '
+            'is not the case, you can use `intersect_ids` to discard these '
+            'mismatches and apply the Mantel test to only those IDs that are '
+            'found in both distance matrices.\n\n%s'
             % ', '.join(sorted(mismatched_ids)))
 
     if mismatched_ids:
