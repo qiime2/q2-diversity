@@ -382,11 +382,6 @@ plugin.pipelines.register_function(
                  "(non-phylogenetic) to a feature table.")
 )
 
-#   ###     ####    #   #
-#  ##  ##   #   #   # ##
-# #         ####    ##
-#  ##  ##   #  #    # ##
-#   ###     #   #   #   #
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta_correlation,
@@ -445,7 +440,7 @@ plugin.methods.register_function(
         'exclude_ids': Bool
     },
     outputs=[
-        ('filtered_distance_matrix', DistanceMatrix),
+        ('filtered_distance_matrix', DistanceMatrix)
     ],
     name="Filter samples from a distance matrix.",
     description="Filter samples from a distance matrix, retaining only the "
