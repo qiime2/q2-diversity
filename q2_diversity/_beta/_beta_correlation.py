@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 
-def beta_correlation(ctx, metadata, distance_matrix, output_dir,
+def beta_correlation(ctx, metadata, distance_matrix,
                      method="spearman", permutations=999,
                      intersect_ids=False, label1='Metadata',
                      label2='Distance Matrix'):
