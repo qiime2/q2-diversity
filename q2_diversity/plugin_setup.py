@@ -387,7 +387,6 @@ plugin.pipelines.register_function(
     function=q2_diversity.beta_correlation,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'output_dir': Str,
         'metadata': MetadataColumn[Numeric],
         'method': Str % Choices(['spearman', 'pearson']),
         'permutations': Int % Range(0, None),
@@ -395,12 +394,12 @@ plugin.pipelines.register_function(
         'label1': Str,
         'label2': Str
     },
-    outputs=[('metadata_dist_matrix', DistanceMatrix),
+    outputs=[('metadata_distance_matrix', DistanceMatrix),
              ('mantel_scatter_visualization', Visualization)],
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'},
     parameter_descriptions={
-        'metadata': 'Numeric metadata column from which to compute pairwise'
+        'metadata': 'Numeric metadata column from which to compute pairwise '
                     'Euclidean distances',
         'method': 'The correlation test to be applied in the Mantel test.',
         'permutations': 'The number of permutations to be run when computing '
@@ -413,20 +412,21 @@ plugin.pipelines.register_function(
                          'the Mantel test. Default behavior is to error on '
                          'any mismatched IDs.',
         'label1': 'Label for `distance_matrix` in the output visualization.',
-        'label2': 'Label for `metadata_dist_matrix` in the output'
+        'label2': 'Label for `metadata_distance_matrix` in the output '
                   'visualization.'
     },
     output_descriptions={
-        'metadata_dist_matrix': 'the Distance Matrix produced from the '
-                                'metadata column and used in the mantel test',
-        'mantel_scatter_visualization': 'scatter plot rendering of the mantel'
+        'metadata_distance_matrix': 'The Distance Matrix produced from the '
+                                    'metadata column and used in the mantel '
+                                    'test',
+        'mantel_scatter_visualization': 'Scatter plot rendering of the mantel'
                                         'test results'},
     name='Beta diversity correlation',
-    description=('Apply a two-sided Mantel test to identify correlation '
-                 'between the distance matrix and a numeric sample metadata '
-                 'category. Sample metadata pairwise distances are computed as'
-                 ' the Euclidean distance between each pair of samples in the '
-                 'metadata category.')
+    description=('Create a distance matrix from a numeric metadata column and '
+                 'apply a two-sided Mantel test to identify correlation '
+                 'between two distance matrices. Actions used internally: '
+                 '`distance-matrix` from q2-metadata and `mantel` from '
+                 'q2-diversity.')
 )
 
 plugin.methods.register_function(

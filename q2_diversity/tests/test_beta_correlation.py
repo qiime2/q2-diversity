@@ -46,7 +46,7 @@ class BetaCorrelationTests(TestPluginBase):
             self.assertEqual(2, len(result))
             # correct types?
             self.assertEqual('DistanceMatrix',
-                             str(result.metadata_dist_matrix.type))
+                             str(result.metadata_distance_matrix.type))
             self.assertEqual('Visualization',
                              str(result.mantel_scatter_visualization.type))
 
