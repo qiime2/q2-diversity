@@ -8,7 +8,6 @@
 
 import unittest
 
-import tempfile
 import skbio
 import pandas as pd
 import qiime2
@@ -36,19 +35,17 @@ class BetaCorrelationTests(TestPluginBase):
 
     def test_execution(self):
         # does it run?
-        with tempfile.TemporaryDirectory() as output_dir:
-            self.beta_correlation(self.md, self.dm, output_dir)
+        self.beta_correlation(self.md, self.dm)
 
     def test_outputs(self):
-        with tempfile.TemporaryDirectory() as output_dir:
-            result = self.beta_correlation(self.md, self.dm, output_dir)
-            # correct number of outputs?
-            self.assertEqual(2, len(result))
-            # correct types?
-            self.assertEqual('DistanceMatrix',
-                             str(result.metadata_distance_matrix.type))
-            self.assertEqual('Visualization',
-                             str(result.mantel_scatter_visualization.type))
+        result = self.beta_correlation(self.md, self.dm)
+        # correct number of outputs?
+        self.assertEqual(2, len(result))
+        # correct types?
+        self.assertEqual('DistanceMatrix',
+                         str(result.metadata_distance_matrix.type))
+        self.assertEqual('Visualization',
+                         str(result.mantel_scatter_visualization.type))
 
 
 if __name__ == '__main__':
