@@ -325,6 +325,9 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
         filtered_columns = pre_filtered_cols - set(metadata.columns)
 
         metadata_df = metadata.to_dataframe()
+        if metadata_df.empty or len(metadata.columns) == 0:
+            raise ValueError("All metadata filtered after dropping columns "
+                             "that contained non-categorical data.")
         metadata_df.columns = pd.MultiIndex.from_tuples(
             [(c, '') for c in metadata_df.columns])
         columns = metadata_df.columns.get_level_values(0)

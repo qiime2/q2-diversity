@@ -219,6 +219,19 @@ class AlphaRarefactionTests(unittest.TestCase):
             with open(jsonp_fp) as jsonp_fh:
                 self.assertTrue('pet name' in jsonp_fh.read())
 
+    def test_alpha_rarefaction_with_fully_filtered_metadata_columns(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        # All columns should both be filtered and raise an error
+        md = qiime2.Metadata(
+            pd.DataFrame({'foo': [np.nan, np.nan, np.nan, 'bar'],
+                          'bar': [42, 4.2, 99.9, 100.0]},
+                         index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
+        with tempfile.TemporaryDirectory() as output_dir:
+            with self.assertRaisesRegex(ValueError, "non-categorical"):
+                alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+
 
 class ComputeRarefactionDataTests(unittest.TestCase):
     def setUp(self):
