@@ -6,12 +6,19 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import typing
+
 import skbio.stats.ordination
 import pandas as pd
 
 
-def pcoa(distance_matrix: skbio.DistanceMatrix) -> skbio.OrdinationResults:
-    return skbio.stats.ordination.pcoa(distance_matrix)
+def pcoa(distance_matrix: skbio.DistanceMatrix, method: str = 'eigh',
+         number_of_dimensions: typing.Optional[int] = None,
+         inplace: bool = False) -> skbio.OrdinationResults:
+    return skbio.stats.ordination.pcoa(distance_matrix, method=method,
+                                       number_of_dimensions=
+                                       number_of_dimensions,
+                                       inplace=inplace)
 
 
 def pcoa_biplot(pcoa: skbio.OrdinationResults,
