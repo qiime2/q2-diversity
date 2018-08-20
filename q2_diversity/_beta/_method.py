@@ -113,10 +113,6 @@ def beta_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
              variance_adjusted=variance_adjusted, bypass_tips=bypass_tips)
 
 
-def aitchison(x, y, **kwds):
-    return euclidean(clr(x), clr(y))
-
-
 def beta(table: biom.Table, metric: str,
          pseudocount: int=1, n_jobs: int=1)-> skbio.DistanceMatrix:
 
@@ -125,8 +121,8 @@ def beta(table: biom.Table, metric: str,
 
     counts = table.matrix_data.toarray().T
     if metric == 'aitchison':
-        counts += pseudocount
-        metric = aitchison
+        counts = clr(counts + pseudocount)
+        metric = euclidean
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")
