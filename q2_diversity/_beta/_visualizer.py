@@ -69,7 +69,8 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
 
 
 _beta_group_significance_fns = {'permanova': skbio.stats.distance.permanova,
-                                'anosim': skbio.stats.distance.anosim}
+                                'anosim': skbio.stats.distance.anosim,
+                                'permdisp': skbio.stats.distance.permdisp}
 
 
 def _get_distance_boxplot_data(distance_matrix, group_id, groupings):
