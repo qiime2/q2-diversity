@@ -13,7 +13,7 @@ from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
 import q2_diversity
 from q2_diversity import _alpha as alpha
 from q2_diversity import _beta as beta
-from q2_types.feature_table import FeatureTable, Frequency
+from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
 from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
@@ -215,6 +215,27 @@ plugin.methods.register_function(
     output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',
     description=("Apply principal coordinate analysis.")
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.pcoa_biplot,
+    inputs={'pcoa': PCoAResults,
+            'features': FeatureTable[RelativeFrequency]},
+    parameters={},
+    outputs=[('biplot', PCoAResults)],
+    input_descriptions={
+        'pcoa': 'The PCoA where the features will be projected onto.',
+        'features': 'Variables to project onto the PCoA matrix'
+    },
+    parameter_descriptions={},
+    output_descriptions={'biplot': 'The resulting PCoA matrix.'},
+    name='Principal Coordinate Analysis Biplot',
+    description="Project features into a principal coordinates matrix. The "
+                "features used can be environmental variables or the features"
+                " used to compute the distance matrix. It is recommended that"
+                " these variables be normalized in cases of dimensionally "
+                "heterogeneous physical variables.",
+    citations=[citations['legendrelegendre']]
 )
 
 plugin.methods.register_function(
