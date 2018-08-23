@@ -120,9 +120,13 @@ def beta(table: biom.Table, metric: str,
         raise ValueError("Unknown metric: %s" % metric)
 
     counts = table.matrix_data.toarray().T
+
+    def aitchison(x, y, **kwds):
+        return euclidean(clr(x), clr(y))
+
     if metric == 'aitchison':
-        counts = clr(counts + pseudocount)
-        metric = euclidean
+        counts += pseudocount
+        metric = aitchison
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")
