@@ -40,13 +40,13 @@ class PCoATests(unittest.TestCase):
                                    ids=['S1', 'S2', 'S3'])
 
         # Test eigh vs. fsvd pcoa and inplace parameter
-        expected_results = pcoa(dm1, method="eigh", number_of_dimensions=3,
+        expected_results = pcoa(dm1, method='fsvd', number_of_dimensions=3,
                                 inplace=False)
 
-        results = pcoa(dm2, method="fsvd", number_of_dimensions=3,
+        results = pcoa(dm2, method='fsvd', number_of_dimensions=3,
                        inplace=False)
 
-        results_inplace = pcoa(dm2, method="fsvd", number_of_dimensions=3,
+        results_inplace = pcoa(dm2, method='fsvd', number_of_dimensions=3,
                                inplace=True)
 
         assert_ordination_results_equal(results, expected_results,
@@ -56,6 +56,13 @@ class PCoATests(unittest.TestCase):
         assert_ordination_results_equal(results, results_inplace,
                                         ignore_directionality=True,
                                         ignore_method_names=True)
+
+        # Test invalid parameters for number_of_dimensions
+        with self.assertRaises(ValueError):
+            pcoa(dm1, method='fsvd', number_of_dimensions=-1)
+
+        with self.assertRaises(ValueError):
+            pcoa(dm1, method='fsvd', number_of_dimensions=-100)
 
     def test_pcoa_biplot(self):
         features = pd.DataFrame([[1, 0], [3, 0.1], [8, -0.4]],

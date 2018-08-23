@@ -207,7 +207,7 @@ plugin.methods.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
         'method': Str,
-        'number_of_dimensions': Int % Range(1, None),
+        'number_of_dimensions': Int % Range(0, None),
         'inplace': Bool
     },
     outputs=[('pcoa', PCoAResults)],
