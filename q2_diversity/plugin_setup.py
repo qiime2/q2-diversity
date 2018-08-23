@@ -205,7 +205,11 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_diversity.pcoa,
     inputs={'distance_matrix': DistanceMatrix},
-    parameters={},
+    parameters={
+        'method': Str,
+        'number_of_dimensions': Int % Range(1, None),
+        'inplace': Bool
+    },
     outputs=[('pcoa', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which PCoA should be '
