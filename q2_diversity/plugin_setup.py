@@ -222,7 +222,7 @@ plugin.methods.register_function(
     inputs={'pcoa': PCoAResults,
             'features': FeatureTable[RelativeFrequency]},
     parameters={},
-    outputs=[('biplot', PCoAResults)],
+    outputs=[('biplot', PCoAResults % Properties('biplot'))],
     input_descriptions={
         'pcoa': 'The PCoA where the features will be projected onto.',
         'features': 'Variables to project onto the PCoA matrix'
