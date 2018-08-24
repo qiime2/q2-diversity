@@ -231,10 +231,10 @@ plugin.methods.register_function(
     output_descriptions={'biplot': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis Biplot',
     description="Project features into a principal coordinates matrix. The "
-                "features used can be environmental variables or the features"
-                " used to compute the distance matrix. It is recommended that"
-                " these variables be normalized in cases of dimensionally "
-                "heterogeneous physical variables.",
+                "features used should be the features used to compute the "
+                "distance matrix. It is recommended that these variables be"
+                " normalized in cases of dimensionally heterogeneous physical"
+                " variables.",
     citations=[citations['legendrelegendre']]
 )
 
