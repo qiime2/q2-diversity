@@ -22,7 +22,7 @@ def pcoa(distance_matrix: skbio.DistanceMatrix,
         return skbio.stats.ordination.pcoa(
             distance_matrix, method='fsvd',
             number_of_dimensions=number_of_dimensions,
-            inplace=False)
+            inplace=True)
 
 
 def pcoa_biplot(pcoa: skbio.OrdinationResults,
