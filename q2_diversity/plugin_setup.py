@@ -203,7 +203,7 @@ plugin.methods.register_function(
     function=q2_diversity.pcoa,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(0, None)
+        'number_of_dimensions': Int % Range(1, None)
     },
     outputs=[('pcoa', PCoAResults)],
     input_descriptions={
@@ -211,26 +211,18 @@ plugin.methods.register_function(
                             'computed.')
     },
     parameter_descriptions={
-        'method': "Eigendecomposition method to use in performing PCoA. "
-                  "By default, uses SciPy's eigh, which computes exact "
-                  "eigenvectors and eigenvalues for all dimensions. The "
-                  "alternate method, fsvd, uses faster heuristic "
-                  "eigendecomposition but loses accuracy. The magnitude "
-                  "of accuracy lost is dependent on dataset.",
         'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
                                 "This number determines how many "
                                 "eigenvectors and eigenvalues are returned,"
                                 "and influences the choice of algorithm used "
                                 "to compute them. "
-                                "A default value of 0 sets this parameter to "
-                                "equal the number of dimensions of the given "
-                                "distance matrix and uses the default "
+                                "By default, uses the default "
                                 "eigendecomposition method, SciPy's eigh, "
                                 "which computes all eigenvectors "
                                 "and eigenvalues in an exact manner. For very "
                                 "large matrices, this is expected to be slow. "
-                                "If a value other than 0 is specified for "
-                                "this parameter, then the fast, heuristic "
+                                "If a value is specified for this parameter, "
+                                "then the fast, heuristic "
                                 "eigendecomposition algorithm fsvd "
                                 "is used, which only computes and returns the "
                                 "number of dimensions specified, but suffers "

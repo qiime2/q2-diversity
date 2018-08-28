@@ -11,19 +11,18 @@ import pandas as pd
 
 
 def pcoa(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = 0) -> skbio.OrdinationResults:
-    if number_of_dimensions == 0:
+         number_of_dimensions: int = None) -> skbio.OrdinationResults:
+    if number_of_dimensions is None:
         # calculate full decomposition using eigh
-        method = 'eigh'
+        return skbio.stats.ordination.pcoa(distance_matrix, method='eigh',
+                                           inplace=False)
     else:
         # calculate the decomposition only for the `number_of_dimensions`
         # using fast heuristic eigendecomposition (fsvd)
-        method = 'fsvd'
-
-    return skbio.stats.ordination.pcoa(
-        distance_matrix, method=method,
-        number_of_dimensions=number_of_dimensions,
-        inplace=False)
+        return skbio.stats.ordination.pcoa(
+            distance_matrix, method='fsvd',
+            number_of_dimensions=number_of_dimensions,
+            inplace=False)
 
 
 def pcoa_biplot(pcoa: skbio.OrdinationResults,
