@@ -203,9 +203,7 @@ plugin.methods.register_function(
     function=q2_diversity.pcoa,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'method': Str % Choices({'eigh', 'fsvd'}),
-        'number_of_dimensions': Int % Range(0, None),
-        'inplace': Bool
+        'number_of_dimensions': Int % Range(0, None)
     },
     outputs=[('pcoa', PCoAResults)],
     input_descriptions={
@@ -221,27 +219,23 @@ plugin.methods.register_function(
                   "of accuracy lost is dependent on dataset.",
         'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
                                 "This number determines how many "
-                                "eigenvectors and eigenvalues are returned. "
-                                "By default, equal to the number of "
-                                "dimensions of the distance matrix, "
-                                "as default eigendecomposition using SciPy's "
-                                "eigh method computes all eigenvectors and "
-                                "eigenvalues. If using fast heuristic "
-                                "eigendecomposition through fsvd, "
-                                "a desired number of dimensions should be "
-                                "Note that the default eigendecomposition "
-                                "method eigh does not natively support a "
-                                "specifying number of dimensions to reduce a "
-                                "matrix to, so if this parameter is specified,"
-                                " all eigenvectors and eigenvalues will be "
-                                "simply be computed with no speed gain, and "
-                                "only the number specified by this parameter "
-                                "will be returned. Specifying a value of 0, "
-                                "the default, will set this parameter equal "
-                                "to the number of dimensions of the "
-                                "specified distance_matrix.",
-        'inplace': "If true, centers a distance matrix in-place in a manner "
-                   "that reduces memory consumption."
+                                "eigenvectors and eigenvalues are returned,"
+                                "and influences the choice of algorithm used "
+                                "to compute them. "
+                                "A default value of 0 sets this parameter to "
+                                "equal the number of dimensions of the given "
+                                "distance matrix and uses the default "
+                                "eigendecomposition method, SciPy's eigh, "
+                                "which computes all eigenvectors "
+                                "and eigenvalues in an exact manner. For very "
+                                "large matrices, this is expected to be slow. "
+                                "If a value other than 0 is specified for "
+                                "this parameter, then the fast, heuristic "
+                                "eigendecomposition algorithm fsvd "
+                                "is used, which only computes and returns the "
+                                "number of dimensions specified, but suffers "
+                                "some degree of accuracy loss, the magnitude "
+                                "of which varies across different datasets."
     },
     output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',

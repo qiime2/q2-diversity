@@ -30,39 +30,16 @@ class PCoATests(unittest.TestCase):
             observed, self.ordination, ignore_directionality=True)
 
     def test_pcoa_fsvd(self):
-        dm1 = skbio.DistanceMatrix([[0.0000000, 0.3333333, 0.6666667],
-                                   [0.3333333, 0.0000000, 0.4285714],
-                                   [0.6666667, 0.4285714, 0.0000000]],
-                                  ids=['S1', 'S2', 'S3'])
-        dm2 = skbio.DistanceMatrix([[0.0000000, 0.3333333, 0.6666667],
-                                    [0.3333333, 0.0000000, 0.4285714],
-                                    [0.6666667, 0.4285714, 0.0000000]],
-                                   ids=['S1', 'S2', 'S3'])
+        # Run fsvd, computing all dimensions.
+        fsvd_result = pcoa(self.ordination,
+                           number_of_dimensions=self.dm.data.shape[0])
 
-        # Test eigh vs. fsvd pcoa and inplace parameter
-        expected_results = pcoa(dm1, method='fsvd', number_of_dimensions=3,
-                                inplace=False)
+        # Run eigh, which computes all dimensions by default.
+        eigh_result = pcoa(self.ordination)
 
-        results = pcoa(dm2, method='fsvd', number_of_dimensions=3,
-                       inplace=False)
-
-        results_inplace = pcoa(dm2, method='fsvd', number_of_dimensions=3,
-                               inplace=True)
-
-        assert_ordination_results_equal(results, expected_results,
+        assert_ordination_results_equal(fsvd_result, eigh_result,
                                         ignore_directionality=True,
                                         ignore_method_names=True)
-
-        assert_ordination_results_equal(results, results_inplace,
-                                        ignore_directionality=True,
-                                        ignore_method_names=True)
-
-        # Test invalid parameters for number_of_dimensions
-        with self.assertRaises(ValueError):
-            pcoa(dm1, method='fsvd', number_of_dimensions=-1)
-
-        with self.assertRaises(ValueError):
-            pcoa(dm1, method='fsvd', number_of_dimensions=-100)
 
     def test_pcoa_biplot(self):
         features = pd.DataFrame([[1, 0], [3, 0.1], [8, -0.4]],
