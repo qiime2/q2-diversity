@@ -30,7 +30,6 @@ sklearn_n_jobs_description = (
     'are used. (Description from sklearn.metrics.pairwise_distances)'
 )
 
-
 plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
@@ -72,7 +71,6 @@ plugin.methods.register_function(
         citations['lozupone2005unifrac'],
         citations['lozupone2007quantitative']]
 )
-
 
 plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic_alt,
@@ -131,7 +129,6 @@ plugin.methods.register_function(
         citations['chang2011variance'],
         citations['chen2012associating']]
 )
-
 
 plugin.methods.register_function(
     function=q2_diversity.beta,
@@ -206,7 +203,7 @@ plugin.methods.register_function(
     function=q2_diversity.pcoa,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'method': Str,
+        'method': Str % Choices({'eigh', 'fsvd'}),
         'number_of_dimensions': Int % Range(0, None),
         'inplace': Bool
     },
@@ -215,7 +212,37 @@ plugin.methods.register_function(
         'distance_matrix': ('The distance matrix on which PCoA should be '
                             'computed.')
     },
-    parameter_descriptions={},
+    parameter_descriptions={
+        'method': "Eigendecomposition method to use in performing PCoA. "
+                  "By default, uses SciPy's eigh, which computes exact "
+                  "eigenvectors and eigenvalues for all dimensions. The "
+                  "alternate method, fsvd, uses faster heuristic "
+                  "eigendecomposition but loses accuracy. The magnitude "
+                  "of accuracy lost is dependent on dataset.",
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
+                                "This number determines how many "
+                                "eigenvectors and eigenvalues are returned. "
+                                "By default, equal to the number of "
+                                "dimensions of the distance matrix, "
+                                "as default eigendecomposition using SciPy's "
+                                "eigh method computes all eigenvectors and "
+                                "eigenvalues. If using fast heuristic "
+                                "eigendecomposition through fsvd, "
+                                "a desired number of dimensions should be "
+                                "Note that the default eigendecomposition "
+                                "method eigh does not natively support a "
+                                "specifying number of dimensions to reduce a "
+                                "matrix to, so if this parameter is specified,"
+                                " all eigenvectors and eigenvalues will be "
+                                "simply be computed with no speed gain, and "
+                                "only the number specified by this parameter "
+                                "will be returned. Specifying a value of 0, "
+                                "the default, will set this parameter equal "
+                                "to the number of dimensions of the "
+                                "specified distance_matrix.",
+        'inplace': "If true, centers a distance matrix in-place in a manner "
+                   "that reduces memory consumption."
+    },
     output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',
     description=("Apply principal coordinate analysis.")
@@ -406,7 +433,6 @@ plugin.pipelines.register_function(
     description=("Applies a collection of diversity metrics "
                  "(non-phylogenetic) to a feature table.")
 )
-
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta_correlation,
@@ -606,7 +632,6 @@ plugin.visualizers.register_function(
         citations['pearson1895note'],
         citations['spearman1904proof']]
 )
-
 
 alpha_correlation_methods = \
     list(q2_diversity._alpha._visualizer._alpha_correlation_fns)
