@@ -31,11 +31,11 @@ class PCoATests(unittest.TestCase):
 
     def test_pcoa_fsvd(self):
         # Run fsvd, computing all dimensions.
-        fsvd_result = pcoa(self.ordination,
+        fsvd_result = pcoa(self.dm,
                            number_of_dimensions=self.dm.data.shape[0])
 
         # Run eigh, which computes all dimensions by default.
-        eigh_result = pcoa(self.ordination)
+        eigh_result = pcoa(self.dm)
 
         assert_ordination_results_equal(fsvd_result, eigh_result,
                                         ignore_directionality=True,
