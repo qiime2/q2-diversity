@@ -14,6 +14,7 @@ import skbio.tree
 import sklearn.metrics
 import unifrac
 import psutil
+import numpy as np
 
 from q2_types.feature_table import BIOMV210Format
 from q2_types.tree import NewickFormat
@@ -42,7 +43,7 @@ def non_phylogenetic_metrics():
             'correlation', 'hamming', 'jaccard', 'chebyshev', 'canberra',
             'braycurtis', 'mahalanobis', 'yule', 'matching', 'dice',
             'kulsinski', 'rogerstanimoto', 'russellrao', 'sokalmichener',
-            'sokalsneath', 'wminkowski', 'aitchison'}
+            'sokalsneath', 'wminkowski', 'aitchison', 'canberra-adkins'}
 
 
 def all_metrics():
@@ -124,9 +125,23 @@ def beta(table: biom.Table, metric: str,
     def aitchison(x, y, **kwds):
         return euclidean(clr(x), clr(y))
 
+    def canberra_adkins(x, y, **kwds):
+        if (x < 0).any() or (y < 0).any():
+            raise ValueError("Canberra-Adkins is only defined over positive "
+                             "values.")
+
+        nz = ((x > 0) | (y > 0))
+        x_ = x[nz]
+        y_ = y[nz]
+        nnz = nz.sum()
+
+        return (1. / nnz) * np.sum(np.abs(x_ - y_) / (x_ + y_))
+
     if metric == 'aitchison':
         counts += pseudocount
         metric = aitchison
+    elif metric == 'canberra-adkins':
+        metric = canberra_adkins
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")

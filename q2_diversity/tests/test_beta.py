@@ -46,9 +46,9 @@ class BetaDiversityTests(unittest.TestCase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_canberra_adkins(self):
-        t = biom.Table(np.array([[0, 0], [0, 1], [1, 2]]),
-                       ['O1', 'O2', 'O3'],
-                       ['S1', 'S2'])
+        t = Table(np.array([[0, 0], [0, 1], [1, 2]]),
+                  ['O1', 'O2', 'O3'],
+                  ['S1', 'S2'])
         d = (1. / 2.) * sum([abs(0. - 1.) / (0. + 1.),
                              abs(1. - 2.) / (1. + 2.)])
         expected = skbio.DistanceMatrix(np.array([[0.0, d], [d, 0.0]]),
