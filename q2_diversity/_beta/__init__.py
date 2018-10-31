@@ -6,15 +6,14 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from ._method import (beta_phylogenetic, beta_phylogenetic_alt, beta,
+from ._method import (beta_phylogenetic, beta,
                       phylogenetic_metrics, non_phylogenetic_metrics,
-                      all_metrics, phylogenetic_metrics_alt_dict)
+                      all_metrics)
 from ._visualizer import (bioenv, beta_group_significance, mantel)
 from ._beta_rarefaction import beta_rarefaction
 from ._beta_correlation import beta_correlation
 
-__all__ = ['beta_phylogenetic', 'beta_phylogenetic_alt', 'beta', 'bioenv',
+__all__ = ['beta_phylogenetic', 'beta', 'bioenv',
            'beta_group_significance', 'phylogenetic_metrics',
            'non_phylogenetic_metrics', 'all_metrics', 'mantel',
-           'beta_rarefaction', 'phylogenetic_metrics_alt_dict',
-           'beta_correlation']
+           'beta_rarefaction', 'beta_correlation']

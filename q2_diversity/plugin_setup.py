@@ -42,41 +42,12 @@ plugin = Plugin(
     short_description='Plugin for exploring community diversity.',
 )
 
+
 plugin.methods.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
-                'n_jobs': Int % Range(1, None)},
-    outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
-    input_descriptions={
-        'table': ('The feature table containing the samples over which beta '
-                  'diversity should be computed.'),
-        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in the table. '
-                      'This tree can contain tip ids that are not present in '
-                      'the table, but all feature ids in the table must be '
-                      'present in this tree.')
-    },
-    parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.',
-        'n_jobs': '[Excluding weighted_unifrac] - %s' %
-                  sklearn_n_jobs_description
-    },
-    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
-    name='Beta diversity (phylogenetic)',
-    description=("Computes a user-specified phylogenetic beta diversity metric"
-                 " for all pairs of samples in a feature table."),
-    citations=[
-        citations['lozupone2005unifrac'],
-        citations['lozupone2007quantitative']]
-)
-
-plugin.methods.register_function(
-    function=q2_diversity.beta_phylogenetic_alt,
-    inputs={'table': FeatureTable[Frequency],
-            'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.phylogenetic_metrics_alt_dict()),
                 'n_jobs': Int,
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
@@ -116,18 +87,19 @@ plugin.methods.register_function(
                  " for all pairs of samples in a feature table. This "
                  "implementation is recommended for large datasets, otherwise "
                  "the results are identical to beta_phylogenetic.\n\n"
-                 "This method is an implementation of the Strided State "
-                 "UniFrac algorithm. Multiple variants of the UniFrac metric "
-                 "are available, including Generalized UniFrac (Chen et al. "
-                 "2012), Variance Adjusted UniFrac (Chang et al. 2011), "
-                 "as well as Weighted normalized and unnormalized UniFrac "
-                 "(Lozupone et al. 2007) and unweighted UniFrac "
-                 "(Lozupone et al. 2005)"),
+                 "This method is an implementation of the Striped "
+                 "UniFrac algorithm (McDonald et al. 2018). Multiple variants "
+                 "of the UniFrac metric are available, including Generalized "
+                 "UniFrac (Chen et al. 2012), Variance Adjusted UniFrac "
+                 "(Chang et al. 2011), as well as Weighted normalized and "
+                 "unnormalized UniFrac (Lozupone et al. 2007) and unweighted "
+                 "UniFrac (Lozupone et al. 2005)"),
     citations=[
         citations['lozupone2005unifrac'],
         citations['lozupone2007quantitative'],
         citations['chang2011variance'],
-        citations['chen2012associating']]
+        citations['chen2012associating'],
+        citations['mcdonald2018unifrac']]
 )
 
 plugin.methods.register_function(
