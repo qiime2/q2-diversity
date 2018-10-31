@@ -53,7 +53,7 @@ class BetaDiversityTests(unittest.TestCase):
                              abs(1. - 2.) / (1. + 2.)])
         expected = skbio.DistanceMatrix(np.array([[0.0, d], [d, 0.0]]),
                                         ids=['S1', 'S2'])
-        actual = beta(table=t, metric='canberra-adkins')
+        actual = beta(table=t, metric='canberra_adkins')
 
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:

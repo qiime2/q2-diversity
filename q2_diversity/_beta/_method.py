@@ -141,7 +141,7 @@ def beta(table: biom.Table, metric: str,
     if metric == 'aitchison':
         counts += pseudocount
         metric = aitchison
-    elif metric == 'canberra-adkins':
+    elif metric == 'canberra_adkins':
         metric = canberra_adkins
 
     if table.is_empty():
