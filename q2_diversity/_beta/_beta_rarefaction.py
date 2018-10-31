@@ -28,10 +28,10 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
 
 def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
                      clustering_method: str, metadata: qiime2.Metadata,
-                     sampling_depth: int, iterations: int=10,
-                     phylogeny: skbio.TreeNode=None,
-                     correlation_method: str='spearman',
-                     color_scheme: str='BrBG') -> None:
+                     sampling_depth: int, iterations: int = 10,
+                     phylogeny: skbio.TreeNode = None,
+                     correlation_method: str = 'spearman',
+                     color_scheme: str = 'BrBG') -> None:
     if metric in phylogenetic_metrics():
         if phylogeny is None:
             raise ValueError("A phylogenetic metric (%s) was requested, "

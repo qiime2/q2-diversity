@@ -150,7 +150,7 @@ _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
 def alpha_correlation(output_dir: str,
                       alpha_diversity: pd.Series,
                       metadata: qiime2.Metadata,
-                      method: str='spearman') -> None:
+                      method: str = 'spearman') -> None:
     try:
         alpha_correlation_fn = _alpha_correlation_fns[method]
     except KeyError:
@@ -289,9 +289,9 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
 
 
 def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
-                      phylogeny: skbio.TreeNode=None, metrics: set=None,
-                      metadata: qiime2.Metadata=None, min_depth: int=1,
-                      steps: int=10, iterations: int=10) -> None:
+                      phylogeny: skbio.TreeNode = None, metrics: set = None,
+                      metadata: qiime2.Metadata = None, min_depth: int = 1,
+                      steps: int = 10, iterations: int = 10) -> None:
 
     if metrics is None:
         metrics = {'observed_otus', 'shannon'}

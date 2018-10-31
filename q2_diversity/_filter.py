@@ -12,8 +12,8 @@ import qiime2
 
 def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
                            metadata: qiime2.Metadata,
-                           where: str=None,
-                           exclude_ids: bool=False) -> skbio.DistanceMatrix:
+                           where: str = None,
+                           exclude_ids: bool = False) -> skbio.DistanceMatrix:
     ids_to_keep = metadata.get_ids(where=where)
     if exclude_ids:
         ids_to_keep = set(distance_matrix.ids) - set(ids_to_keep)

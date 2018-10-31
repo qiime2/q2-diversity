@@ -120,9 +120,9 @@ def _get_pairwise_group_significance_stats(
 def beta_group_significance(output_dir: str,
                             distance_matrix: skbio.DistanceMatrix,
                             metadata: qiime2.CategoricalMetadataColumn,
-                            method: str='permanova',
-                            pairwise: bool=False,
-                            permutations: int=999) -> None:
+                            method: str = 'permanova',
+                            pairwise: bool = False,
+                            permutations: int = 999) -> None:
     try:
         beta_group_significance_fn = _beta_group_significance_fns[method]
     except KeyError:
@@ -253,10 +253,10 @@ def beta_group_significance(output_dir: str,
 
 
 def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
-           dm2: skbio.DistanceMatrix, method: str='spearman',
-           permutations: int=999, intersect_ids: bool=False,
-           label1: str='Distance Matrix 1',
-           label2: str='Distance Matrix 2') -> None:
+           dm2: skbio.DistanceMatrix, method: str = 'spearman',
+           permutations: int = 999, intersect_ids: bool = False,
+           label1: str = 'Distance Matrix 1',
+           label2: str = 'Distance Matrix 2') -> None:
     test_statistics = {'spearman': 'rho', 'pearson': 'r'}
     alt_hypothesis = 'two-sided'
 

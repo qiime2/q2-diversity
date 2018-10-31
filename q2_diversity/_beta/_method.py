@@ -50,7 +50,7 @@ def all_metrics():
 
 
 def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
-                      metric: str, n_jobs: int=1)-> skbio.DistanceMatrix:
+                      metric: str, n_jobs: int = 1)-> skbio.DistanceMatrix:
     if metric not in phylogenetic_metrics():
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
     if table.is_empty():
@@ -81,10 +81,10 @@ def beta_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 
 
 def beta_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
-                          metric: str, n_jobs: int=1,
-                          variance_adjusted: bool=False,
-                          alpha: float=None,
-                          bypass_tips: bool=False) -> skbio.DistanceMatrix:
+                          metric: str, n_jobs: int = 1,
+                          variance_adjusted: bool = False,
+                          alpha: float = None,
+                          bypass_tips: bool = False) -> skbio.DistanceMatrix:
 
     metrics = phylogenetic_metrics_alt_dict()
     generalized_unifrac = 'generalized_unifrac'
@@ -114,7 +114,7 @@ def beta_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
 
 
 def beta(table: biom.Table, metric: str,
-         pseudocount: int=1, n_jobs: int=1)-> skbio.DistanceMatrix:
+         pseudocount: int = 1, n_jobs: int = 1)-> skbio.DistanceMatrix:
 
     if not (metric in non_phylogenetic_metrics()):
         raise ValueError("Unknown metric: %s" % metric)
