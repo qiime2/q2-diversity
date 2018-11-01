@@ -28,29 +28,40 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
 
 def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
                      clustering_method: str, metadata: qiime2.Metadata,
-                     sampling_depth: int, iterations: int = 10,
-                     phylogeny: skbio.TreeNode = None,
-                     correlation_method: str = 'spearman',
-                     color_scheme: str = 'BrBG') -> None:
-    if metric in phylogenetic_metrics():
-        if phylogeny is None:
-            raise ValueError("A phylogenetic metric (%s) was requested, "
-                             "but a phylogenetic tree was not provided. "
-                             "Phylogeny must be provided when using a "
-                             "phylogenetic diversity metric." % metric)
-        beta_func = functools.partial(beta_phylogenetic, phylogeny=phylogeny)
-    else:
-        beta_func = beta
+                     sampling_depth: int, iterations: int=10,
+                     phylogeny: skbio.TreeNode=None,
+                     correlation_method: str='spearman',
+                     color_scheme: str='BrBG') -> None:
+    with qiime2.sdk.Context() as scope:
+        if table.is_empty():
+            raise ValueError("Input feature table is empty.")
 
-    if table.is_empty():
-        raise ValueError("Input feature table is empty.")
+        # Filter metadata to only include sample IDs present in the feature
+        # table. Also ensures every feature table sample ID is present in the
+        # metadata.
+        metadata = metadata.filter_ids(table.ids(axis='sample'))
 
-    # Filter metadata to only include sample IDs present in the feature table.
-    # Also ensures every feature table sample ID is present in the metadata.
-    metadata = metadata.filter_ids(table.ids(axis='sample'))
+        table = qiime2.Artifact.import_data('FeatureTable[Frequency]', table)
 
-    distance_matrices = _get_multiple_rarefaction(
-        beta_func, metric, iterations, table, sampling_depth)
+        if metric in phylogenetic_metrics():
+            if phylogeny is None:
+                raise ValueError("A phylogenetic metric (%s) was requested, "
+                                 "but a phylogenetic tree was not provided. "
+                                 "Phylogeny must be provided when using a "
+                                 "phylogenetic diversity metric." % metric)
+
+            phylogeny = qiime2.Artifact.import_data('Phylogeny[Rooted]',
+                                                    phylogeny)
+            api_method = scope.ctx.get_action('diversity', 'beta_phylogenetic')
+            beta_func = functools.partial(api_method, phylogeny=phylogeny)
+        else:
+            beta_func = scope.ctx.get_action('diversity', 'beta')
+
+        rare_func = scope.ctx.get_action('feature-table', 'rarefy')
+
+        distance_matrices = _get_multiple_rarefaction(
+            beta_func, rare_func, metric, iterations, table, sampling_depth)
+
     primary = distance_matrices[0]
     support = distance_matrices[1:]
 
@@ -89,13 +100,13 @@ def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
     q2templates.render(templates, output_dir, context=context)
 
 
-def _get_multiple_rarefaction(beta_func, metric, iterations, table,
+def _get_multiple_rarefaction(beta_func, rare_func, metric, iterations, table,
                               sampling_depth):
     distance_matrices = []
     for _ in range(iterations):
-        rarefied_table = q2_feature_table.rarefy(table, sampling_depth)
-        distance_matrix = beta_func(table=rarefied_table, metric=metric)
-        distance_matrices.append(distance_matrix)
+        rarefied_table, = rare_func(table=table, sampling_depth=sampling_depth)
+        distance_matrix, = beta_func(table=rarefied_table, metric=metric)
+        distance_matrices.append(distance_matrix.view(skbio.DistanceMatrix))
     return distance_matrices
 
 

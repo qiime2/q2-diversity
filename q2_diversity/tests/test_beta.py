@@ -90,11 +90,8 @@ class BetaDiversityTests(TestPluginBase):
             beta(table=t, metric='braycurtis')
 
     def test_beta_phylogenetic(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        t = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
         actual = beta_phylogenetic(
             table=t, phylogeny=tree, metric='unweighted_unifrac')
         # expected computed with skbio.diversity.beta_diversity
@@ -127,24 +124,20 @@ class BetaDiversityTests(TestPluginBase):
             beta_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
-        t = Table(np.array([]), [], [])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        t = self.get_data_path('empty.biom')
+        tree = self.get_data_path('three_feature.tree')
 
         with self.assertRaisesRegex(ValueError, 'empty'):
             beta_phylogenetic(table=t, phylogeny=tree,
                               metric='unweighted_unifrac')
 
     def test_beta_phylogenetic_skbio_error_rewriting(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25):0.25, O3:0.75)root;'))
+        t = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('vaw.nwk')
         # Verify through regex that there is a ``feature_ids`` substring
         # followed by a ``phylogeny``
-        with self.assertRaisesRegex(skbio.tree.MissingNodeError,
-                                    'feature_ids.*phylogeny'):
+        with self.assertRaisesRegex(ValueError,
+                                    'represented by the phylogeny'):
             beta_phylogenetic(table=t, phylogeny=tree,
                               metric='weighted_unifrac')
 
