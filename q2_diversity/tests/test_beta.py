@@ -141,7 +141,6 @@ class BetaDiversityTests(TestPluginBase):
             beta_phylogenetic(table=t, phylogeny=tree,
                               metric='weighted_unifrac')
 
-
     def test_beta_unweighted(self):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
@@ -327,22 +326,6 @@ class BetaDiversityTests(TestPluginBase):
                               metric='unweighted_unifrac',
                               alpha=0.11)
 
-    def test_beta_phylogenetic_non_phylo_metric(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        tree_fp = self.get_data_path('tree.nwk')
-
-        with self.assertRaises(ValueError):
-            beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                               metric='braycurtis')
-
-    def test_beta_phylogenetic_unknown_metric(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        tree_fp = self.get_data_path('tree.nwk')
-
-        with self.assertRaises(ValueError):
-            beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                              metric='not-a-metric')
-
     def test_beta_phylogenetic_too_many_jobs(self):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('tree.nwk')
@@ -351,7 +334,7 @@ class BetaDiversityTests(TestPluginBase):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
             beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                               metric='unweighted_unifrac', n_jobs=11117)
+                              metric='unweighted_unifrac', n_jobs=11117)
 
 
 class BioenvTests(unittest.TestCase):

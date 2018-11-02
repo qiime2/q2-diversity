@@ -18,9 +18,8 @@ import scipy
 from emperor import Emperor
 
 import q2templates
-import q2_feature_table
 
-from ._method import beta, beta_phylogenetic, phylogenetic_metrics
+from ._method import phylogenetic_metrics
 from .._ordination import pcoa
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -28,10 +27,10 @@ TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
 
 def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
                      clustering_method: str, metadata: qiime2.Metadata,
-                     sampling_depth: int, iterations: int=10,
-                     phylogeny: skbio.TreeNode=None,
-                     correlation_method: str='spearman',
-                     color_scheme: str='BrBG') -> None:
+                     sampling_depth: int, iterations: int = 10,
+                     phylogeny: skbio.TreeNode = None,
+                     correlation_method: str = 'spearman',
+                     color_scheme: str = 'BrBG') -> None:
     with qiime2.sdk.Context() as scope:
         if table.is_empty():
             raise ValueError("Input feature table is empty.")

@@ -48,10 +48,10 @@ def all_metrics():
 
 
 def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
-                      metric: str, n_jobs: int=1,
-                      variance_adjusted: bool=False,
-                      alpha: float=None,
-                      bypass_tips: bool=False) -> skbio.DistanceMatrix:
+                      metric: str, n_jobs: int = 1,
+                      variance_adjusted: bool = False,
+                      alpha: float = None,
+                      bypass_tips: bool = False) -> skbio.DistanceMatrix:
 
     metrics = phylogenetic_metrics_dict()
     generalized_unifrac = 'generalized_unifrac'

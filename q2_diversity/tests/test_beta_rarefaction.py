@@ -20,7 +20,7 @@ import pandas as pd
 import scipy
 
 from qiime2.plugin.testing import TestPluginBase
-from q2_diversity import beta_rarefaction, beta, beta_phylogenetic
+from q2_diversity import beta_rarefaction
 from q2_diversity._beta._beta_rarefaction import (
     _get_multiple_rarefaction, _upgma, _cluster_samples, _add_support_count,
     _jackknifed_emperor)
