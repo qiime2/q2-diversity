@@ -126,7 +126,6 @@ def beta(table: biom.Table, metric: str,
         return euclidean(clr(x), clr(y))
 
     def canberra_adkins(x, y, **kwds):
-        # Table 1 of Faith et al 1987 Plant Ecology 69: 57-68
         if (x < 0).any() or (y < 0).any():
             raise ValueError("Canberra-Adkins is only defined over positive "
                              "values.")
