@@ -150,7 +150,9 @@ plugin.methods.register_function(
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
     description=("Computes a user-specified beta diversity metric for all "
-                 "pairs of samples in a feature table.")
+                 "pairs of samples in a feature table."),
+    citations=[
+        citations['Faith1987']]
 )
 
 plugin.methods.register_function(
