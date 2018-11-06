@@ -82,18 +82,9 @@ plugin.methods.register_function(
                         ' (in concept) to moving from 99% to 97% OTUs')
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
-    name='Beta diversity (phylogenetic) - High Performance Computation',
+    name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
-                 " for all pairs of samples in a feature table. This "
-                 "implementation is recommended for large datasets, otherwise "
-                 "the results are identical to beta_phylogenetic.\n\n"
-                 "This method is an implementation of the Striped "
-                 "UniFrac algorithm (McDonald et al. 2018). Multiple variants "
-                 "of the UniFrac metric are available, including Generalized "
-                 "UniFrac (Chen et al. 2012), Variance Adjusted UniFrac "
-                 "(Chang et al. 2011), as well as Weighted normalized and "
-                 "unnormalized UniFrac (Lozupone et al. 2007) and unweighted "
-                 "UniFrac (Lozupone et al. 2005)"),
+                 " for all pairs of samples in a feature table."),
     citations=[
         citations['lozupone2005unifrac'],
         citations['lozupone2007quantitative'],
