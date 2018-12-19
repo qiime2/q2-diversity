@@ -28,11 +28,13 @@ setup(
                       'beta_group_significance_assets/index.html',
                       'mantel_assets/index.html',
                       'beta_rarefaction_assets/*',
+                      'adonis_assets/*',
                       'bioenv_assets/index.html',
                   ],
                   'q2_diversity.tests': [
                       'data/*'
                   ]},
+    scripts=['q2_diversity/_beta/adonis_assets/run_adonis.R'],
     author="Greg Caporaso",
     author_email="gregcaporaso@gmail.com",
     description="Core diversity analyses.",

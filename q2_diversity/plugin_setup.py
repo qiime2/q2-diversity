@@ -711,3 +711,37 @@ plugin.visualizers.register_function(
         citations['pearson1895note'],
         citations['spearman1904proof']]
 )
+
+plugin.visualizers.register_function(
+    function=q2_diversity.adonis,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={'metadata': Metadata,
+                'formula': Str,
+                'permutations': Int,
+                'n_jobs': Int},
+    input_descriptions={
+        'distance_matrix': 'Matrix of distances between pairs of samples.'
+    },
+    parameter_descriptions={
+        'metadata': 'Sample metadata containing formula terms.',
+        'formula': 'Model formula containing only independent terms contained '
+                   'in the sample metadata. These can be continuous variables '
+                   'or factors, they can be transformed within the formula, '
+                   'and they can have interactions as in a typical R formula.',
+        'permutations': 'The number of permutations to be run when computing '
+                        'p-values.',
+        'n_jobs': 'Number of parallel processes to run.'
+    },
+    name='Beta diversity group significance',
+    description=('Determine whether groups of samples are significantly '
+                 'different from one another using the ADONIS permutation-'
+                 'based statistical test in vegan-R. The function partitions '
+                 'sums of squares of a multivariate data set, and is directly '
+                 'analogous to MANOVA (multivariate analysis of variance). '
+                 'This action differs from beta_group_signficance in that it '
+                 'accepts R formulae to perform multi-way ADONIS tests; '
+                 'beta_group_signficance only performs one-way tests. For '
+                 'more details see http://cc.oulu.fi/~jarioksa/softhelp/vegan/'
+                 'html/adonis.html'),
+    citations=[citations['anderson2001new']]
+)

@@ -11,6 +11,8 @@ import collections
 import urllib.parse
 import pkg_resources
 import itertools
+import tempfile
+import subprocess
 
 import skbio
 import skbio.diversity
@@ -21,6 +23,7 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 import qiime2
 import q2templates
 from natsort import natsorted
+from patsy import ModelDesc
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -329,3 +332,60 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
     index = os.path.join(
         TEMPLATES, 'mantel_assets', 'index.html')
     q2templates.render(index, output_dir, context=context)
+
+
+def adonis(output_dir: str,
+           distance_matrix: skbio.DistanceMatrix,
+           metadata: qiime2.Metadata,
+           formula: str,
+           permutations: int = 999,
+           n_jobs: str = 1) -> None:
+    # Validate sample metadata is superset et cetera
+    metadata_ids = set(metadata.ids)
+    dm_ids = distance_matrix.ids
+    _validate_metadata_is_superset(metadata_ids, set(dm_ids))
+    # filter ids. ids must be in same order as dm
+    metadata = qiime2.Metadata(metadata.to_dataframe().reindex(dm_ids))
+
+    # Validate formula
+    terms = ModelDesc.from_formula(formula)
+    for t in terms.rhs_termlist:
+        for i in t.factors:
+            metadata.get_column(i.name())
+
+    # Run adonis
+    results_fp = os.path.join(output_dir, 'adonis.tsv')
+    with tempfile.TemporaryDirectory() as temp_dir_name:
+        dm_fp = os.path.join(temp_dir_name, 'dm.tsv')
+        distance_matrix.write(dm_fp)
+        md_fp = os.path.join(temp_dir_name, 'md.tsv')
+        metadata.save(md_fp)
+        cmd = ['run_adonis.R', dm_fp, md_fp, formula, str(permutations),
+               str(n_jobs), results_fp]
+        _run_command(cmd)
+
+    # Visualize results
+    results = pd.read_csv(results_fp, sep='\t')
+    results = q2templates.df_to_html(results)
+    index = os.path.join(TEMPLATES, 'adonis_assets', 'index.html')
+    q2templates.render(index, output_dir, context={'results': results})
+
+
+def _validate_metadata_is_superset(metadata_ids, other_ids):
+    missing_ids = other_ids.difference(metadata_ids)
+    if len(missing_ids) > 0:
+        raise ValueError('Missing samples in metadata: %r' % missing_ids)
+
+
+# Replace this function with QIIME2 API for wrapping commands/binaries,
+# pending https://github.com/qiime2/qiime2/issues/224
+def _run_command(cmd, verbose=True):
+    if verbose:
+        print("Running external command line application. This may print "
+              "messages to stdout and/or stderr.")
+        print("The command being run is below. This command cannot "
+              "be manually re-run as it will depend on temporary files that "
+              "no longer exist.")
+        print("\nCommand:", end=' ')
+        print(" ".join(cmd), end='\n\n')
+    subprocess.run(cmd, check=True)
