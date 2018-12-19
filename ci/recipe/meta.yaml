@@ -45,6 +45,7 @@ requirements:
     # of the version pin. Eventually there will not be a direct dependency on
     # `emperor` and this comment can be removed.
     - q2-emperor {{ release }}.*
+    - r-vegan
 
 test:
   imports:
