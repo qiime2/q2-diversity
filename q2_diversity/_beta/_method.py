@@ -66,7 +66,9 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
 
     # this behaviour is undefined, so let's avoid a seg fault
     try:
-        # https://psutil.readthedocs.io/en/latest/index.html
+        # https://psutil.readthedocs.io/en/latest/index.html#psutil.cpu_count
+        # `Process.cpu_affinity` may not be available on all systems, if not,
+        # fall back to the original cpu counting mechanism.
         cpus = len(psutil.Process().cpu_affinity())
     except AttributeError:
         cpus = psutil.cpu_count(logical=False)
