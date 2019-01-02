@@ -199,7 +199,9 @@ plugin.methods.register_function(
     },
     output_descriptions={'pcoa': 'The resulting PCoA matrix.'},
     name='Principal Coordinate Analysis',
-    description=("Apply principal coordinate analysis.")
+    description=("Apply principal coordinate analysis."),
+    citations=[citations['legendrelegendre'],
+               citations['halko2010']]
 )
 
 plugin.methods.register_function(
