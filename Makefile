@@ -1,5 +1,7 @@
 .PHONY: all lint test test-cov viz-alpha-correlation viz-alpha-group-significance viz-alpha-rarefaction install dev clean distclean
 
+PYTHON ?= python
+
 all: viz-alpha-correlation viz-alpha-group-significance viz-alpha-rarefaction
 
 lint:
@@ -35,7 +37,7 @@ viz-alpha-group-significance: q2_diversity/_alpha/alpha_group_significance_asset
 viz-alpha-rarefaction: q2_diversity/_alpha/alpha_rarefaction_assets/dist
 
 install: all
-	python setup.py install
+	$(PYTHON) setup.py install
 
 dev: all
 	pip install -e .
