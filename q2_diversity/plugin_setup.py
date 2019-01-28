@@ -717,7 +717,7 @@ plugin.visualizers.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={'metadata': Metadata,
                 'formula': Str,
-                'permutations': Int,
+                'permutations': Int % Range(1, None)
                 'n_jobs': Int},
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
