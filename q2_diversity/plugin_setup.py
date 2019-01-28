@@ -726,8 +726,13 @@ plugin.visualizers.register_function(
         'metadata': 'Sample metadata containing formula terms.',
         'formula': 'Model formula containing only independent terms contained '
                    'in the sample metadata. These can be continuous variables '
-                   'or factors, they can be transformed within the formula, '
-                   'and they can have interactions as in a typical R formula.',
+                   'or factors, and they can have interactions as in a '
+                   'typical R formula. E.g., the formula "treatment+block" '
+                   'would test whether the input distance matrix partitions '
+                   'based on "treatment" and "block" sample metadata. The '
+                   'formula "treatment*block" would test both of those '
+                   'effects as well as their interaction. Enclose formulae in '
+                   'quotes to avoid unpleasant surprises.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
         'n_jobs': 'Number of parallel processes to run.'
