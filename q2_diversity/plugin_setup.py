@@ -748,5 +748,5 @@ plugin.visualizers.register_function(
                  'beta_group_signficance only performs one-way tests. For '
                  'more details see http://cc.oulu.fi/~jarioksa/softhelp/vegan/'
                  'html/adonis.html'),
-    citations=[citations['anderson2001new']]
+    citations=[citations['anderson2001new'], citations['Oksanen2018']]
 )
