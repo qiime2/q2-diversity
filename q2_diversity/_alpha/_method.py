@@ -31,6 +31,10 @@ def _batch_table(table, batchsize=1000):
     # always have at least 1 partition
     n_partitions = (len(table.ids()) / batchsize) + 1
     for id_split in np.array_split(table.ids(), n_partitions):
+        # catch case of batchsize == len(table.ids())
+        if not len(id_split):
+            continue
+
         subset = table.filter(set(id_split), inplace=False).remove_empty()
 
         counts = subset.matrix_data.toarray().astype(int).T
