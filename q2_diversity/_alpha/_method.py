@@ -48,7 +48,6 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
 
     results = []
     for counts, sample_ids, feature_ids in _batch_table(table):
-
         try:
             result = skbio.diversity.alpha_diversity(metric=metric,
                                                      counts=counts,
@@ -72,10 +71,11 @@ def alpha(table: biom.Table, metric: str) -> pd.Series:
     if table.is_empty():
         raise ValueError("The provided table object is empty")
 
-    counts = table.matrix_data.toarray().astype(int).T
-    sample_ids = table.ids(axis='sample')
+    results = []
+    for counts, sample_ids, _ in _batch_table(table):
+        result = skbio.diversity.alpha_diversity(metric=metric, counts=counts,
+                                                 ids=sample_ids)
+        result.name = metric
+        results.append(result)
 
-    result = skbio.diversity.alpha_diversity(metric=metric, counts=counts,
-                                             ids=sample_ids)
-    result.name = metric
-    return result
+    return pd.concat(results)
