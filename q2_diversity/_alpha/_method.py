@@ -5,7 +5,7 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
-
+import numpy as np
 import biom
 import pandas as pd
 import skbio.diversity
@@ -27,6 +27,18 @@ def non_phylogenetic_metrics():
             'lladser_pe', 'lladser_ci'}
 
 
+def _batch_table(table, batchsize=1000):
+    # always have at least 1 partition
+    n_partitions = (len(table.ids()) / batchsize) + 1
+    for id_split in np.array_split(table.ids(), n_partitions):
+        subset = table.filter(set(id_split), inplace=False).remove_empty()
+
+        counts = subset.matrix_data.toarray().astype(int).T
+        feature_ids = subset.ids(axis='observation')
+
+        yield (counts, id_split, feature_ids)
+
+
 def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
                        metric: str) -> pd.Series:
     if metric not in phylogenetic_metrics():
@@ -34,23 +46,24 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
     if table.is_empty():
         raise ValueError("The provided table object is empty")
 
-    counts = table.matrix_data.toarray().astype(int).T
-    sample_ids = table.ids(axis='sample')
-    feature_ids = table.ids(axis='observation')
+    results = []
+    for counts, sample_ids, feature_ids in _batch_table(table):
 
-    try:
-        result = skbio.diversity.alpha_diversity(metric=metric,
-                                                 counts=counts,
-                                                 ids=sample_ids,
-                                                 otu_ids=feature_ids,
-                                                 tree=phylogeny)
-    except skbio.tree.MissingNodeError as e:
-        message = str(e).replace('otu_ids', 'feature_ids')
-        message = message.replace('tree', 'phylogeny')
-        raise skbio.tree.MissingNodeError(message)
+        try:
+            result = skbio.diversity.alpha_diversity(metric=metric,
+                                                     counts=counts,
+                                                     ids=sample_ids,
+                                                     otu_ids=feature_ids,
+                                                     tree=phylogeny)
+        except skbio.tree.MissingNodeError as e:
+            message = str(e).replace('otu_ids', 'feature_ids')
+            message = message.replace('tree', 'phylogeny')
+            raise skbio.tree.MissingNodeError(message)
 
-    result.name = metric
-    return result
+        result.name = metric
+        results.append(result)
+
+    return pd.concat(results)
 
 
 def alpha(table: biom.Table, metric: str) -> pd.Series:
