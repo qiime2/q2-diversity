@@ -106,7 +106,7 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
 
 
 def beta(table: biom.Table, metric: str,
-         pseudocount: int = 1, n_jobs: int = 1)-> skbio.DistanceMatrix:
+         pseudocount: int = 1, n_jobs: int = 1) -> skbio.DistanceMatrix:
 
     if not (metric in non_phylogenetic_metrics()):
         raise ValueError("Unknown metric: %s" % metric)
