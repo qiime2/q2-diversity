@@ -97,8 +97,8 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
 
     tmp_tree = skbio.TreeNode.read(str(phylogeny), convert_underscores=False)
     if not obs_ids.issubset({n.name for n in tmp_tree.tips()}):
-        raise ValueError("Table does not appear to be completed represented "
-                         "by the phylogeny.")
+        raise ValueError("The table does not appear to be completely "
+                         "represented by the phylogeny.")
 
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,
