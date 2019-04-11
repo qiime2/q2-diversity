@@ -51,6 +51,14 @@ class AdonisTests(TestPluginBase):
                 pdt.assert_frame_equal(
                     res, exp, check_dtype=False, check_frame_type=False)
 
+    def test_adonis_handles_single_quotes_in_metadata(self):
+        md = qiime2.Metadata(pd.DataFrame(
+            [[1, 'a\'s'], [1, 'b\'s'], [2, 'b\'s'], [2, 'a\'s']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3', 'F'], name='id')))
+        with tempfile.TemporaryDirectory() as temp_dir_name:
+            adonis(temp_dir_name, self.dm, md, 'letter+number')
+
     def test_metadata_is_superset(self):
         md = qiime2.Metadata(pd.DataFrame(
             [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a']],
