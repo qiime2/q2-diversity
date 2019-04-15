@@ -737,7 +737,7 @@ plugin.visualizers.register_function(
                         'p-values.',
         'n_jobs': 'Number of parallel processes to run.'
     },
-    name='Beta diversity group significance',
+    name='adonis PERMANOVA test for beta group significance',
     description=('Determine whether groups of samples are significantly '
                  'different from one another using the ADONIS permutation-'
                  'based statistical test in vegan-R. The function partitions '
