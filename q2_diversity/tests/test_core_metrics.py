@@ -55,7 +55,7 @@ class CoreMetricsTests(TestPluginBase):
         # (as long as the type is a subtype of the signature).
         self.assertEqual(
             repr(results.faith_pd_vector.type),
-            "SampleData[AlphaDiversity] % Properties(['phylogenetic'])")
+            "SampleData[AlphaDiversity] % Properties('phylogenetic')")
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
                              name='observed_otus')
@@ -89,7 +89,7 @@ class CoreMetricsTests(TestPluginBase):
         # (as long as the type is a subtype of the signature).
         self.assertEqual(
             repr(results.faith_pd_vector.type),
-            "SampleData[AlphaDiversity] % Properties(['phylogenetic'])")
+            "SampleData[AlphaDiversity] % Properties('phylogenetic')")
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
                              name='observed_otus')
