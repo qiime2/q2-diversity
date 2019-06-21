@@ -8,8 +8,7 @@
 
 
 from ._method import (alpha, alpha_phylogenetic, alpha_phylogenetic_alt,
-                      alpha_group_significance, alpha_correlation,
-                      alpha_rarefaction)
+                      phylogenetic_metrics, non_phylogenetic_metrics)
 from ._visualizer import (alpha_group_significance, alpha_correlation,
                           alpha_rarefaction,
                           alpha_rarefaction_supported_metrics)
