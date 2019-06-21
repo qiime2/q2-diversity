@@ -14,6 +14,7 @@ import io
 import biom
 import skbio
 import qiime2
+from qiime2.plugin.testing import TestPluginBase
 import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
@@ -22,7 +23,9 @@ from q2_diversity import (alpha, alpha_phylogenetic, alpha_correlation,
                           alpha_phylogenetic_alt, alpha_group_significance)
 
 
-class AlphaTests(unittest.TestCase):
+class AlphaTests(TestPluginBase):
+
+    package = 'q2_diversity.tests'
 
     def test_alpha(self):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -106,12 +109,9 @@ class AlphaTests(unittest.TestCase):
             alpha_phylogenetic(table=t, phylogeny=tree, metric='faith_pd')
 
     def test_alpha_phylogenetic_alt(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        actual = alpha_phylogenetic_alt(table=t,
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
+        actual = alpha_phylogenetic_alt(table=table,
                                         phylogeny=tree,
                                         metric='faith_pd')
         # expected computed with skbio.diversity.alpha_diversity
@@ -120,46 +120,41 @@ class AlphaTests(unittest.TestCase):
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylogenetic_alt_non_phylo_metric(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
         with self.assertRaises(ValueError):
-            alpha_phylogenetic_alt(table=t, phylogeny=tree,
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
                                    metric='observed_otus')
 
     def test_alpha_phylogenetic_alt_unknown_metric(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
         with self.assertRaises(ValueError):
-            alpha_phylogenetic_alt(table=t,
+            alpha_phylogenetic_alt(table=table,
                                    phylogeny=tree,
                                    metric='not-a-metric')
 
     def test_alpha_phylogenetic_alt_skbio_error_rewriting(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25):0.25, O3:0.75)root;'))
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('vaw.nwk')
         # Verify through regex that there is a ``feature_ids`` substring
         # followed by a ``phylogeny``
         with self.assertRaisesRegex(ValueError, "The table does not "
                                     "appear to be completely represented "
                                     "by the phylogeny."):
-            alpha_phylogenetic_alt(table=t, phylogeny=tree, metric='faith_pd')
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
+                                   metric='faith_pd')
 
     def test_alpha_phylogenetic_alt_empty_table(self):
-        t = biom.Table(np.array([]), [], [])
-        tree = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25):0.25, O3:0.75)root;'))
+        table = self.get_data_path('empty.biom')
+        tree = self.get_data_path('three_feature.tree')
 
         with self.assertRaisesRegex(ValueError, "empty"):
-            alpha_phylogenetic_alt(table=t, phylogeny=tree, metric='faith_pd')
+            alpha_phylogenetic_alt(table=table, 
+                                   phylogeny=tree, 
+                                   metric='faith_pd')
 
 
 class AlphaCorrelationTests(unittest.TestCase):
