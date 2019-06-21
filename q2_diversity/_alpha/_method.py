@@ -1,4 +1,5 @@
-# ---------------------------------------------------------------------------- # Copyright (c) 2016-2019, QIIME 2 development team.
+# ----------------------------------------------------------------------------
+# Copyright (c) 2016-2019, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -18,6 +19,7 @@ from q2_types.tree import NewickFormat
 # the private API here for now.
 def phylogenetic_metrics():
     return {'faith_pd'}
+
 
 def phylogenetic_metrics_alt():
     return {'faith_pd': unifrac.faith_pd}
@@ -66,7 +68,7 @@ def alpha_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
 
     f = metrics[metric]
-    
+
     result = f(str(table), str(phylogeny))
 
     result.name = metric
