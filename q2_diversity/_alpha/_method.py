@@ -64,8 +64,6 @@ def alpha_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
     metrics = phylogenetic_metrics_alt()
     if metric not in metrics:
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
-    if table.is_empty():
-        raise ValueError("The provided table object is empty")
 
     f = metrics[metric]
     
