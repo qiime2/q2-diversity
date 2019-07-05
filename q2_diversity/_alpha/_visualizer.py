@@ -111,6 +111,10 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
             kw_H_pairwise['p-value'], method='fdr_bh')[1]
         kw_H_pairwise.sort_index(inplace=True)
         pairwise_fn = 'kruskal-wallis-pairwise-%s.csv' % escaped_column
+        # Make sure the filename isn't too long to be a filename
+        if len(pairwise_fn) > os.statvfs(output_dir).f_namemax:
+            raise ValueError(f'Length of metadata column {column} exceeds '
+                             'maximum metada column name length.')
         pairwise_path = os.path.join(output_dir, pairwise_fn)
         kw_H_pairwise.to_csv(pairwise_path)
 
