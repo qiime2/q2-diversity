@@ -339,7 +339,7 @@ def adonis(output_dir: str,
            metadata: qiime2.Metadata,
            formula: str,
            permutations: int = 999,
-           n_jobs: str = 1) -> None:
+           n_jobs: int = 1) -> None:
     # Validate sample metadata is superset et cetera
     metadata_ids = set(metadata.ids)
     dm_ids = distance_matrix.ids
