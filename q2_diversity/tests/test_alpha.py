@@ -152,8 +152,8 @@ class AlphaTests(TestPluginBase):
         tree = self.get_data_path('three_feature.tree')
 
         with self.assertRaisesRegex(ValueError, "empty"):
-            alpha_phylogenetic_alt(table=table, 
-                                   phylogeny=tree, 
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
                                    metric='faith_pd')
 
 
