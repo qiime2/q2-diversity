@@ -6,7 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import h5py
 import biom
 import skbio
 import skbio.diversity
@@ -81,24 +80,6 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
         f = partial(metrics[metric], alpha=alpha)
     else:
         f = metrics[metric]
-
-    # avoid a full parse of the table just to check shape and IDs
-    fp_path = str(table)
-    with h5py.File(fp_path) as h5:
-        n_features, n_samples = h5.attrs['shape']
-        if n_features == 0 or n_samples == 0:
-            raise ValueError('The table appears to be empty.')
-
-        dataset = h5['observation/ids']
-        if isinstance(dataset[0], bytes):
-            obs_ids = {i.decode('ascii') for i in dataset}
-        else:
-            obs_ids = {i for i in dataset}
-
-    tmp_tree = skbio.TreeNode.read(str(phylogeny), convert_underscores=False)
-    if not obs_ids.issubset({n.name for n in tmp_tree.tips()}):
-        raise ValueError("The table does not appear to be completely "
-                         "represented by the phylogeny.")
 
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,
