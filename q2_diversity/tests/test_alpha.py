@@ -41,14 +41,14 @@ class AlphaTests(TestPluginBase):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown metric'):
             alpha(table=t, metric='faith_pd')
 
     def test_alpha_unknown_metric(self):
         t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown metric'):
             alpha(table=t, metric='not-a-metric')
 
     def test_alpha_empty_table(self):
@@ -75,7 +75,7 @@ class AlphaTests(TestPluginBase):
                        ['S1', 'S2', 'S3'])
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
             alpha_phylogenetic(table=t, phylogeny=tree,
                                metric='observed_otus')
 
@@ -85,7 +85,7 @@ class AlphaTests(TestPluginBase):
                        ['S1', 'S2', 'S3'])
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
             alpha_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
 
     def test_alpha_phylogenetic_skbio_error_rewriting(self):
@@ -122,7 +122,7 @@ class AlphaTests(TestPluginBase):
     def test_alpha_phylogenetic_alt_non_phylo_metric(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
             alpha_phylogenetic_alt(table=table,
                                    phylogeny=tree,
                                    metric='observed_otus')
@@ -130,7 +130,7 @@ class AlphaTests(TestPluginBase):
     def test_alpha_phylogenetic_alt_unknown_metric(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
             alpha_phylogenetic_alt(table=table,
                                    phylogeny=tree,
                                    metric='not-a-metric')

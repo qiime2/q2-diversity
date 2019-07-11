@@ -169,7 +169,7 @@ plugin.methods.register_function(
     output_descriptions={
         'alpha_diversity': 'Vector containing per-sample alpha diversities.'
     },
-    name='Alpha diversity (phylogenetic)',
+    name='Alpha diversity (phylogenetic) - alternative implementation',
     description=("Computes a user-specified phylogenetic alpha diversity "
                  "metric for all samples in a feature table. This "
                  "implementation is recommended for large datasets, otherwise "
