@@ -743,7 +743,7 @@ plugin.visualizers.register_function(
                  'based statistical test in vegan-R. The function partitions '
                  'sums of squares of a multivariate data set, and is directly '
                  'analogous to MANOVA (multivariate analysis of variance). '
-                 'This action differs from beta_group_signficance in that it '
+                 'This action differs from beta_group_significance in that it '
                  'accepts R formulae to perform multi-way ADONIS tests; '
                  'beta_group_signficance only performs one-way tests. For '
                  'more details see http://cc.oulu.fi/~jarioksa/softhelp/vegan/'
