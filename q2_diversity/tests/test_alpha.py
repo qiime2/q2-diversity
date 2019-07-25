@@ -138,8 +138,6 @@ class AlphaTests(TestPluginBase):
     def test_alpha_phylogenetic_alt_skbio_error_rewriting(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('vaw.nwk')
-        # Verify through regex that there is a ``feature_ids`` substring
-        # followed by a ``phylogeny``
         with self.assertRaisesRegex(ValueError, "The table does not "
                                     "appear to be completely represented "
                                     "by the phylogeny."):
