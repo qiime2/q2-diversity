@@ -150,7 +150,8 @@ _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
 def alpha_correlation(output_dir: str,
                       alpha_diversity: pd.Series,
                       metadata: qiime2.Metadata,
-                      method: str = 'spearman') -> None:
+                      method: str = 'spearman',
+                      intersect_ids: bool = False) -> None:
     try:
         alpha_correlation_fn = _alpha_correlation_fns[method]
     except KeyError:
@@ -158,9 +159,18 @@ def alpha_correlation(output_dir: str,
                          'options are %s.' %
                          (method, ', '.join(_alpha_correlation_fns.keys())))
 
+    # Either filter metadata and alpha_diversity values to match each other
+    # (intersect_ids = True) OR
     # Filter metadata to only include IDs present in the alpha diversity data.
     # Also ensures every alpha diversity ID is present in the metadata.
-    metadata = metadata.filter_ids(alpha_diversity.index)
+    if intersect_ids:
+        ids1 = set(metadata.ids)
+        ids2 = set(alpha_diversity.index)
+        matched_ids = ids1 & ids2
+        metadata = metadata.filter_ids(matched_ids)
+        alpha_diversity = alpha_diversity[matched_ids]
+    else:
+        metadata = metadata.filter_ids(alpha_diversity.index)
 
     pre_filtered_cols = set(metadata.columns)
     metadata = metadata.filter_columns(column_type='numeric',
