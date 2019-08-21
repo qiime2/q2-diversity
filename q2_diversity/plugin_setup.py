@@ -376,6 +376,7 @@ plugin.pipelines.register_function(
     parameters={
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
+        'with_replacement': Bool,
         'n_jobs': Int % Range(0, None),
     },
     outputs=[
@@ -398,6 +399,9 @@ plugin.pipelines.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
+        'with_replacement': 'Rarefy with replacement by sampling from the '
+                            'multinomial distribution instead of rarefying '
+                            'without replacement.',
         'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
