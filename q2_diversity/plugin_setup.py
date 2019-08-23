@@ -629,13 +629,19 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_correlation,
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'method': Str % Choices(alpha_correlation_methods),
-                'metadata': Metadata},
+                'metadata': Metadata,
+                'intersect_ids': Bool},
     input_descriptions={
         'alpha_diversity': 'Vector of alpha diversity values by sample.'
     },
     parameter_descriptions={
         'method': 'The correlation test to be applied.',
-        'metadata': 'The sample metadata.'
+        'metadata': 'The sample metadata.',
+        'intersect_ids': 'If supplied, IDs that are not found in both '
+                         'the alpha diversity vector and metadata will '
+                         'be discarded before calculating '
+                         'the correlation. Default behavior is to error on '
+                         'any mismatched IDs.'
     },
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata columns are '

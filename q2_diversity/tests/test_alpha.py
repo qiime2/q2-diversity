@@ -269,7 +269,7 @@ class AlphaCorrelationTests(unittest.TestCase):
             with open(jsonp_fp) as jsonp_fh:
                 self.assertTrue('"sampleSize": 3' in jsonp_fh.read())
 
-    def test_extra_alpha_div(self):
+    def test_extra_alpha_div_no_intersect(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0, 8.0], name='alpha-div',
                               index=['sample1', 'sample2', 'sample3',
                                      'sample4'])
@@ -281,6 +281,21 @@ class AlphaCorrelationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,
                                         'not present.*metadata.*sample4'):
                 alpha_correlation(output_dir, alpha_div, md)
+
+    def test_extra_alpha_div_intersect(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0, 8.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3',
+                                     'sample4'])
+        md = qiime2.Metadata(
+            pd.DataFrame(
+                {'value': [1.0, 2.0, 3.0]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_correlation(output_dir, alpha_div, md, intersect_ids=True)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            jsonp_fp = os.path.join(output_dir, 'column-value.jsonp')
+            self.assertTrue(os.path.exists(jsonp_fp))
 
     def test_all_metadata_columns_filtered(self):
         alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
