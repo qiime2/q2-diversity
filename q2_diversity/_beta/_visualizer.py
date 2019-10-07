@@ -191,9 +191,9 @@ def beta_group_significance(output_dir: str,
         plt.tight_layout()
         fig = ax.get_figure()
         fig.savefig(os.path.join(output_dir, '%s-boxplots.png' %
-                                 urllib.parse.quote_plus(str(group_id))))
+                                 str(group_id)))
         fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' %
-                                 urllib.parse.quote_plus(str(group_id))))
+                                 str(group_id)))
         fig.clear()
 
     pairs_summary.to_csv(os.path.join(output_dir, 'raw_data.tsv'), sep='\t')
