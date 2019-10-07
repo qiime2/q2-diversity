@@ -8,7 +8,6 @@
 
 import os.path
 import collections
-import urllib.parse
 import pkg_resources
 import itertools
 import tempfile
