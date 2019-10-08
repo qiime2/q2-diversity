@@ -119,6 +119,10 @@ def _get_pairwise_group_significance_stats(
                                       permutations=permutations)
 
 
+def escape_chars(charlist):
+    return "".join(c if c.isalnum() or c in "._-" else "_" for c in charlist)
+
+
 def beta_group_significance(output_dir: str,
                             distance_matrix: skbio.DistanceMatrix,
                             metadata: qiime2.CategoricalMetadataColumn,
@@ -189,10 +193,11 @@ def beta_group_significance(output_dir: str,
         sns.despine()
         plt.tight_layout()
         fig = ax.get_figure()
-        fig.savefig(os.path.join(output_dir, '%s-boxplots.png' %
-                                 str(group_id)))
-        fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' %
-                                 str(group_id)))
+
+        group_id = escape_chars(group_id)
+
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.png' % group_id))
+        fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' % group_id))
         fig.clear()
 
     pairs_summary.to_csv(os.path.join(output_dir, 'raw_data.tsv'), sep='\t')
@@ -233,7 +238,8 @@ def beta_group_significance(output_dir: str,
         pairwise_results_html = None
 
     # repartition groupings for rendering
-    group_ids = list(groupings.keys())
+    group_ids = [escape_chars(group_id) for group_id in list(groupings.keys())]
+
     row_count, group_count = 3, len(group_ids)  # Start at three plots per row
     while group_count % row_count != 0:
         row_count = row_count - 1
