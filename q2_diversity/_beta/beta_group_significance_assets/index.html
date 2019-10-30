@@ -27,8 +27,8 @@
         <div class="row">
           {% for group_id in group_row %}
             <div class="col-lg-{{ bootstrap_group_col_size }} text-center">
-              <a href="{{ group_id | replace(' ', '+') }}-boxplots.pdf">
-                <img src="{{ group_id | replace(' ', '+') }}-boxplots.png">
+              <a href="{{ group_id }}-boxplots.pdf">
+                <img src="{{ group_id }}-boxplots.png">
                 <br>
                 <p>Download as PDF</p>
               </a>

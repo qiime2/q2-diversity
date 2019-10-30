@@ -234,7 +234,15 @@ def beta_group_significance(output_dir: str,
         pairwise_results_html = None
 
     # repartition groupings for rendering
-    group_ids = list(groupings.keys())
+    group_ids = [
+        # We have to DOUBLE encode this, as the file/resource name is a literal
+        # URI-encoded string, we do this to prevent issues with the filesystem
+        # however, as a result, our links need to escape % so that the browser
+        # asks for the right escaped name (instead of the original name, which
+        # doesn't exist inside the visualization).
+        urllib.parse.quote_plus(urllib.parse.quote_plus(k))
+        for k in groupings.keys()
+    ]
     row_count, group_count = 3, len(group_ids)  # Start at three plots per row
     while group_count % row_count != 0:
         row_count = row_count - 1
