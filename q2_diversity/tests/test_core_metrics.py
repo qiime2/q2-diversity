@@ -55,10 +55,10 @@ class CoreMetricsTests(TestPluginBase):
         # (as long as the type is a subtype of the signature).
         self.assertEqual(
             repr(results.faith_pd_vector.type),
-            "SampleData[AlphaDiversity] % Properties('phylogenetic')")
+            "SampleData[AlphaDiversity]")
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                             name='observed_otus')
+                             name='observed_features')
         pdt.assert_series_equal(results[2].view(pd.Series), expected)
 
     def test_core_metrics_phylogenetic_multiple_jobs(self):
@@ -89,10 +89,10 @@ class CoreMetricsTests(TestPluginBase):
         # (as long as the type is a subtype of the signature).
         self.assertEqual(
             repr(results.faith_pd_vector.type),
-            "SampleData[AlphaDiversity] % Properties('phylogenetic')")
+            "SampleData[AlphaDiversity]")
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                             name='observed_otus')
+                             name='observed_features')
         pdt.assert_series_equal(results[2].view(pd.Series), expected)
 
     def test_core_metrics_phylogenetic_rarefy_drops_sample(self):
@@ -114,7 +114,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(len(results), 17)
 
         expected = pd.Series({'S2': 2, 'S3': 2},
-                             name='observed_otus')
+                             name='observed_features')
         pdt.assert_series_equal(results[2].view(pd.Series), expected)
 
     def test_core_metrics(self):
@@ -134,7 +134,8 @@ class CoreMetricsTests(TestPluginBase):
                          'DistanceMatrix')
         self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
-        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2}, name='observed_otus')
+        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
+                              name='observed_features')
         pdt.assert_series_equal(results[1].view(pd.Series), expected)
 
 
