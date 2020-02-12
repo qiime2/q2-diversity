@@ -421,7 +421,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
@@ -445,7 +445,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
@@ -469,7 +469,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         obs = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8]],
@@ -495,7 +495,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         obs = _reindex_with_metadata('pet', ['pet', 'toy'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
