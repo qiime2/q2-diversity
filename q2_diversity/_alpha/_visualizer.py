@@ -237,15 +237,15 @@ def alpha_correlation(output_dir: str,
 
 
 def _reindex_with_metadata(column, columns, merged):
-    merged.set_index(column, inplace=True)
-    merged.sort_index(axis=0, ascending=True, inplace=True)
-    merged = merged.groupby(level=[column])
-    counts = merged.count()
+    reindexed = merged.set_index(column)
+    reindexed.sort_index(axis=0, ascending=True, inplace=True)
+    grouped = reindexed.groupby(level=[column])
+    counts = grouped.count()
     # Removes the column name used to set the index of `merged` above
     col_diff = set(columns) - set([column])
     if col_diff:
         counts.drop(col_diff, axis=1, inplace=True, level=0)
-    median_ = merged.median()
+    median_ = grouped.median()
     return median_, counts
 
 
