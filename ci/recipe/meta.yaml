@@ -45,6 +45,8 @@ requirements:
     # `emperor` and this comment can be removed.
     - q2-emperor {{ release }}.*
     - r-vegan >=2.5_3
+    # vegan 2.5_6 on OS X doesn't work with libopenblas 0.3.8
+    - libopenblas 0.3.7
 
 test:
   imports:
