@@ -24,7 +24,6 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
     results.append(rarefied_table)
 
     for metric in (observed_features, shannon, pielou_e):
-        print(table)
         results += metric(table=rarefied_table)
 
     dms = []
