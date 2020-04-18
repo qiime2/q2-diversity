@@ -40,7 +40,8 @@ def non_phylogenetic_metrics():
             'correlation', 'hamming', 'jaccard', 'chebyshev', 'canberra',
             'braycurtis', 'mahalanobis', 'yule', 'matching', 'dice',
             'kulsinski', 'rogerstanimoto', 'russellrao', 'sokalmichener',
-            'sokalsneath', 'wminkowski', 'aitchison', 'canberra_adkins'}
+            'sokalsneath', 'wminkowski', 'aitchison', 'canberra_adkins',
+            'jensenshannon'}
 
 
 def all_metrics():
