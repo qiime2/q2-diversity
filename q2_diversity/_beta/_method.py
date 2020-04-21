@@ -111,7 +111,7 @@ def beta(table: biom.Table, metric: str,
 
         return (1. / nnz) * np.sum(np.abs(x_ - y_) / (x_ + y_))
 
-    def jensenshannon(x, y, **kwds):
+    def jensen_shannon(x, y, **kwds):
         return jensenshannon(x, y)
 
     if metric == 'aitchison':
@@ -120,7 +120,7 @@ def beta(table: biom.Table, metric: str,
     elif metric == 'canberra_adkins':
         metric = canberra_adkins
     elif metric == 'jensenshannon':
-        metric = jensenshannon
+        metric = jensen_shannon
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")
