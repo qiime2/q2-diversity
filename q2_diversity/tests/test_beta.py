@@ -68,7 +68,7 @@ class BetaDiversityTests(TestPluginBase):
                   ['S1', 'S2', 'S3'])
         actual = beta(table=t, metric='jensenshannon')
         # expected computed with scipy.spatial.distance.jensenshannon
-        expected = skbio.DistanceMatrix([[0.0000000, 0.4645014 , 0.52379239],
+        expected = skbio.DistanceMatrix([[0.0000000, 0.4645014, 0.52379239],
                                          [0.4645014, 0.0000000, 0.07112939],
                                          [0.52379239, 0.07112939, 0.0000000]],
                                         ids=['S1', 'S2', 'S3'])
