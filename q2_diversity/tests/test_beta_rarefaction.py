@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -79,7 +79,7 @@ class BetaRarefactionTests(SharedSetup, TestPluginBase):
         # pairwise comparison; assert the number of comparisons is equal to
         # nCr (n Choose r), where n=`iterations` and r=2.
         self.assertEqual(len(tsv_contents.split('\n')) - 2,
-                         scipy.misc.comb(iterations, 2))
+                         scipy.special.comb(iterations, 2))
 
     def check_clustering(self, viz_dir, clustering_method):
         cluster_fp = os.path.join(viz_dir, 'tree.html')

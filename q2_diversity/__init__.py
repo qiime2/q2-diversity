@@ -1,13 +1,14 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from ._alpha import (alpha, alpha_phylogenetic, alpha_group_significance,
-                     alpha_correlation, alpha_rarefaction)
+from ._alpha import (alpha, alpha_phylogenetic, alpha_phylogenetic_alt,
+                     alpha_group_significance, alpha_correlation,
+                     alpha_rarefaction)
 from ._beta import (beta, beta_phylogenetic, bioenv,
                     beta_group_significance, mantel, beta_rarefaction,
                     beta_correlation, adonis)
@@ -23,8 +24,8 @@ del get_versions
 
 
 __all__ = ['beta', 'beta_phylogenetic', 'alpha',
-           'alpha_phylogenetic', 'pcoa', 'pcoa_biplot',
-           'alpha_group_significance', 'bioenv',
+           'alpha_phylogenetic', 'alpha_phylogenetic_alt',
+           'pcoa', 'pcoa_biplot', 'alpha_group_significance', 'bioenv',
            'beta_group_significance', 'alpha_correlation',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',

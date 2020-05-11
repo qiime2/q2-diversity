@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -191,9 +191,9 @@ def beta_group_significance(output_dir: str,
         plt.tight_layout()
         fig = ax.get_figure()
         fig.savefig(os.path.join(output_dir, '%s-boxplots.png' %
-                                 urllib.parse.quote_plus(str(group_id))))
+                                 urllib.parse.quote(str(group_id))))
         fig.savefig(os.path.join(output_dir, '%s-boxplots.pdf' %
-                                 urllib.parse.quote_plus(str(group_id))))
+                                 urllib.parse.quote(str(group_id))))
         fig.clear()
 
     pairs_summary.to_csv(os.path.join(output_dir, 'raw_data.tsv'), sep='\t')
@@ -234,7 +234,15 @@ def beta_group_significance(output_dir: str,
         pairwise_results_html = None
 
     # repartition groupings for rendering
-    group_ids = list(groupings.keys())
+    group_ids = [
+        # We have to DOUBLE encode this, as the file/resource name is a literal
+        # URI-encoded string, we do this to prevent issues with the filesystem
+        # however, as a result, our links need to escape % so that the browser
+        # asks for the right escaped name (instead of the original name, which
+        # doesn't exist inside the visualization).
+        urllib.parse.quote(urllib.parse.quote(k))
+        for k in groupings.keys()
+    ]
     row_count, group_count = 3, len(group_ids)  # Start at three plots per row
     while group_count % row_count != 0:
         row_count = row_count - 1

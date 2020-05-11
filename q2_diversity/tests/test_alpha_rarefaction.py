@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -418,21 +418,21 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'peanut']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', ['pet'], data)
+        median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[0])
+        pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[1])
+        pdt.assert_frame_equal(exp, counts)
 
     def test_some_duplicates_in_column(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -442,21 +442,21 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', ['pet'], data)
+        median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[0])
+        pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[1, 1, 1, 1], [2, 2, 2, 2]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[1])
+        pdt.assert_frame_equal(exp, counts)
 
     def test_all_identical(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -466,21 +466,21 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'russ']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', ['pet'], data)
+        median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[0])
+        pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[3, 3, 3, 3]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[1])
+        pdt.assert_frame_equal(exp, counts)
 
     def test_multiple_columns(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
@@ -492,34 +492,34 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                   [9, 10, 11, 12, 'peanut', 'stick']],
                             columns=columns, index=['S1', 'S2', 'S3'])
 
-        obs = _reindex_with_metadata('pet', ['pet', 'toy'], data)
+        median, counts = _reindex_with_metadata('pet', ['pet', 'toy'], data)
 
         exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '']],
-                                labels=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[0])
+        pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[1])
+        pdt.assert_frame_equal(exp, counts)
 
-        obs = _reindex_with_metadata('toy', ['pet', 'toy'], data)
+        median, counts = _reindex_with_metadata('toy', ['pet', 'toy'], data)
 
         exp_ind = pd.Index(['stick', 'yeti'], name='toy')
         exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[0])
+        pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[2, 2, 2, 2], [1, 1, 1, 1]],
                            columns=exp_col, index=exp_ind)
 
-        pdt.assert_frame_equal(exp, obs[1])
+        pdt.assert_frame_equal(exp, counts)
 
 
 class AlphaRarefactionJSONPTests(unittest.TestCase):

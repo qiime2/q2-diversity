@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -150,7 +150,8 @@ _alpha_correlation_fns = {'spearman': scipy.stats.spearmanr,
 def alpha_correlation(output_dir: str,
                       alpha_diversity: pd.Series,
                       metadata: qiime2.Metadata,
-                      method: str = 'spearman') -> None:
+                      method: str = 'spearman',
+                      intersect_ids: bool = False) -> None:
     try:
         alpha_correlation_fn = _alpha_correlation_fns[method]
     except KeyError:
@@ -158,9 +159,18 @@ def alpha_correlation(output_dir: str,
                          'options are %s.' %
                          (method, ', '.join(_alpha_correlation_fns.keys())))
 
+    # Either filter metadata and alpha_diversity values to match each other
+    # (intersect_ids = True) OR
     # Filter metadata to only include IDs present in the alpha diversity data.
     # Also ensures every alpha diversity ID is present in the metadata.
-    metadata = metadata.filter_ids(alpha_diversity.index)
+    if intersect_ids:
+        ids1 = set(metadata.ids)
+        ids2 = set(alpha_diversity.index)
+        matched_ids = ids1 & ids2
+        metadata = metadata.filter_ids(matched_ids)
+        alpha_diversity = alpha_diversity[matched_ids]
+    else:
+        metadata = metadata.filter_ids(alpha_diversity.index)
 
     pre_filtered_cols = set(metadata.columns)
     metadata = metadata.filter_columns(column_type='numeric',
@@ -227,12 +237,15 @@ def alpha_correlation(output_dir: str,
 
 
 def _reindex_with_metadata(column, columns, merged):
-    merged.set_index(column, inplace=True)
-    merged.sort_index(axis=0, ascending=True, inplace=True)
-    merged = merged.groupby(level=[column])
-    counts = merged.count()
-    counts.drop(columns, axis=1, inplace=True, level=0)
-    median_ = merged.median()
+    reindexed = merged.set_index(column)
+    reindexed.sort_index(axis=0, ascending=True, inplace=True)
+    grouped = reindexed.groupby(level=[column])
+    counts = grouped.count()
+    # Removes the column name used to set the index of `merged` above
+    col_diff = set(columns) - set([column])
+    if col_diff:
+        counts.drop(col_diff, axis=1, inplace=True, level=0)
+    median_ = grouped.median()
     return median_, counts
 
 

@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -56,6 +56,22 @@ class BetaDiversityTests(TestPluginBase):
         expected = skbio.DistanceMatrix(np.array([[0.0, d], [d, 0.0]]),
                                         ids=['S1', 'S2'])
         actual = beta(table=t, metric='canberra_adkins')
+
+        self.assertEqual(actual.ids, expected.ids)
+        for id1 in actual.ids:
+            for id2 in actual.ids:
+                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_beta_jensenshannon(self):
+        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                  ['O1', 'O2'],
+                  ['S1', 'S2', 'S3'])
+        actual = beta(table=t, metric='jensenshannon')
+        # expected computed with scipy.spatial.distance.jensenshannon
+        expected = skbio.DistanceMatrix([[0.0000000, 0.4645014, 0.52379239],
+                                         [0.4645014, 0.0000000, 0.07112939],
+                                         [0.52379239, 0.07112939, 0.0000000]],
+                                        ids=['S1', 'S2', 'S3'])
 
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:

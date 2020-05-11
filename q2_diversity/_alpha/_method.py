@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -9,12 +9,20 @@
 import biom
 import pandas as pd
 import skbio.diversity
+import unifrac
+
+from q2_types.feature_table import BIOMV210Format
+from q2_types.tree import NewickFormat
 
 
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
 def phylogenetic_metrics():
     return {'faith_pd'}
+
+
+def phylogenetic_metrics_alt():
+    return {'faith_pd': unifrac.faith_pd}
 
 
 def non_phylogenetic_metrics():
@@ -48,6 +56,20 @@ def alpha_phylogenetic(table: biom.Table, phylogeny: skbio.TreeNode,
         message = str(e).replace('otu_ids', 'feature_ids')
         message = message.replace('tree', 'phylogeny')
         raise skbio.tree.MissingNodeError(message)
+
+    result.name = metric
+    return result
+
+
+def alpha_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
+                           metric: str) -> pd.Series:
+    metrics = phylogenetic_metrics_alt()
+    if metric not in metrics:
+        raise ValueError("Unknown phylogenetic metric: %s" % metric)
+
+    f = metrics[metric]
+
+    result = f(str(table), str(phylogeny))
 
     result.name = metric
     return result

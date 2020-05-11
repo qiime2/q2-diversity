@@ -1,12 +1,11 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import h5py
 import biom
 import skbio
 import skbio.diversity
@@ -23,6 +22,7 @@ from functools import partial
 
 from skbio.stats.composition import clr
 from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import jensenshannon
 
 
 def phylogenetic_metrics_dict():
@@ -41,7 +41,8 @@ def non_phylogenetic_metrics():
             'correlation', 'hamming', 'jaccard', 'chebyshev', 'canberra',
             'braycurtis', 'mahalanobis', 'yule', 'matching', 'dice',
             'kulsinski', 'rogerstanimoto', 'russellrao', 'sokalmichener',
-            'sokalsneath', 'wminkowski', 'aitchison', 'canberra_adkins'}
+            'sokalsneath', 'wminkowski', 'aitchison', 'canberra_adkins',
+            'jensenshannon'}
 
 
 def all_metrics():
@@ -82,24 +83,6 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
     else:
         f = metrics[metric]
 
-    # avoid a full parse of the table just to check shape and IDs
-    fp_path = str(table)
-    with h5py.File(fp_path) as h5:
-        n_features, n_samples = h5.attrs['shape']
-        if n_features == 0 or n_samples == 0:
-            raise ValueError('The table appears to be empty.')
-
-        dataset = h5['observation/ids']
-        if isinstance(dataset[0], bytes):
-            obs_ids = {i.decode('ascii') for i in dataset}
-        else:
-            obs_ids = {i for i in dataset}
-
-    tmp_tree = skbio.TreeNode.read(str(phylogeny), convert_underscores=False)
-    if not obs_ids.issubset({n.name for n in tmp_tree.tips()}):
-        raise ValueError("The table does not appear to be completely "
-                         "represented by the phylogeny.")
-
     # unifrac processes tables and trees should be filenames
     return f(str(table), str(phylogeny), threads=n_jobs,
              variance_adjusted=variance_adjusted, bypass_tips=bypass_tips)
@@ -128,11 +111,16 @@ def beta(table: biom.Table, metric: str,
 
         return (1. / nnz) * np.sum(np.abs(x_ - y_) / (x_ + y_))
 
+    def jensen_shannon(x, y, **kwds):
+        return jensenshannon(x, y)
+
     if metric == 'aitchison':
         counts += pseudocount
         metric = aitchison
     elif metric == 'canberra_adkins':
         metric = canberra_adkins
+    elif metric == 'jensenshannon':
+        metric = jensen_shannon
 
     if table.is_empty():
         raise ValueError("The provided table object is empty")

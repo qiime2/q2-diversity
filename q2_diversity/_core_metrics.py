@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -7,7 +7,8 @@
 # ----------------------------------------------------------------------------
 
 
-def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
+def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
+                 n_jobs=1):
     rarefy = ctx.get_action('feature_table', 'rarefy')
     alpha = ctx.get_action('diversity', 'alpha')
     beta = ctx.get_action('diversity', 'beta')
@@ -15,7 +16,8 @@ def core_metrics(ctx, table, sampling_depth, metadata, n_jobs=1):
     emperor_plot = ctx.get_action('emperor', 'plot')
 
     results = []
-    rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth)
+    rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth,
+                             with_replacement=with_replacement)
     results.append(rarefied_table)
 
     for metric in 'observed_otus', 'shannon', 'pielou_e':

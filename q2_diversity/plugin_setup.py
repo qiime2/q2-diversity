@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2019, QIIME 2 development team.
+# Copyright (c) 2016-2020, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -143,6 +143,39 @@ plugin.methods.register_function(
     name='Alpha diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic alpha diversity "
                  "metric for all samples in a feature table."),
+    citations=[
+        citations['faith1992conservation']]
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.alpha_phylogenetic_alt,
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
+    outputs=[('alpha_diversity',
+              SampleData[AlphaDiversity] % Properties('phylogenetic'))],
+    input_descriptions={
+        'table': ('The feature table containing the samples for which alpha '
+                  'diversity should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
+    },
+    parameter_descriptions={
+        'metric': 'The alpha diversity metric to be computed.'
+    },
+    output_descriptions={
+        'alpha_diversity': 'Vector containing per-sample alpha diversities.'
+    },
+    name='Alpha diversity (phylogenetic) - alternative implementation',
+    description=("Computes a user-specified phylogenetic alpha diversity "
+                 "metric for all samples in a feature table. This "
+                 "implementation is recommended for large datasets, otherwise "
+                 "the results are identical to alpha_phylogenetic. \n\n"
+                 "This method is an implementation of the Stacked Faith "
+                 "Algorithm (manuscript in preparation)."),
     citations=[
         citations['faith1992conservation']]
 )
@@ -343,6 +376,7 @@ plugin.pipelines.register_function(
     parameters={
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
+        'with_replacement': Bool,
         'n_jobs': Int % Range(0, None),
     },
     outputs=[
@@ -365,6 +399,9 @@ plugin.pipelines.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
+        'with_replacement': 'Rarefy with replacement by sampling from the '
+                            'multinomial distribution instead of rarefying '
+                            'without replacement.',
         'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
     },
     output_descriptions={
@@ -596,13 +633,19 @@ plugin.visualizers.register_function(
     function=q2_diversity.alpha_correlation,
     inputs={'alpha_diversity': SampleData[AlphaDiversity]},
     parameters={'method': Str % Choices(alpha_correlation_methods),
-                'metadata': Metadata},
+                'metadata': Metadata,
+                'intersect_ids': Bool},
     input_descriptions={
         'alpha_diversity': 'Vector of alpha diversity values by sample.'
     },
     parameter_descriptions={
         'method': 'The correlation test to be applied.',
-        'metadata': 'The sample metadata.'
+        'metadata': 'The sample metadata.',
+        'intersect_ids': 'If supplied, IDs that are not found in both '
+                         'the alpha diversity vector and metadata will '
+                         'be discarded before calculating '
+                         'the correlation. Default behavior is to error on '
+                         'any mismatched IDs.'
     },
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata columns are '
@@ -743,7 +786,7 @@ plugin.visualizers.register_function(
                  'based statistical test in vegan-R. The function partitions '
                  'sums of squares of a multivariate data set, and is directly '
                  'analogous to MANOVA (multivariate analysis of variance). '
-                 'This action differs from beta_group_signficance in that it '
+                 'This action differs from beta_group_significance in that it '
                  'accepts R formulae to perform multi-way ADONIS tests; '
                  'beta_group_signficance only performs one-way tests. For '
                  'more details see http://cc.oulu.fi/~jarioksa/softhelp/vegan/'
