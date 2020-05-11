@@ -19,6 +19,11 @@ from q2_types.tree import NewickFormat
 # the private API here for now.
 
 def phylogenetic_metrics():
+    return {'faith_pd'}
+
+
+# must contain an entry for every metric in phylogenetic_metrics
+def _phylogenetic_functions():
     return {'faith_pd': unifrac.faith_pd}
 
 
@@ -38,7 +43,7 @@ def alpha_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
     if metric not in metrics:
         raise ValueError("Unknown phylogenetic metric: %s" % metric)
 
-    f = metrics[metric]
+    f = _phylogenetic_functions()[metric]
 
     result = f(str(table), str(phylogeny))
 

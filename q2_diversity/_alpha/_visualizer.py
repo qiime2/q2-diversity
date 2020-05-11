@@ -405,7 +405,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
 
 
 alpha_rarefaction_supported_metrics = ((non_phylogenetic_metrics()
-                                       | phylogenetic_metrics().keys())
+                                       | phylogenetic_metrics())
                                        - {'osd', 'lladser_ci', 'strong',
                                           'esty_ci', 'kempton_taylor_q',
                                           'chao1_ci'})
