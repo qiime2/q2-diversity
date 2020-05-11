@@ -122,7 +122,7 @@ plugin.methods.register_function(
     function=q2_diversity.alpha_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
+    parameters={'metric': Str % Choices(alpha.phylogenetic_metrics().keys())},
     outputs=[('alpha_diversity',
               SampleData[AlphaDiversity] % Properties('phylogenetic'))],
     input_descriptions={
@@ -148,7 +148,7 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
-    function=q2_diversity.alpha_phylogenetic_alt,
+    function=q2_diversity.alpha_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
