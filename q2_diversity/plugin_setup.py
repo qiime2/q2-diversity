@@ -148,39 +148,6 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
-    function=q2_diversity.alpha_phylogenetic,
-    inputs={'table': FeatureTable[Frequency],
-            'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
-    outputs=[('alpha_diversity',
-              SampleData[AlphaDiversity] % Properties('phylogenetic'))],
-    input_descriptions={
-        'table': ('The feature table containing the samples for which alpha '
-                  'diversity should be computed.'),
-        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in the table. '
-                      'This tree can contain tip ids that are not present in '
-                      'the table, but all feature ids in the table must be '
-                      'present in this tree.')
-    },
-    parameter_descriptions={
-        'metric': 'The alpha diversity metric to be computed.'
-    },
-    output_descriptions={
-        'alpha_diversity': 'Vector containing per-sample alpha diversities.'
-    },
-    name='Alpha diversity (phylogenetic) - alternative implementation',
-    description=("Computes a user-specified phylogenetic alpha diversity "
-                 "metric for all samples in a feature table. This "
-                 "implementation is recommended for large datasets, otherwise "
-                 "the results are identical to alpha_phylogenetic. \n\n"
-                 "This method is an implementation of the Stacked Faith "
-                 "Algorithm (manuscript in preparation)."),
-    citations=[
-        citations['faith1992conservation']]
-)
-
-plugin.methods.register_function(
     function=q2_diversity.alpha,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics())},
