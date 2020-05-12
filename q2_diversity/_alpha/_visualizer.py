@@ -20,7 +20,6 @@ import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
 import q2templates
 import biom
-import skbio
 import itertools
 from q2_feature_table import rarefy
 from q2_types.feature_table import BIOMV210Format
