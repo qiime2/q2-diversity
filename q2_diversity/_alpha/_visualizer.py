@@ -25,6 +25,7 @@ import itertools
 from q2_feature_table import rarefy
 from q2_types.feature_table import BIOMV210Format
 from qiime2.plugin.util import transform
+from q2_types.tree import NewickFormat
 
 from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
                       alpha, alpha_phylogenetic)
@@ -306,7 +307,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
 
 
 def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
-                      phylogeny: skbio.TreeNode = None, metrics: set = None,
+                      phylogeny: NewickFormat = None, metrics: set = None,
                       metadata: qiime2.Metadata = None, min_depth: int = 1,
                       steps: int = 10, iterations: int = 10) -> None:
 

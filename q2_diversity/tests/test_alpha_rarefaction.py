@@ -17,6 +17,8 @@ import pandas.testing as pdt
 import qiime2
 import skbio
 import pandas as pd
+from qiime2.plugin.util import transform
+from q2_types.tree import NewickFormat
 from q2_diversity import alpha_rarefaction
 from q2_diversity._alpha._visualizer import (
     _compute_rarefaction_data, _compute_summary, _reindex_with_metadata,
@@ -24,6 +26,12 @@ from q2_diversity._alpha._visualizer import (
 
 
 class AlphaRarefactionTests(unittest.TestCase):
+
+    @staticmethod
+    def _to_newick(tree: skbio.TreeNode):
+        return transform(tree, from_type=skbio.TreeNode,
+                         to_type=NewickFormat)
+
     def test_alpha_rarefaction_without_metadata(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
@@ -107,8 +115,8 @@ class AlphaRarefactionTests(unittest.TestCase):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        p = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        p = self._to_newick(skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;')))
 
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p)
@@ -124,8 +132,8 @@ class AlphaRarefactionTests(unittest.TestCase):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        p = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        p = self._to_newick(skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;')))
         md = qiime2.Metadata(
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
@@ -237,6 +245,11 @@ class ComputeRarefactionDataTests(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
 
+    @staticmethod
+    def _to_newick(tree: skbio.TreeNode):
+        return transform(tree, from_type=skbio.TreeNode,
+                         to_type=NewickFormat)
+
     def test_observed_otus(self):
         t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
                        ['O1', 'O2'],
@@ -261,8 +274,8 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        p = skbio.TreeNode.read(io.StringIO(
-            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        p = self._to_newick(skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;')))
 
         obs = _compute_rarefaction_data(feature_table=t,
                                         min_depth=1,
