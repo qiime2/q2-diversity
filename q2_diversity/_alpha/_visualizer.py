@@ -23,6 +23,8 @@ import biom
 import skbio
 import itertools
 from q2_feature_table import rarefy
+from q2_types.feature_table import BIOMV210Format
+from qiime2.plugin.util import transform
 
 from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
                       alpha, alpha_phylogenetic)
@@ -293,6 +295,8 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
         rt = rarefy(feature_table, d)
         for m in metrics:
             if m in phylogenetic_metrics():
+                rt = transform(rt, to_type=BIOMV210Format,
+                               from_type=biom.Table)
                 vector = alpha_phylogenetic(table=rt, metric=m,
                                             phylogeny=phylogeny)
             else:
