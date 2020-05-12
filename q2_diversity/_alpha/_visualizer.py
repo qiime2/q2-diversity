@@ -296,9 +296,11 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
         rt = rarefy(feature_table, d)
         for m in metrics:
             if m in phylogenetic_metrics():
-                rt = transform(rt, to_type=BIOMV210Format,
-                               from_type=biom.Table)
-                vector = alpha_phylogenetic(table=rt, metric=m,
+                # need a new rarefied table here in case a phylogenetic
+                # metric comes before a non-phylogenetic metric
+                rt_p = transform(rt, to_type=BIOMV210Format,
+                                 from_type=biom.Table)
+                vector = alpha_phylogenetic(table=rt_p, metric=m,
                                             phylogeny=phylogeny)
             else:
                 vector = alpha(table=rt, metric=m)
