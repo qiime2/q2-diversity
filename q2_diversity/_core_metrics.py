@@ -56,8 +56,6 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
                       metadata=metadata, n_jobs=n_jobs)
 
-    # TODO: do these commas (destructuring assignment) need to go with the
-    # move to Unifrac?
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)
 
