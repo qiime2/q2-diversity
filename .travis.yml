@@ -1,6 +1,4 @@
 dist: trusty
-sudo: false
-dist: trusty
 language: python
 before_install:
   - export MPLBACKEND='Agg'
