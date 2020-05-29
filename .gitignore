@@ -66,3 +66,6 @@ target/
 
 node_modules
 *.qzv
+
+#VSCode Workspace Files
+.vscode/

@@ -135,7 +135,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                              name='observed_features')
+                             name='observed_features')
         pdt.assert_series_equal(results[1].view(pd.Series), expected)
 
 
