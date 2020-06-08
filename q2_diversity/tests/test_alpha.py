@@ -6,19 +6,22 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import io
 import os
 import tempfile
 import unittest
 
 import biom
+import skbio
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
 import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
 
-from q2_diversity import (alpha, alpha_correlation,
-                          alpha_phylogenetic, alpha_group_significance)
+from q2_diversity import (alpha, alpha_phylogenetic, alpha_correlation,
+                          alpha_phylogenetic_old,
+                          alpha_phylogenetic_alt, alpha_group_significance)
 
 
 class AlphaTests(TestPluginBase):
@@ -55,7 +58,60 @@ class AlphaTests(TestPluginBase):
         with self.assertRaisesRegex(ValueError, "empty"):
             alpha(table=t, metric='observed_otus')
 
-    def test_alpha_phylogenetic_alt(self):
+    def test_alpha_phylogenetic_old(self):
+        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        actual = alpha_phylogenetic_old(
+            table=t, phylogeny=tree, metric='faith_pd')
+        # expected computed with skbio.diversity.alpha_diversity
+        expected = pd.Series({'S1': 0.75, 'S2': 1.0, 'S3': 1.0},
+                             name='faith_pd')
+        pdt.assert_series_equal(actual, expected)
+
+    def test_alpha_phylogenetic_old_non_phylo_metric(self):
+        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
+            alpha_phylogenetic_old(
+                table=t, phylogeny=tree, metric='observed_otus')
+
+    def test_alpha_phylogenetic_old_unknown_metric(self):
+        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
+            alpha_phylogenetic_old(
+                table=t, phylogeny=tree, metric='not-a-metric')
+
+    def test_alpha_phylogenetic_old_skbio_error_rewriting(self):
+        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25):0.25, O3:0.75)root;'))
+        # Verify through regex that there is a ``feature_ids`` substring
+        # followed by a ``phylogeny``
+        with self.assertRaisesRegex(skbio.tree.MissingNodeError,
+                                    'feature_ids.*phylogeny'):
+            alpha_phylogenetic_old(table=t, phylogeny=tree, metric='faith_pd')
+
+    def test_alpha_phylogenetic_old_empty_table(self):
+        t = biom.Table(np.array([]), [], [])
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25):0.25, O3:0.75)root;'))
+
+        with self.assertRaisesRegex(ValueError, "empty"):
+            alpha_phylogenetic_old(table=t, phylogeny=tree, metric='faith_pd')
+
+    def test_alpha_phylogenetic(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
         actual = alpha_phylogenetic(table=table,
@@ -66,7 +122,7 @@ class AlphaTests(TestPluginBase):
                              name='faith_pd')
         pdt.assert_series_equal(actual, expected)
 
-    def test_alpha_phylogenetic_alt_non_phylo_metric(self):
+    def test_alpha_phylogenetic_non_phylo_metric(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
         with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
@@ -74,7 +130,7 @@ class AlphaTests(TestPluginBase):
                                phylogeny=tree,
                                metric='observed_otus')
 
-    def test_alpha_phylogenetic_alt_unknown_metric(self):
+    def test_alpha_phylogenetic_unknown_metric(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
         with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
@@ -82,7 +138,7 @@ class AlphaTests(TestPluginBase):
                                phylogeny=tree,
                                metric='not-a-metric')
 
-    def test_alpha_phylogenetic_alt_skbio_error_rewriting(self):
+    def test_alpha_phylogenetic_skbio_error_rewriting(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('vaw.nwk')
         with self.assertRaisesRegex(ValueError, "The table does not "
@@ -92,7 +148,7 @@ class AlphaTests(TestPluginBase):
                                phylogeny=tree,
                                metric='faith_pd')
 
-    def test_alpha_phylogenetic_alt_empty_table(self):
+    def test_alpha_phylogenetic_empty_table(self):
         table = self.get_data_path('empty.biom')
         tree = self.get_data_path('three_feature.tree')
 
@@ -100,6 +156,52 @@ class AlphaTests(TestPluginBase):
             alpha_phylogenetic(table=table,
                                phylogeny=tree,
                                metric='faith_pd')
+
+    def test_alpha_phylogenetic_alt(self):
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
+        actual = alpha_phylogenetic_alt(table=table,
+                                        phylogeny=tree,
+                                        metric='faith_pd')
+        # expected computed with skbio.diversity.alpha_diversity
+        expected = pd.Series({'S1': 0.75, 'S2': 1.0, 'S3': 1.0},
+                             name='faith_pd')
+        pdt.assert_series_equal(actual, expected)
+
+    def test_alpha_phylogenetic_alt_non_phylo_metric(self):
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
+                                   metric='observed_otus')
+
+    def test_alpha_phylogenetic_alt_unknown_metric(self):
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('three_feature.tree')
+        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
+                                   metric='not-a-metric')
+
+    def test_alpha_phylogenetic_alt_skbio_error_rewriting(self):
+        table = self.get_data_path('two_feature_table.biom')
+        tree = self.get_data_path('vaw.nwk')
+        with self.assertRaisesRegex(ValueError, "The table does not "
+                                    "appear to be completely represented "
+                                    "by the phylogeny."):
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
+                                   metric='faith_pd')
+
+    def test_alpha_phylogenetic_alt_empty_table(self):
+        table = self.get_data_path('empty.biom')
+        tree = self.get_data_path('three_feature.tree')
+
+        with self.assertRaisesRegex(ValueError, "empty"):
+            alpha_phylogenetic_alt(table=table,
+                                   phylogeny=tree,
+                                   metric='faith_pd')
 
 
 class AlphaCorrelationTests(unittest.TestCase):
