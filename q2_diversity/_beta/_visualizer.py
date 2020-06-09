@@ -43,6 +43,10 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     # Drop samples that have any missing values.
     # TODO use Metadata API if this type of filtering is supported in the
     # future.
+    # NOTE this whole caste to df to dropnans then caste back to metadata for
+    # other filtering then go back to df again to use is gross. It doesn't look
+    # like metadata currently supports this type of filtering (as per the
+    # above TODO), but this sure makes me wish it did.
     df = metadata.to_dataframe()
     df = df.dropna(axis='index', how='any')
 
