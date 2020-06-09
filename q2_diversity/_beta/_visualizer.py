@@ -40,17 +40,21 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     metadata = metadata.filter_columns(column_type='numeric')
     non_numeric_cols = pre_filtered_cols - set(metadata.columns)
 
+    # Drop samples that have any missing values.
+    # TODO use Metadata API if this type of filtering is supported in the
+    # future.
+    df = metadata.to_dataframe()
+    df = df.dropna(axis='index', how='any')
+
+    metadata = qiime2.Metadata(df)
+
     # filter 0 variance numerical columns and empty columns
     pre_filtered_cols = set(metadata.columns)
     metadata = metadata.filter_columns(drop_zero_variance=True,
                                        drop_all_missing=True)
     zero_variance_cols = pre_filtered_cols - set(metadata.columns)
 
-    # Drop samples that have any missing values.
-    # TODO use Metadata API if this type of filtering is supported in the
-    # future.
     df = metadata.to_dataframe()
-    df = df.dropna(axis='index', how='any')
 
     # filter the distance matrix to exclude samples that were dropped from
     # the metadata, and keep track of how many samples survived the filtering
