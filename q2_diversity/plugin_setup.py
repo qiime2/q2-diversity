@@ -30,6 +30,21 @@ sklearn_n_jobs_description = (
     'are used. (Description from sklearn.metrics.pairwise_distances)'
 )
 
+constrained_n_jobs_description = (
+    'The number of concurrent jobs to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If n_jobs = '
+    '\'auto\', one job will be launched for each identified CPU core on the '
+    'host.'
+)
+
+n_jobs_or_threads_description = (
+    'The number of concurrent jobs or CPU threads to use in performing this '
+    'calculation. Individual methods will create jobs/threads as implemented '
+    'in q2-diversity-lib dependencies. May not exceed the number of available '
+    'physical cores. If n_jobs_or_threads = \'auto\', one thread/job will be '
+    'created for each identified CPU core on the host.'
+)
+
 plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
@@ -328,7 +343,7 @@ plugin.pipelines.register_function(
     parameters={
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
-        'n_jobs': Int % Range(0, None),
+        'n_jobs_or_threads': Int % Range(1, None) | Str % Choices(['auto']),
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -362,8 +377,8 @@ plugin.pipelines.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
-        'n_jobs': '[beta/beta-phylogenetic methods only, excluding weighted_'
-                  'unifrac] - %s' % sklearn_n_jobs_description
+        'n_jobs_or_threads': '[beta/beta-phylogenetic methods only] - %s'
+                          % n_jobs_or_threads_description
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
@@ -415,7 +430,7 @@ plugin.pipelines.register_function(
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
         'with_replacement': Bool,
-        'n_jobs': Int % Range(0, None),
+        'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -440,7 +455,7 @@ plugin.pipelines.register_function(
         'with_replacement': 'Rarefy with replacement by sampling from the '
                             'multinomial distribution instead of rarefying '
                             'without replacement.',
-        'n_jobs': '[beta methods only] - %s' % sklearn_n_jobs_description
+        'n_jobs': '[beta methods only] - %s' % constrained_n_jobs_description
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',

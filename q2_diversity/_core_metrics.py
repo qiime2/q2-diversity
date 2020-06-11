@@ -45,7 +45,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
 
 
 def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
-                              n_jobs=1):
+                              n_jobs_or_threads=1):
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
     weighted_unifrac = ctx.get_action('diversity_lib', 'weighted_unifrac')
@@ -54,16 +54,16 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
     core_metrics = ctx.get_action('diversity', 'core_metrics')
 
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
-                      metadata=metadata, n_jobs=n_jobs)
+                      metadata=metadata, n_jobs=n_jobs_or_threads)
 
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)
 
     dms = []
     dms += unweighted_unifrac(table=cr.rarefied_table, phylogeny=phylogeny,
-                              n_jobs=n_jobs)
+                              threads=n_jobs_or_threads)
     dms += weighted_unifrac(table=cr.rarefied_table, phylogeny=phylogeny,
-                            n_jobs=n_jobs)
+                            threads=n_jobs_or_threads)
 
     pcoas = []
     for dm in dms:
