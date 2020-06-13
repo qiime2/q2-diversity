@@ -30,7 +30,7 @@ sklearn_n_jobs_description = (
     'are used. (Description from sklearn.metrics.pairwise_distances)'
 )
 
-constrained_n_jobs_description = (
+n_jobs_description = (
     'The number of concurrent jobs to use in performing this calculation. '
     'May not exceed the number of available physical cores. If n_jobs = '
     '\'auto\', one job will be launched for each identified CPU core on the '
@@ -455,7 +455,7 @@ plugin.pipelines.register_function(
         'with_replacement': 'Rarefy with replacement by sampling from the '
                             'multinomial distribution instead of rarefying '
                             'without replacement.',
-        'n_jobs': '[beta methods only] - %s' % constrained_n_jobs_description
+        'n_jobs': '[beta methods only] - %s' % n_jobs_description
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
