@@ -38,6 +38,13 @@ n_jobs_description = (
     'host.'
 )
 
+threads_description = (
+    'The number of CPU threads to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If threads = '
+    '\'auto\', one thread will be created for each identified CPU core on the '
+    'host.'
+)
+
 n_jobs_or_threads_description = (
     'The number of concurrent jobs or CPU threads to use in performing this '
     'calculation. Individual methods will create jobs/threads as implemented '
@@ -59,12 +66,12 @@ plugin = Plugin(
 )
 
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
-                'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
+                'threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool},
@@ -80,7 +87,7 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
-        'n_jobs': n_jobs_description,
+        'threads': threads_description,
         'variance_adjusted': ('Perform variance adjustment based on Chang et '
                               'al. BMC Bioinformatics 2011. Weights distances '
                               'based on the proportion of the relative '
@@ -101,12 +108,6 @@ plugin.methods.register_function(
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
                  " for all pairs of samples in a feature table."),
-    citations=[
-        citations['lozupone2005unifrac'],
-        citations['lozupone2007quantitative'],
-        citations['chang2011variance'],
-        citations['chen2012associating'],
-        citations['mcdonald2018unifrac']]
 )
 
 plugin.methods.register_function(

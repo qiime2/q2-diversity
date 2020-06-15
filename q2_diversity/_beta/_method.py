@@ -12,13 +12,10 @@ import skbio.diversity
 import skbio.tree
 import sklearn.metrics
 import unifrac
-import psutil
 import numpy as np
 
 from q2_types.feature_table import BIOMV210Format
 from q2_types.tree import NewickFormat
-
-from functools import partial
 
 from skbio.stats.composition import clr
 from scipy.spatial.distance import euclidean
@@ -49,43 +46,16 @@ def all_metrics():
     return phylogenetic_metrics() | non_phylogenetic_metrics()
 
 
-def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
-                      metric: str, n_jobs: int = 1,
-                      variance_adjusted: bool = False,
-                      alpha: float = None,
-                      bypass_tips: bool = False) -> skbio.DistanceMatrix:
+def beta_phylogenetic(ctx, table, phylogeny, metric, threads,
+                      variance_adjusted, alpha, bypass_tips):
+    beta_phylogenetic = ctx.get_action('diversity_lib',
+                                       'beta_phylogenetic_dispatch')
 
-    metrics = phylogenetic_metrics_dict()
-    generalized_unifrac = 'generalized_unifrac'
-
-    if metric not in metrics:
-        raise ValueError("Unknown metric: %s" % metric)
-
-    if alpha is not None and metric != generalized_unifrac:
-        raise ValueError('The alpha parameter is only allowed when the choice'
-                         ' of metric is generalized_unifrac')
-
-    # this behaviour is undefined, so let's avoid a seg fault
-    try:
-        # https://psutil.readthedocs.io/en/latest/index.html#psutil.cpu_count
-        # `Process.cpu_affinity` may not be available on all systems, if not,
-        # fall back to the original cpu counting mechanism.
-        cpus = len(psutil.Process().cpu_affinity())
-    except AttributeError:
-        cpus = psutil.cpu_count(logical=False)
-    if n_jobs > cpus:
-        raise ValueError('The value of n_jobs cannot exceed the number of '
-                         'processors (%d) available in this system.' % cpus)
-
-    if metric == generalized_unifrac:
-        alpha = 1.0 if alpha is None else alpha
-        f = partial(metrics[metric], alpha=alpha)
-    else:
-        f = metrics[metric]
-
-    # unifrac processes tables and trees should be filenames
-    return f(str(table), str(phylogeny), threads=n_jobs,
-             variance_adjusted=variance_adjusted, bypass_tips=bypass_tips)
+    # TODO: Do we need a local check for valid metrics? Or is it OK to hand
+    # that off to div-lib as well?
+    return beta_phylogenetic(str(table), str(phylogeny), threads=threads,
+                             variance_adjusted=variance_adjusted,
+                             bypass_tips=bypass_tips)
 
 
 def beta(table: biom.Table, metric: str,
