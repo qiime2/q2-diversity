@@ -82,8 +82,8 @@ class BetaDiversityTests(TestPluginBase):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
                   ['S1', 'S2', 'S3'])
-        parallel = beta(table=t, metric='braycurtis', n_jobs=-1)
-        single_thread = beta(table=t, metric='braycurtis', n_jobs=1)
+        parallel = beta(table=t, metric='braycurtis', threads=-1)
+        single_thread = beta(table=t, metric='braycurtis', threads=1)
         # expected computed with scipy.spatial.distance.braycurtis
         expected = skbio.DistanceMatrix([[0.0000000, 0.3333333, 0.6666667],
                                          [0.3333333, 0.0000000, 0.4285714],
@@ -124,7 +124,8 @@ class BetaDiversityTests(TestPluginBase):
         t = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
         actual = beta_phylogenetic(
-            table=t, phylogeny=tree, metric='unweighted_unifrac')
+            table=t, phylogeny=tree, metric='unweighted_unifrac',
+            threads=1, variance_adjusted=False, alpha=None, bypass_tips=False)
         # expected computed with skbio.diversity.beta_diversity
         expected = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
                                          [0.25, 0.00, 0.00],
@@ -207,7 +208,7 @@ class BetaDiversityTests(TestPluginBase):
         actual = beta_phylogenetic(table=bt_fp,
                                    phylogeny=tree_fp,
                                    metric='unweighted_unifrac',
-                                   n_jobs=2)
+                                   threads=2)
 
         # computed with beta-phylogenetic
         data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
@@ -365,7 +366,7 @@ class BetaDiversityTests(TestPluginBase):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
             beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                              metric='unweighted_unifrac', n_jobs=11117)
+                              metric='unweighted_unifrac', threads=11117)
 
 
 class BioenvTests(unittest.TestCase):

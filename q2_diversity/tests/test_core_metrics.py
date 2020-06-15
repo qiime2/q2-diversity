@@ -76,7 +76,7 @@ class CoreMetricsTests(TestPluginBase):
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         results = self.core_metrics_phylogenetic(table, tree, 13, metadata,
-                                                 n_jobs=2)
+                                                 threads=2)
 
         self.assertEqual(len(results), 17)
 
