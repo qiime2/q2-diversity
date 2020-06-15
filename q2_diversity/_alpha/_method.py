@@ -32,7 +32,7 @@ def non_phylogenetic_metrics():
             'dominance', 'doubles', 'enspie', 'esty_ci', 'fisher_alpha',
             'goods_coverage', 'heip_e', 'kempton_taylor_q', 'margalef',
             'mcintosh_d', 'mcintosh_e', 'menhinick', 'michaelis_menten_fit',
-            'observed_otus', 'osd', 'pielou_e', 'robbins', 'shannon',
+            'observed_features', 'osd', 'pielou_e', 'robbins', 'shannon',
             'simpson', 'simpson_e', 'singles', 'strong', 'gini_index',
             'lladser_pe', 'lladser_ci'}
 

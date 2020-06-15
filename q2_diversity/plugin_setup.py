@@ -348,7 +348,7 @@ plugin.pipelines.register_function(
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
         ('faith_pd_vector', SampleData[AlphaDiversity]),
-        ('observed_otus_vector', SampleData[AlphaDiversity]),
+        ('observed_features_vector', SampleData[AlphaDiversity]),
         ('shannon_vector', SampleData[AlphaDiversity]),
         ('evenness_vector', SampleData[AlphaDiversity]),
         ('unweighted_unifrac_distance_matrix', DistanceMatrix),
@@ -383,7 +383,8 @@ plugin.pipelines.register_function(
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
         'faith_pd_vector': 'Vector of Faith PD values by sample.',
-        'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
+        'observed_features_vector': 'Vector of Observed Features values by '
+                                    'sample.',
         'shannon_vector': 'Vector of Shannon diversity values by sample.',
         'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',
         'unweighted_unifrac_distance_matrix':
@@ -434,7 +435,7 @@ plugin.pipelines.register_function(
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
-        ('observed_otus_vector', SampleData[AlphaDiversity]),
+        ('observed_features_vector', SampleData[AlphaDiversity]),
         ('shannon_vector', SampleData[AlphaDiversity]),
         ('evenness_vector', SampleData[AlphaDiversity]),
         ('jaccard_distance_matrix', DistanceMatrix),
@@ -459,7 +460,8 @@ plugin.pipelines.register_function(
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
-        'observed_otus_vector': 'Vector of Observed OTUs values by sample.',
+        'observed_features_vector': 'Vector of Observed Features values by '
+                                    'sample.',
         'shannon_vector': 'Vector of Shannon diversity values by sample.',
         'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',
         'jaccard_distance_matrix':
@@ -723,7 +725,7 @@ plugin.visualizers.register_function(
     },
     parameter_descriptions={
         'metrics': ('The metrics to be measured. By default computes '
-                    'observed_otus, shannon, and if phylogeny is '
+                    'observed_features, shannon, and if phylogeny is '
                     'provided, faith_pd.'),
         'metadata': 'The sample metadata.',
         'min_depth': 'The minimum rarefaction depth.',

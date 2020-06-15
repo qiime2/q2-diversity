@@ -74,7 +74,7 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
         plots += emperor_plot(pcoa=pcoa, metadata=metadata)
 
     return (
-        cr.rarefied_table, faith_pd_vector, cr.observed_otus_vector,
+        cr.rarefied_table, faith_pd_vector, cr.observed_features_vector,
         cr.shannon_vector, cr.evenness_vector, *dms,
         cr.jaccard_distance_matrix, cr.bray_curtis_distance_matrix,
         *pcoas, cr.jaccard_pcoa_results, cr.bray_curtis_pcoa_results,
