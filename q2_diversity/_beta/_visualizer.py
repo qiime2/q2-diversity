@@ -41,15 +41,9 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     non_numeric_cols = pre_filtered_cols - set(metadata.columns)
 
     # Drop samples that have any missing values.
-    # TODO use Metadata API if this type of filtering is supported in the
-    # future.
-    # NOTE this whole cast to df to dropnans then cast back to metadata for
-    # other filtering then go back to df again to use is gross. It doesn't look
-    # like metadata currently supports this type of filtering (as per the
-    # above TODO), but this sure makes me wish it did.
+    # TODO use Metadata API if more filtering is supported in the future.
     df = metadata.to_dataframe()
     df = df.dropna(axis='index', how='any')
-
     metadata = qiime2.Metadata(df)
 
     # filter 0 variance numerical columns and empty columns
