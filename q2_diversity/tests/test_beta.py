@@ -207,7 +207,7 @@ class BetaDiversityTests(TestPluginBase):
         actual = beta_phylogenetic(table=bt_fp,
                                    phylogeny=tree_fp,
                                    metric='unweighted_unifrac',
-                                   n_jobs=2)
+                                   threads=2)
 
         # computed with beta-phylogenetic
         data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
@@ -365,7 +365,7 @@ class BetaDiversityTests(TestPluginBase):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
             beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                              metric='unweighted_unifrac', n_jobs=11117)
+                              metric='unweighted_unifrac', threads=11117)
 
 
 class BioenvTests(unittest.TestCase):

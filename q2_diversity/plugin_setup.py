@@ -21,19 +21,17 @@ from q2_types.ordination import PCoAResults
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
-sklearn_n_jobs_description = (
-    'The number of jobs to use for the computation. This works by breaking '
-    'down the pairwise matrix into n_jobs even slices and computing them in '
-    'parallel. If -1 all CPUs are used. If 1 is given, no parallel computing '
-    'code is used at all, which is useful for debugging. For n_jobs below -1, '
-    '(n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one '
-    'are used. (Description from sklearn.metrics.pairwise_distances)'
-)
-
 n_jobs_description = (
     'The number of concurrent jobs to use in performing this calculation. '
     'May not exceed the number of available physical cores. If n_jobs = '
     '\'auto\', one job will be launched for each identified CPU core on the '
+    'host.'
+)
+
+threads_description = (
+    'The number of CPU threads to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If threads = '
+    '\'auto\', one thread will be created for each identified CPU core on the '
     'host.'
 )
 
@@ -63,7 +61,7 @@ plugin.methods.register_function(
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
-                'n_jobs': Int,
+                'threads': Int,
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool},
@@ -79,7 +77,7 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
-        'n_jobs': 'The number of workers to use.',
+        'threads': threads_description,
         'variance_adjusted': ('Perform variance adjustment based on Chang et '
                               'al. BMC Bioinformatics 2011. Weights distances '
                               'based on the proportion of the relative '
@@ -123,7 +121,7 @@ plugin.methods.register_function(
         'metric': 'The beta diversity metric to be computed.',
         'pseudocount': ('A pseudocount to handle zeros for compositional '
                         'metrics.  This is ignored for other metrics.'),
-        'n_jobs': sklearn_n_jobs_description
+        'n_jobs': n_jobs_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',

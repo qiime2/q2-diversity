@@ -50,7 +50,7 @@ def all_metrics():
 
 
 def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
-                      metric: str, n_jobs: int = 1,
+                      metric: str, threads: int = 1,
                       variance_adjusted: bool = False,
                       alpha: float = None,
                       bypass_tips: bool = False) -> skbio.DistanceMatrix:
@@ -73,7 +73,7 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
         cpus = len(psutil.Process().cpu_affinity())
     except AttributeError:
         cpus = psutil.cpu_count(logical=False)
-    if n_jobs > cpus:
+    if threads > cpus:
         raise ValueError('The value of n_jobs cannot exceed the number of '
                          'processors (%d) available in this system.' % cpus)
 
@@ -84,7 +84,7 @@ def beta_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
         f = metrics[metric]
 
     # unifrac processes tables and trees should be filenames
-    return f(str(table), str(phylogeny), threads=n_jobs,
+    return f(str(table), str(phylogeny), threads=threads,
              variance_adjusted=variance_adjusted, bypass_tips=bypass_tips)
 
 
