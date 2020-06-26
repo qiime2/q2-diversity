@@ -65,7 +65,7 @@ plugin.methods.register_function(
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool},
-    outputs=[('distance_matrix', DistanceMatrix % Properties('phylogenetic'))],
+    outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
                   'diversity should be computed.'),
@@ -137,7 +137,7 @@ plugin.methods.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
-              SampleData[AlphaDiversity] % Properties('phylogenetic'))],
+              SampleData[AlphaDiversity])],
     input_descriptions={
         'table': ('The feature table containing the samples for which alpha '
                   'diversity should be computed.'),
@@ -171,7 +171,7 @@ plugin.methods.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
-              SampleData[AlphaDiversity] % Properties('phylogenetic'))],
+              SampleData[AlphaDiversity])],
     input_descriptions={
         'table': ('The feature table containing the samples for which alpha '
                   'diversity should be computed.'),
@@ -206,7 +206,7 @@ plugin.methods.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
-              SampleData[AlphaDiversity] % Properties('phylogenetic'))],
+              SampleData[AlphaDiversity])],
     input_descriptions={
         'table': ('The feature table containing the samples for which alpha '
                   'diversity should be computed.'),
