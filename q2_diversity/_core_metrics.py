@@ -48,7 +48,8 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
                               n_jobs_or_threads=1):
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
-    weighted_unifrac = ctx.get_action('diversity_lib', 'weighted_unifrac')
+    weighted_unifrac = ctx.get_action('diversity_lib',
+                                      'weighted_unnormalized_unifrac')
     pcoa = ctx.get_action('diversity', 'pcoa')
     emperor_plot = ctx.get_action('emperor', 'plot')
     core_metrics = ctx.get_action('diversity', 'core_metrics')
