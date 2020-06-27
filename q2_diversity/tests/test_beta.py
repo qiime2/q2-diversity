@@ -22,14 +22,27 @@ import qiime2
 from qiime2.plugin.testing import TestPluginBase
 
 
-from q2_diversity import (beta, beta_phylogenetic,
-                          bioenv, beta_group_significance, mantel)
+from qiime2 import Artifact
+from q2_diversity import (beta, bioenv, beta_group_significance, mantel)
 from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
 class BetaDiversityTests(TestPluginBase):
     # Note that some of these tests replicate the cases in biocore/unifrac
     package = 'q2_diversity.tests'
+
+    def setUp(self):
+        super().setUp()
+        self.beta_phylogenetic = self.plugin.pipelines['beta_phylogenetic']
+
+        two_feature_table = self.get_data_path('two_feature_table.biom')
+        self.two_feature_table = Artifact.import_data(
+                'FeatureTable[Frequency]',
+                two_feature_table)
+
+        three_feature_tree = self.get_data_path('three_feature.tree')
+        self.three_feature_tree = Artifact.import_data('Phylogeny[Rooted]',
+                                                       three_feature_tree)
 
     def test_beta(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -121,9 +134,9 @@ class BetaDiversityTests(TestPluginBase):
             beta(table=t, metric='braycurtis')
 
     def test_beta_phylogenetic(self):
-        t = self.get_data_path('two_feature_table.biom')
-        tree = self.get_data_path('three_feature.tree')
-        actual = beta_phylogenetic(
+        t = self.two_feature_table
+        tree = self.three_feature_tree
+        actual = self.beta_phylogenetic(
             table=t, phylogeny=tree, metric='unweighted_unifrac')
         # expected computed with skbio.diversity.beta_diversity
         expected = skbio.DistanceMatrix([[0.00, 0.25, 0.25],

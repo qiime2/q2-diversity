@@ -56,12 +56,12 @@ plugin = Plugin(
 )
 
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.beta_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
-                'threads': Int,
+                'threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool},
@@ -98,6 +98,7 @@ plugin.methods.register_function(
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
                  " for all pairs of samples in a feature table."),
+    # TODO: Remove citations
     citations=[
         citations['lozupone2005unifrac'],
         citations['lozupone2007quantitative'],
