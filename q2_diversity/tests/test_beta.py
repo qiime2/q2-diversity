@@ -138,12 +138,18 @@ class BetaDiversityTests(TestPluginBase):
         tree = self.three_feature_tree
         actual = self.beta_phylogenetic(
             table=t, phylogeny=tree, metric='unweighted_unifrac')
+
+        self.assertEqual(len(actual), 1)
+
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+
         # expected computed with skbio.diversity.beta_diversity
         expected = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
                                          [0.25, 0.00, 0.00],
                                          [0.25, 0.00, 0.00]],
                                         ids=['S1', 'S2', 'S3'])
 
+        actual = actual[0].view(skbio.DistanceMatrix)
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:

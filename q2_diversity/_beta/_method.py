@@ -53,9 +53,7 @@ def beta_phylogenetic(ctx, table, phylogeny,
     distance_matrix = func(table, phylogeny, metric=metric, threads=threads,
                            variance_adjusted=variance_adjusted, alpha=alpha,
                            bypass_tips=bypass_tips)
-    # TODO: Remove
-    print("Type of beta_phylo results: ", type(distance_matrix))
-    return distance_matrix
+    return tuple(distance_matrix)
 
 
 def beta(table: biom.Table, metric: str,
