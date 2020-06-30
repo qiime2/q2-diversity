@@ -162,7 +162,8 @@ class BetaDiversityTests(TestPluginBase):
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
-            beta_phylogenetic(table=t, phylogeny=tree, metric='braycurtis')
+            self.beta_phylogenetic(table=t, phylogeny=tree,
+                                   metric='braycurtis')
 
     def test_beta_phylogenetic_unknown_metric(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -171,15 +172,16 @@ class BetaDiversityTests(TestPluginBase):
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         with self.assertRaises(ValueError):
-            beta_phylogenetic(table=t, phylogeny=tree, metric='not-a-metric')
+            self.beta_phylogenetic(table=t, phylogeny=tree,
+                                   metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
         t = self.get_data_path('empty.biom')
         tree = self.get_data_path('three_feature.tree')
 
         with self.assertRaisesRegex(ValueError, 'empty'):
-            beta_phylogenetic(table=t, phylogeny=tree,
-                              metric='unweighted_unifrac')
+            self.beta_phylogenetic(table=t, phylogeny=tree,
+                                   metric='unweighted_unifrac')
 
     def test_beta_phylogenetic_skbio_error_rewriting(self):
         t = self.get_data_path('two_feature_table.biom')
@@ -188,16 +190,16 @@ class BetaDiversityTests(TestPluginBase):
         # followed by a ``phylogeny``
         with self.assertRaisesRegex(ValueError,
                                     'represented by the phylogeny'):
-            beta_phylogenetic(table=t, phylogeny=tree,
-                              metric='weighted_unifrac')
+            self.beta_phylogenetic(table=t, phylogeny=tree,
+                                   metric='weighted_unifrac')
 
     def test_beta_unweighted(self):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='unweighted_unifrac')
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='unweighted_unifrac')
 
         # computed with beta-phylogenetic
         data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
@@ -223,10 +225,10 @@ class BetaDiversityTests(TestPluginBase):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='unweighted_unifrac',
-                                   threads=2)
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='unweighted_unifrac',
+                                        threads=2)
 
         # computed with beta-phylogenetic
         data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
@@ -252,9 +254,9 @@ class BetaDiversityTests(TestPluginBase):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='weighted_unifrac')
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='weighted_unifrac')
 
         # computed with beta-phylogenetic (weighted_unifrac)
         data = np.array([0.44656238, 0.23771096, 0.30489123, 0.23446002,
@@ -280,10 +282,10 @@ class BetaDiversityTests(TestPluginBase):
         bt_fp = self.get_data_path('vaw.biom')
         tree_fp = self.get_data_path('vaw.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='weighted_normalized_unifrac',
-                                   variance_adjusted=True)
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='weighted_normalized_unifrac',
+                                        variance_adjusted=True)
 
         data = np.array([[0.0000000, 0.4086040, 0.6240185, 0.4639481,
                           0.2857143, 0.2766318],
@@ -310,10 +312,10 @@ class BetaDiversityTests(TestPluginBase):
         bt_fp = self.get_data_path('vaw.biom')
         tree_fp = self.get_data_path('vaw.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='generalized_unifrac',
-                                   alpha=0.5)
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='generalized_unifrac',
+                                        alpha=0.5)
 
         data = np.array([[0.0000000, 0.4040518, 0.6285560, 0.5869439,
                           0.4082483, 0.2995673],
@@ -340,10 +342,10 @@ class BetaDiversityTests(TestPluginBase):
         bt_fp = self.get_data_path('crawford.biom')
         tree_fp = self.get_data_path('crawford.nwk')
 
-        actual = beta_phylogenetic(table=bt_fp,
-                                   phylogeny=tree_fp,
-                                   metric='generalized_unifrac',
-                                   alpha=None)
+        actual = self.beta_phylogenetic(table=bt_fp,
+                                        phylogeny=tree_fp,
+                                        metric='generalized_unifrac',
+                                        alpha=None)
 
         # alpha=1 should be equal to weighted normalized UniFrac
         data = np.array([0.2821874, 0.16148405, 0.20186143, 0.1634832,
@@ -372,9 +374,9 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaisesRegex(ValueError, 'The alpha parameter is only '
                                     'allowed when the choice of metric is '
                                     'generalized_unifrac'):
-            beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                              metric='unweighted_unifrac',
-                              alpha=0.11)
+            self.beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
+                                   metric='unweighted_unifrac',
+                                   alpha=0.11)
 
     def test_beta_phylogenetic_too_many_jobs(self):
         bt_fp = self.get_data_path('crawford.biom')
@@ -383,8 +385,8 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaises(ValueError):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
-            beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
-                              metric='unweighted_unifrac', threads=11117)
+            self.beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
+                                   metric='unweighted_unifrac', threads=11117)
 
 
 class BioenvTests(unittest.TestCase):
