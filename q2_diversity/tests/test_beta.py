@@ -44,6 +44,14 @@ class BetaDiversityTests(TestPluginBase):
         self.three_feature_tree = Artifact.import_data('Phylogeny[Rooted]',
                                                        three_feature_tree)
 
+        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
+                  ['O1', 'O2'],
+                  ['S1', 'S2', 'S3'])
+        self.t = Artifact.import_data('FeatureTable[Frequency]', t)
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        self.tree = Artifact.import_data('Phylogeny[Rooted]', tree)
+
     def test_beta(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
@@ -171,36 +179,32 @@ class BetaDiversityTests(TestPluginBase):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
                   ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree)
         with self.assertRaises(ValueError):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
         t = self.get_data_path('empty.biom')
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
         tree = self.get_data_path('three_feature.tree')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
         with self.assertRaisesRegex(ValueError, 'empty'):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='unweighted_unifrac')
 
-    def test_beta_phylogenetic_skbio_error_rewriting(self):
-        t = self.get_data_path('two_feature_table.biom')
-        tree = self.get_data_path('vaw.nwk')
-        # Verify through regex that there is a ``feature_ids`` substring
-        # followed by a ``phylogeny``
-        with self.assertRaisesRegex(ValueError,
-                                    'represented by the phylogeny'):
-            self.beta_phylogenetic(table=t, phylogeny=tree,
-                                   metric='weighted_unifrac')
-
     def test_beta_unweighted(self):
         bt_fp = self.get_data_path('crawford.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='unweighted_unifrac')
 
         # computed with beta-phylogenetic
@@ -225,10 +229,12 @@ class BetaDiversityTests(TestPluginBase):
 
     def test_beta_unweighted_parallel(self):
         bt_fp = self.get_data_path('crawford.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='unweighted_unifrac',
                                         threads=2)
 
@@ -253,11 +259,14 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_weighted(self):
+        # TODO: Should this be renamed to test_beta_phylo_weighted?
         bt_fp = self.get_data_path('crawford.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='weighted_unifrac')
 
         # computed with beta-phylogenetic (weighted_unifrac)
@@ -282,10 +291,12 @@ class BetaDiversityTests(TestPluginBase):
 
     def test_variance_adjusted_normalized(self):
         bt_fp = self.get_data_path('vaw.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('vaw.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='weighted_normalized_unifrac',
                                         variance_adjusted=True)
 
@@ -312,10 +323,12 @@ class BetaDiversityTests(TestPluginBase):
 
     def test_generalized_unifrac(self):
         bt_fp = self.get_data_path('vaw.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('vaw.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='generalized_unifrac',
                                         alpha=0.5)
 
@@ -342,10 +355,12 @@ class BetaDiversityTests(TestPluginBase):
 
     def test_generalized_unifrac_no_alpha(self):
         bt_fp = self.get_data_path('crawford.biom')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
-        actual = self.beta_phylogenetic(table=bt_fp,
-                                        phylogeny=tree_fp,
+        actual = self.beta_phylogenetic(table=bt,
+                                        phylogeny=tree,
                                         metric='generalized_unifrac',
                                         alpha=None)
 
@@ -371,23 +386,27 @@ class BetaDiversityTests(TestPluginBase):
 
     def test_beta_phylogenetic_alpha_on_non_generalized(self):
         bt_fp = self.get_data_path('crawford.biom')
-        tree_fp = self.get_data_path('tree.nwk')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
+        tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
         with self.assertRaisesRegex(ValueError, 'The alpha parameter is only '
                                     'allowed when the choice of metric is '
                                     'generalized_unifrac'):
-            self.beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
+            self.beta_phylogenetic(table=bt, phylogeny=tree,
                                    metric='unweighted_unifrac',
                                    alpha=0.11)
 
     def test_beta_phylogenetic_too_many_jobs(self):
         bt_fp = self.get_data_path('crawford.biom')
-        tree_fp = self.get_data_path('tree.nwk')
+        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
+        tree_fp = self.get_data_path('crawford.nwk')
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
 
         with self.assertRaises(ValueError):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
-            self.beta_phylogenetic(table=bt_fp, phylogeny=tree_fp,
+            self.beta_phylogenetic(table=bt, phylogeny=tree,
                                    metric='unweighted_unifrac', threads=11117)
 
 
