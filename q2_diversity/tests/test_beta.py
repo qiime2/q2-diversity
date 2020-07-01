@@ -159,9 +159,11 @@ class BetaDiversityTests(TestPluginBase):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
                   ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
-        with self.assertRaises(ValueError):
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree)
+        with self.assertRaisesRegex(TypeError, 'received \'braycurtis'):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='braycurtis')
 
