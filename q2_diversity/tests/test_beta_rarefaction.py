@@ -106,7 +106,8 @@ class BetaRarefactionTests(SharedSetup, TestPluginBase):
         self.check_emperor(viz_dir)
 
     def test_beta_rarefaction_with_phylogeny(self):
-        beta_rarefaction(self.output_dir, self.table, 'weighted_unnormalized_unifrac',
+        beta_rarefaction(self.output_dir, self.table,
+                         'weighted_unnormalized_unifrac',
                          'upgma', self.md, 2, phylogeny=self.tree)
 
         self.assertBetaRarefactionValidity(
@@ -170,7 +171,8 @@ class BetaRarefactionTests(SharedSetup, TestPluginBase):
 
     def test_beta_rarefaction_missing_phylogeny(self):
         with self.assertRaisesRegex(ValueError, 'Phylogeny must be provided'):
-            beta_rarefaction(self.output_dir, self.table, 'weighted_unnormalized_unifrac',
+            beta_rarefaction(self.output_dir, self.table,
+                             'weighted_unnormalized_unifrac',
                              'upgma', self.md, 2)
 
 
@@ -188,9 +190,9 @@ class GetMultipleRarefactionTests(SharedSetup, TestPluginBase):
             rare_func = scope.ctx.get_action('feature-table', 'rarefy')
 
             for iterations in range(1, 4):
-                obs_dms = _get_multiple_rarefaction(beta_func, rare_func,
-                                                    'weighted_unnormalized_unifrac',
-                                                    iterations, table, 2)
+                obs_dms = _get_multiple_rarefaction(
+                        beta_func, rare_func, 'weighted_unnormalized_unifrac',
+                        iterations, table, 2)
 
                 self.assertEqual(len(obs_dms), iterations)
                 for obs in obs_dms:
