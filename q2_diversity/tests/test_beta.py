@@ -183,7 +183,7 @@ class BetaDiversityTests(TestPluginBase):
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         tree = Artifact.import_data('Phylogeny[Rooted]', tree)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(TypeError, 'received \'not-a-metric\''):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='not-a-metric')
 
@@ -222,6 +222,10 @@ class BetaDiversityTests(TestPluginBase):
                '10084.PC.634')
         expected = skbio.DistanceMatrix(data, ids=ids)
 
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
+
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
@@ -253,13 +257,16 @@ class BetaDiversityTests(TestPluginBase):
                '10084.PC.634')
         expected = skbio.DistanceMatrix(data, ids=ids)
 
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
+
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_weighted(self):
-        # TODO: Should this be renamed to test_beta_phylo_weighted?
         bt_fp = self.get_data_path('crawford.biom')
         bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
         tree_fp = self.get_data_path('crawford.nwk')
@@ -283,6 +290,10 @@ class BetaDiversityTests(TestPluginBase):
                '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
                '10084.PC.634')
         expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
 
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
@@ -316,6 +327,10 @@ class BetaDiversityTests(TestPluginBase):
                'Sample6')
         expected = skbio.DistanceMatrix(data, ids=ids)
 
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
+
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
@@ -348,6 +363,10 @@ class BetaDiversityTests(TestPluginBase):
                'Sample6')
         expected = skbio.DistanceMatrix(data, ids=ids)
 
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
+
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
@@ -378,6 +397,10 @@ class BetaDiversityTests(TestPluginBase):
                '10084.PC.354', '10084.PC.636', '10084.PC.635', '10084.PC.607',
                '10084.PC.634')
         expected = skbio.DistanceMatrix(data, ids=ids)
+
+        self.assertEqual(len(actual), 1)
+        self.assertEqual(repr(actual.distance_matrix.type), 'DistanceMatrix')
+        actual = actual[0].view(skbio.DistanceMatrix)
 
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
