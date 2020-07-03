@@ -23,7 +23,7 @@ from qiime2.plugin.testing import TestPluginBase
 
 
 from qiime2 import Artifact
-from q2_diversity import (beta, bioenv, beta_group_significance, mantel)
+from q2_diversity import (bioenv, beta_group_significance, mantel)
 from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
@@ -33,6 +33,7 @@ class BetaDiversityTests(TestPluginBase):
 
     def setUp(self):
         super().setUp()
+        self.beta = self.plugin.pipelines['beta']
         self.beta_phylogenetic = self.plugin.pipelines['beta_phylogenetic']
 
         two_feature_table = self.get_data_path('two_feature_table.biom')
@@ -43,6 +44,7 @@ class BetaDiversityTests(TestPluginBase):
         three_feature_tree = self.get_data_path('three_feature.tree')
         self.three_feature_tree = Artifact.import_data('Phylogeny[Rooted]',
                                                        three_feature_tree)
+        # TODO: should we add crawford.nwk here?
 
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
@@ -53,10 +55,8 @@ class BetaDiversityTests(TestPluginBase):
         self.tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
     def test_beta(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        actual = beta(table=t, metric='braycurtis')
+        actual = self.beta(table=self.t, metric='braycurtis')
+        actual = actual[0].view(skbio.DistanceMatrix)
         # expected computed with scipy.spatial.distance.braycurtis
         expected = skbio.DistanceMatrix([[0.0000000, 0.3333333, 0.6666667],
                                          [0.3333333, 0.0000000, 0.4285714],
@@ -72,11 +72,13 @@ class BetaDiversityTests(TestPluginBase):
         t = Table(np.array([[0, 0], [0, 1], [1, 2]]),
                   ['O1', 'O2', 'O3'],
                   ['S1', 'S2'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
         d = (1. / 2.) * sum([abs(0. - 1.) / (0. + 1.),
                              abs(1. - 2.) / (1. + 2.)])
         expected = skbio.DistanceMatrix(np.array([[0.0, d], [d, 0.0]]),
                                         ids=['S1', 'S2'])
-        actual = beta(table=t, metric='canberra_adkins')
+        actual = self.beta(table=t, metric='canberra_adkins')
+        actual = actual[0].view(skbio.DistanceMatrix)
 
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
@@ -84,27 +86,24 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_jensenshannon(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        actual = beta(table=t, metric='jensenshannon')
+        actual = self.beta(table=self.t, metric='jensenshannon')
         # expected computed with scipy.spatial.distance.jensenshannon
         expected = skbio.DistanceMatrix([[0.0000000, 0.4645014, 0.52379239],
                                          [0.4645014, 0.0000000, 0.07112939],
                                          [0.52379239, 0.07112939, 0.0000000]],
                                         ids=['S1', 'S2', 'S3'])
 
+        actual = actual[0].view(skbio.DistanceMatrix)
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_parallel_beta(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        parallel = beta(table=t, metric='braycurtis', n_jobs=-1)
-        single_thread = beta(table=t, metric='braycurtis', n_jobs=1)
+        parallel = self.beta(table=self.t, metric='braycurtis', n_jobs=-1)
+        parallel = parallel[0].view(skbio.DistanceMatrix)
+        single_thread = self.beta(table=self.t, metric='braycurtis', n_jobs=1)
+        single_thread = single_thread[0].view(skbio.DistanceMatrix)
         # expected computed with scipy.spatial.distance.braycurtis
         expected = skbio.DistanceMatrix([[0.0000000, 0.3333333, 0.6666667],
                                          [0.3333333, 0.0000000, 0.4285714],
@@ -122,24 +121,20 @@ class BetaDiversityTests(TestPluginBase):
                                         expected[id1, id2])
 
     def test_beta_phylo_metric(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        with self.assertRaises(ValueError):
-            beta(table=t, metric='unweighted_unifrac')
+        with self.assertRaisesRegex(TypeError,
+                                    'received \'unweighted_unifrac\''):
+            self.beta(table=self.t, metric='unweighted_unifrac')
 
     def test_beta_unknown_metric(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        with self.assertRaises(ValueError):
-            beta(table=t, metric='not-a-metric')
+        with self.assertRaisesRegex(TypeError,
+                                    'received \'not-a-metric\''):
+            self.beta(table=self.t, metric='not-a-metric')
 
     def test_beta_empty_table(self):
         t = Table(np.array([]), [], [])
-
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
         with self.assertRaisesRegex(ValueError, 'empty'):
-            beta(table=t, metric='braycurtis')
+            self.beta(table=t, metric='braycurtis')
 
     def test_beta_phylogenetic(self):
         t = self.two_feature_table
@@ -433,7 +428,8 @@ class BetaDiversityTests(TestPluginBase):
                                    metric='unweighted_unifrac', threads=11117)
 
 
-class BioenvTests(unittest.TestCase):
+class BioenvTests(TestPluginBase):
+    package = 'q2_diversity.tests'
 
     def test_bioenv(self):
         dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
@@ -519,10 +515,13 @@ class BioenvTests(unittest.TestCase):
             self.assertFalse('Warning' in open(index_fp).read())
 
     def test_aitchison(self):
+        func = self.plugin.pipelines['beta']
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
                   ['S1', 'S2', 'S3'])
-        actual = beta(table=t, metric='aitchison')
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+        actual = func(table=t, metric='aitchison')
+        actual = actual[0].view(skbio.DistanceMatrix)
         expected = skbio.DistanceMatrix([[0.0000000, 0.4901290, 0.6935510],
                                          [0.4901290, 0.0000000, 0.2034219],
                                          [0.6935510, 0.2034219, 0.0000000]],

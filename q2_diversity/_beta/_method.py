@@ -6,19 +6,10 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import biom
-import skbio
-import skbio.diversity
-import skbio.tree
-import sklearn.metrics
 import unifrac
-import numpy as np
-
-from skbio.stats.composition import clr
-from scipy.spatial.distance import euclidean
-from scipy.spatial.distance import jensenshannon
 
 
+# TODO: remove these collections ASAP
 def phylogenetic_metrics_dict():
     return {'unweighted_unifrac': unifrac.unweighted,
             'weighted_unnormalized_unifrac': unifrac.weighted_unnormalized,
@@ -56,50 +47,8 @@ def beta_phylogenetic(ctx, table, phylogeny,
     return tuple(distance_matrix)
 
 
-def beta(table: biom.Table, metric: str,
-         pseudocount: int = 1, n_jobs: int = 1) -> skbio.DistanceMatrix:
+def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
 
-    if not (metric in non_phylogenetic_metrics()):
-        raise ValueError("Unknown metric: %s" % metric)
-
-    counts = table.matrix_data.toarray().T
-
-    def aitchison(x, y, **kwds):
-        return euclidean(clr(x), clr(y))
-
-    def canberra_adkins(x, y, **kwds):
-        if (x < 0).any() or (y < 0).any():
-            raise ValueError("Canberra-Adkins is only defined over positive "
-                             "values.")
-
-        nz = ((x > 0) | (y > 0))
-        x_ = x[nz]
-        y_ = y[nz]
-        nnz = nz.sum()
-
-        return (1. / nnz) * np.sum(np.abs(x_ - y_) / (x_ + y_))
-
-    def jensen_shannon(x, y, **kwds):
-        return jensenshannon(x, y)
-
-    if metric == 'aitchison':
-        counts += pseudocount
-        metric = aitchison
-    elif metric == 'canberra_adkins':
-        metric = canberra_adkins
-    elif metric == 'jensenshannon':
-        metric = jensen_shannon
-
-    if table.is_empty():
-        raise ValueError("The provided table object is empty")
-
-    sample_ids = table.ids(axis='sample')
-
-    return skbio.diversity.beta_diversity(
-        metric=metric,
-        counts=counts,
-        ids=sample_ids,
-        validate=True,
-        pairwise_func=sklearn.metrics.pairwise_distances,
-        n_jobs=n_jobs
-    )
+    func = ctx.get_action('diversity_lib', 'beta_dispatch')
+    distance_matrix = func(table, metric, pseudocount, n_jobs)
+    return tuple(distance_matrix)

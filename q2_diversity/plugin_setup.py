@@ -107,7 +107,7 @@ plugin.pipelines.register_function(
         citations['mcdonald2018unifrac']]
 )
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.beta,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
@@ -128,6 +128,7 @@ plugin.methods.register_function(
     name='Beta diversity',
     description=("Computes a user-specified beta diversity metric for all "
                  "pairs of samples in a feature table."),
+    # TODO: remove citations
     citations=[
         citations['Faith1987']]
 )
