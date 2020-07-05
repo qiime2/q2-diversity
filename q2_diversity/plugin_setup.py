@@ -133,7 +133,7 @@ plugin.pipelines.register_function(
         citations['Faith1987']]
 )
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=q2_diversity.alpha_phylogenetic,
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
@@ -157,13 +157,9 @@ plugin.methods.register_function(
     },
     name='Alpha diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic alpha diversity "
-                 "metric for all samples in a feature table. This "
-                 "implementation is recommended for large datasets, otherwise "
-                 "the results are identical to alpha_phylogenetic. \n\n"
-                 "This method is an implementation of the Stacked Faith "
-                 "Algorithm (manuscript in preparation)."),
-    citations=[
-        citations['faith1992conservation']]
+                 "metric for all samples in a feature table. This method is "
+                 "an implementation of the Stacked Faith Algorithm "
+                 "(manuscript in preparation)."),
 )
 
 

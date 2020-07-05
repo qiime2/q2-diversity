@@ -18,6 +18,7 @@ from q2_types.tree import NewickFormat
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
 
+# TODO: remove these collections ASAP
 def phylogenetic_metrics():
     return {'faith_pd'}
 
@@ -37,25 +38,19 @@ def non_phylogenetic_metrics():
             'lladser_pe', 'lladser_ci'}
 
 
-def alpha_phylogenetic(table: BIOMV210Format, phylogeny: NewickFormat,
-                       metric: str) -> pd.Series:
-    metrics = phylogenetic_metrics()
-    if metric not in metrics:
-        raise ValueError("Unknown phylogenetic metric: %s" % metric)
-
-    f = _phylogenetic_functions()[metric]
-
-    result = f(str(table), str(phylogeny))
-
-    result.name = metric
-    return result
+def alpha_phylogenetic(ctx, table, phylogeny, metric):
+    f = ctx.get_action('diversity_lib', 'alpha_phylogenetic_dispatch')
+    result = f(str(table), str(phylogeny), metric)
+    return tuple(result)
 
 
+# TODO: Drop
 def alpha_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
                            metric: str) -> pd.Series:
     return alpha_phylogenetic(table, phylogeny, metric)
 
 
+# TODO: Drop
 def alpha_phylogenetic_old(table: biom.Table, phylogeny: skbio.TreeNode,
                            metric: str) -> pd.Series:
     if metric not in phylogenetic_metrics():
