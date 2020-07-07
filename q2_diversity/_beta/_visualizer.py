@@ -365,6 +365,8 @@ def adonis(output_dir: str,
         for i in t.factors:
             metadata.get_column(i.name())
 
+    # Check metadata for NaNs
+
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')
     with tempfile.TemporaryDirectory() as temp_dir_name:
