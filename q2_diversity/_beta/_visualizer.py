@@ -368,7 +368,7 @@ def adonis(output_dir: str,
     # Check metadata for NaNs
     metadata = metadata.to_dataframe()
     if metadata.isnull().values.any() == True:
-        raise ValueError("NaNs cannot be present in metadata.")
+        raise ValueError("Adonis cannot run with NaNs in metadata.")
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')
