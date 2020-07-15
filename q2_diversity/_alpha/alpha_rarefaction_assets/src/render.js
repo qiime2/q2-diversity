@@ -20,7 +20,7 @@ function renderPlot(svg, data, x, y, subY, column, legend, legendTitle) {
   const subChart = svg.select('#subChart');
   const legendBox = select(legend.node().parentNode);
 
-  const depthIndex = data.data.columns.indexOf('depth');
+  const depthIndex = data.data.columns.indexOf('_alpha_rarefaction_depth_column_');
   const lowerWhiskerIndex = data.data.columns.indexOf('9%');
   const lowerBoxIndex = data.data.columns.indexOf('25%');
   const medianIndex = data.data.columns.indexOf('50%');

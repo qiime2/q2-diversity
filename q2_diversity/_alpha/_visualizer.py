@@ -286,8 +286,9 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     iter_range = range(1, iterations + 1)
 
     rows = feature_table.ids(axis='sample')
-    cols = pd.MultiIndex.from_product([list(depth_range), list(iter_range)],
-                                      names=['depth', 'iter'])
+    cols = pd.MultiIndex.from_product(
+        [list(depth_range), list(iter_range)],
+        names=['_alpha_rarefaction_depth_column_', 'iter'])
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
@@ -391,8 +392,9 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                 filenames.append(jsonp_filename)
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
-            data.columns = ['depth-%d_iter-%d' % (t[0], t[1])
-                            for t in data.columns.values]
+            data.columns = [
+                '_alpha_rarefaction_depth_column_-%d_iter-%d' % (t[0], t[1])
+                for t in data.columns.values]
             if metadata is not None:
                 data = data.join(metadata.to_dataframe(), how='left')
             data.to_csv(fh, index_label=['sample-id'])

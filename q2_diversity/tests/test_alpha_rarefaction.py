@@ -264,7 +264,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
 
         exp_ind = pd.MultiIndex.from_product(
             [[1, 200], [1]],
-            names=['depth', 'iter'])
+            names=['_alpha_rarefaction_depth_column_', 'iter'])
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
@@ -301,7 +301,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
 
         exp_ind = pd.MultiIndex.from_product(
             [[1, 200], [1]],
-            names=['depth', 'iter'])
+            names=['_alpha_rarefaction_depth_column_', 'iter'])
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])

@@ -8,7 +8,7 @@ export function setupData(data, metric) {
   let maxY = 0;
   let minSubY = Infinity;
   let maxSubY = 0;
-  const depthIndex = data.columns.indexOf('depth');
+  const depthIndex = data.columns.indexOf('_alpha_rarefaction_depth_column_');
   const lowerWhiskerIndex = data.columns.indexOf('9%');
   const upperWhiskerIndex = data.columns.indexOf('91%');
   const countIndex = data.columns.indexOf('count');
