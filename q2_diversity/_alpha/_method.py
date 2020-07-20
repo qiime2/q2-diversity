@@ -11,9 +11,6 @@ import pandas as pd
 import skbio.diversity
 import unifrac
 
-from q2_types.feature_table import BIOMV210Format
-from q2_types.tree import NewickFormat
-
 
 # We should consider moving these functions to scikit-bio. They're part of
 # the private API here for now.
@@ -42,39 +39,6 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
     f = ctx.get_action('diversity_lib', 'alpha_phylogenetic_dispatch')
     result = f(table, phylogeny, metric)
     return tuple(result)
-
-
-# TODO: Drop
-def alpha_phylogenetic_alt(table: BIOMV210Format, phylogeny: NewickFormat,
-                           metric: str) -> pd.Series:
-    return alpha_phylogenetic(table, phylogeny, metric)
-
-
-# TODO: Drop
-def alpha_phylogenetic_old(table: biom.Table, phylogeny: skbio.TreeNode,
-                           metric: str) -> pd.Series:
-    if metric not in phylogenetic_metrics():
-        raise ValueError("Unknown phylogenetic metric: %s" % metric)
-    if table.is_empty():
-        raise ValueError("The provided table object is empty")
-
-    counts = table.matrix_data.toarray().astype(int).T
-    sample_ids = table.ids(axis='sample')
-    feature_ids = table.ids(axis='observation')
-
-    try:
-        result = skbio.diversity.alpha_diversity(metric=metric,
-                                                 counts=counts,
-                                                 ids=sample_ids,
-                                                 otu_ids=feature_ids,
-                                                 tree=phylogeny)
-    except skbio.tree.MissingNodeError as e:
-        message = str(e).replace('otu_ids', 'feature_ids')
-        message = message.replace('tree', 'phylogeny')
-        raise skbio.tree.MissingNodeError(message)
-
-    result.name = metric
-    return result
 
 
 def alpha(table: biom.Table, metric: str) -> pd.Series:
