@@ -161,16 +161,6 @@ class AlphaTests(TestPluginBase):
                                phylogeny=tree,
                                metric='not-a-metric')
 
-    def test_alpha_phylogenetic_skbio_error_rewriting(self):
-        table = self.get_data_path('two_feature_table.biom')
-        tree = self.get_data_path('vaw.nwk')
-        with self.assertRaisesRegex(ValueError, "The table does not "
-                                    "appear to be completely represented "
-                                    "by the phylogeny."):
-            alpha_phylogenetic(table=table,
-                               phylogeny=tree,
-                               metric='faith_pd')
-
     def test_alpha_phylogenetic_empty_table(self):
         table = self.get_data_path('empty.biom')
         tree = self.get_data_path('three_feature.tree')
