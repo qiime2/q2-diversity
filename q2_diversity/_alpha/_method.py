@@ -40,7 +40,7 @@ def non_phylogenetic_metrics():
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
     f = ctx.get_action('diversity_lib', 'alpha_phylogenetic_dispatch')
-    result = f(str(table), str(phylogeny), metric)
+    result = f(table, phylogeny, metric)
     return tuple(result)
 
 

@@ -146,30 +146,32 @@ class AlphaTests(TestPluginBase):
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylogenetic_non_phylo_metric(self):
-        table = self.get_data_path('two_feature_table.biom')
-        tree = self.get_data_path('three_feature.tree')
-        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
-            alpha_phylogenetic(table=table,
-                               phylogeny=tree,
-                               metric='observed_otus')
+        table = self.two_feature_table
+        tree = self.three_feature_tree
+        with self.assertRaisesRegex(TypeError, 'observed_otus.*incompatible'):
+            self.alpha_phylogenetic(table=table,
+                                    phylogeny=tree,
+                                    metric='observed_otus')
 
     def test_alpha_phylogenetic_unknown_metric(self):
-        table = self.get_data_path('two_feature_table.biom')
-        tree = self.get_data_path('three_feature.tree')
-        with self.assertRaisesRegex(ValueError, 'Unknown phylogenetic metric'):
-            alpha_phylogenetic(table=table,
-                               phylogeny=tree,
-                               metric='not-a-metric')
+        table = self.two_feature_table
+        tree = self.three_feature_tree
+        with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):
+            self.alpha_phylogenetic(table=table,
+                                    phylogeny=tree,
+                                    metric='not-a-metric')
 
     def test_alpha_phylogenetic_empty_table(self):
         table = self.get_data_path('empty.biom')
-        tree = self.get_data_path('three_feature.tree')
+        table = Artifact.import_data('FeatureTable[Frequency]', table)
+        tree = self.three_feature_tree
 
         with self.assertRaisesRegex(ValueError, "empty"):
-            alpha_phylogenetic(table=table,
-                               phylogeny=tree,
-                               metric='faith_pd')
+            self.alpha_phylogenetic(table=table,
+                                    phylogeny=tree,
+                                    metric='faith_pd')
 
+# TODO: remove tests for alpha_phylogenetic_alt and alpha_phylogenetic_old
     def test_alpha_phylogenetic_alt(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
@@ -181,7 +183,6 @@ class AlphaTests(TestPluginBase):
                              name='faith_pd')
         pdt.assert_series_equal(actual, expected)
 
-# TODO: remove tests for alpha_phylogenetic_alt and alpha_phylogenetic_old
     def test_alpha_phylogenetic_alt_non_phylo_metric(self):
         table = self.get_data_path('two_feature_table.biom')
         tree = self.get_data_path('three_feature.tree')
