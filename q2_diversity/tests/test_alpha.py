@@ -29,7 +29,12 @@ class AlphaTests(TestPluginBase):
 
     def setUp(self):
         super().setUp()
+        self.alpha = self.plugin.pipelines['alpha']
         self.alpha_phylogenetic = self.plugin.pipelines['alpha_phylogenetic']
+
+        empty_table = self.get_data_path('empty.biom')
+        self.empty_table = Artifact.import_data('FeatureTable[Frequency]',
+                                                empty_table)
 
         two_feature_table = self.get_data_path('two_feature_table.biom')
         self.two_feature_table = Artifact.import_data(
@@ -48,35 +53,27 @@ class AlphaTests(TestPluginBase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         self.tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
+    # TODO: Smoke test drop_undefined_samples here
+
     def test_alpha(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        actual = alpha(table=t, metric='observed_otus')
+        actual = self.alpha(table=self.t, metric='observed_otus')
+        actual = actual[0].view(pd.Series)
         # expected computed by hand
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
                              name='observed_otus')
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylo_metric(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        with self.assertRaisesRegex(ValueError, 'Unknown metric'):
-            alpha(table=t, metric='faith_pd')
+        with self.assertRaisesRegex(TypeError, 'faith_pd.*incompatible'):
+            self.alpha(table=self.t, metric='faith_pd')
 
     def test_alpha_unknown_metric(self):
-        t = biom.Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                       ['O1', 'O2'],
-                       ['S1', 'S2', 'S3'])
-        with self.assertRaisesRegex(ValueError, 'Unknown metric'):
-            alpha(table=t, metric='not-a-metric')
+        with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):
+            self.alpha(table=self.t, metric='not-a-metric')
 
     def test_alpha_empty_table(self):
-        t = biom.Table(np.array([]), [], [])
-
         with self.assertRaisesRegex(ValueError, "empty"):
-            alpha(table=t, metric='observed_otus')
+            self.alpha(table=self.empty_table, metric='observed_otus')
 
     def test_alpha_phylogenetic(self):
         table = self.two_feature_table
@@ -107,8 +104,7 @@ class AlphaTests(TestPluginBase):
                                     metric='not-a-metric')
 
     def test_alpha_phylogenetic_empty_table(self):
-        table = self.get_data_path('empty.biom')
-        table = Artifact.import_data('FeatureTable[Frequency]', table)
+        table = self.empty_table
         tree = self.three_feature_tree
 
         with self.assertRaisesRegex(ValueError, "empty"):

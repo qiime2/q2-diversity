@@ -6,14 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import biom
-import pandas as pd
-import skbio.diversity
 import unifrac
 
-
-# We should consider moving these functions to scikit-bio. They're part of
-# the private API here for now.
 
 # TODO: remove these collections ASAP
 def phylogenetic_metrics():
@@ -41,16 +35,7 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
     return tuple(result)
 
 
-def alpha(table: biom.Table, metric: str) -> pd.Series:
-    if metric not in non_phylogenetic_metrics():
-        raise ValueError("Unknown metric: %s" % metric)
-    if table.is_empty():
-        raise ValueError("The provided table object is empty")
-
-    counts = table.matrix_data.toarray().astype(int).T
-    sample_ids = table.ids(axis='sample')
-
-    result = skbio.diversity.alpha_diversity(metric=metric, counts=counts,
-                                             ids=sample_ids)
-    result.name = metric
-    return result
+def alpha(ctx, table, metric, drop_undefined_samples=False):
+    f = ctx.get_action('diversity_lib', 'alpha_dispatch')
+    result = f(table, metric, drop_undefined_samples)
+    return tuple(result)
