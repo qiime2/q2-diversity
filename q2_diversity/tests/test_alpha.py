@@ -20,7 +20,7 @@ import pandas as pd
 import pandas.util.testing as pdt
 
 from qiime2 import Artifact
-from q2_diversity import (alpha, alpha_correlation, alpha_group_significance)
+from q2_diversity import (alpha_correlation, alpha_group_significance)
 
 
 class AlphaTests(TestPluginBase):
