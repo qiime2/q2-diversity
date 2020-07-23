@@ -312,6 +312,20 @@ class ComputeRarefactionDataTests(unittest.TestCase):
                            index=['S1', 'S2', 'S3'])
         pdt.assert_frame_equal(obs['shannon'], exp)
 
+# TODO: Note that this test is getting -0 instead of NaN when shannon runs at
+# depth=1. (These values are likely undefined.) pdt.assert_frame_equal finds
+# 0 == -0, and passes the test. Is this acceptable?
+
+# TODO: write a test that specifically catches cases where a p/a method is
+# called prior to a freq/rf method? And catches cases where an rf method is
+# called prior to a frequency method? Devs using inplace=True by default in
+# div-lib may break alpha-rarefaction without this test, because we
+# intentionally rarefy our table in a scope where mutations impact downstream
+# method calls to reduce the time cost of rarefying. Currently,
+# q2-diversity-lib doesn't implement any methods that normalize data
+# to rf locally (I think skbio's bray-curtis does this when called), so this
+# idea may be a non-starter. Maybe a comment in test_multiple_metrics?
+
 
 class ComputeSummaryTests(unittest.TestCase):
     def test_one_iteration_no_metadata(self):

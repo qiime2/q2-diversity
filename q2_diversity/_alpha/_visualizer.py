@@ -25,9 +25,9 @@ from q2_feature_table import rarefy
 from q2_types.feature_table import BIOMV210Format
 from qiime2.plugin.util import transform
 from q2_types.tree import NewickFormat
+from q2_diversity_lib import alpha_dispatch, alpha_phylogenetic_dispatch
 
-from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
-                      alpha, alpha_phylogenetic)
+from ._method import non_phylogenetic_metrics, phylogenetic_metrics
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -299,10 +299,16 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
                 # metric comes before a non-phylogenetic metric
                 rt_p = transform(rt, to_type=BIOMV210Format,
                                  from_type=biom.Table)
-                vector = alpha_phylogenetic(table=rt_p, metric=m,
-                                            phylogeny=phylogeny)
+                vector = alpha_phylogenetic_dispatch(table=rt_p, metric=m,
+                                                     phylogeny=phylogeny)
             else:
-                vector = alpha(table=rt, metric=m)
+                # TODO: drop_undefined_samples=True causes weird errors from
+                # skbio's _validate_counts_matrix, where counts.ndim is 3.
+                # This appears to happen during rarefaction at depth 1. I don't
+                # think we should drop samples at low rar. depth (for curve
+                # continuity), but I'm a little concerned about why it happens
+                vector = alpha_dispatch(table=rt, metric=m,
+                                        drop_undefined_samples=False)
             data[m][(d, i)] = vector
     return data
 

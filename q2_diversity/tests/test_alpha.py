@@ -23,6 +23,7 @@ from qiime2 import Artifact
 from q2_diversity import (alpha_correlation, alpha_group_significance)
 
 
+# TODO: test whether citation info is captured during dispatch?
 class AlphaTests(TestPluginBase):
 
     package = 'q2_diversity.tests'
