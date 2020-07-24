@@ -369,6 +369,7 @@ def adonis(output_dir: str,
     metadata = metadata.to_dataframe()
     if metadata.isnull().values.any() == True:
         raise ValueError("Adonis cannot run with NaNs in metadata.")
+    metadata = qiime2.Metadata(metadata)
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')
