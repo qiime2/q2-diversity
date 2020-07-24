@@ -77,10 +77,8 @@ class AlphaTests(TestPluginBase):
             self.alpha(table=self.empty_table, metric='observed_otus')
 
     def test_alpha_phylogenetic(self):
-        table = self.two_feature_table
-        tree = self.three_feature_tree
-        actual = self.alpha_phylogenetic(table=table,
-                                         phylogeny=tree,
+        actual = self.alpha_phylogenetic(table=self.two_feature_table,
+                                         phylogeny=self.three_feature_tree,
                                          metric='faith_pd')
         actual = actual[0].view(pd.Series)
         # expected computed with skbio.diversity.alpha_diversity
@@ -89,28 +87,21 @@ class AlphaTests(TestPluginBase):
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylogenetic_non_phylo_metric(self):
-        table = self.two_feature_table
-        tree = self.three_feature_tree
         with self.assertRaisesRegex(TypeError, 'observed_otus.*incompatible'):
-            self.alpha_phylogenetic(table=table,
-                                    phylogeny=tree,
+            self.alpha_phylogenetic(table=self.two_feature_table,
+                                    phylogeny=self.three_feature_tree,
                                     metric='observed_otus')
 
     def test_alpha_phylogenetic_unknown_metric(self):
-        table = self.two_feature_table
-        tree = self.three_feature_tree
         with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):
-            self.alpha_phylogenetic(table=table,
-                                    phylogeny=tree,
+            self.alpha_phylogenetic(table=self.two_feature_table,
+                                    phylogeny=self.three_feature_tree,
                                     metric='not-a-metric')
 
     def test_alpha_phylogenetic_empty_table(self):
-        table = self.empty_table
-        tree = self.three_feature_tree
-
         with self.assertRaisesRegex(ValueError, "empty"):
-            self.alpha_phylogenetic(table=table,
-                                    phylogeny=tree,
+            self.alpha_phylogenetic(table=self.empty_table,
+                                    phylogeny=self.three_feature_tree,
                                     metric='faith_pd')
 
 
