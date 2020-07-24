@@ -111,6 +111,22 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertFalse(
                 os.path.exists(os.path.join(output_dir, 'shannon-bar.jsonp')))
 
+    def test_alpha_rarefaction_with_depth_column_in_metadata(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'depth': ['1', '2', '3']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            index_fp = os.path.join(output_dir, 'index.html')
+            self.assertTrue(os.path.exists(index_fp))
+            with open(index_fp) as index_fh:
+                index_content = index_fh.read()
+            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('shannon' in index_content)
+
     def test_alpha_rarefaction_with_phylogeny(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],

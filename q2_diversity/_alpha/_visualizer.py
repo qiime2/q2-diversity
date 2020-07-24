@@ -393,7 +393,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
 
         with open(os.path.join(output_dir, filename), 'w') as fh:
             data.columns = [
-                '_alpha_rarefaction_depth_column_-%d_iter-%d' % (t[0], t[1])
+                'depth-%d_iter-%d' % (t[0], t[1])
                 for t in data.columns.values]
             if metadata is not None:
                 data = data.join(metadata.to_dataframe(), how='left')
