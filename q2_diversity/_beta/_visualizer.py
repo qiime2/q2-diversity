@@ -365,11 +365,9 @@ def adonis(output_dir: str,
         for i in t.factors:
             metadata.get_column(i.name())
 
-    # Check metadata for NaNs
-    metadata = metadata.to_dataframe()
-    if metadata.isnull().values.any() == True:
+    metadata_df = metadata.to_dataframe()
+    if metadata_df.isnull().values.any():
         raise ValueError("Adonis cannot run with NaNs in metadata.")
-    metadata = qiime2.Metadata(metadata)
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')
