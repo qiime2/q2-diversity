@@ -107,14 +107,7 @@ plugin.pipelines.register_function(
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
-                 " for all pairs of samples in a feature table."),
-    # TODO: Remove citations
-    citations=[
-        citations['lozupone2005unifrac'],
-        citations['lozupone2007quantitative'],
-        citations['chang2011variance'],
-        citations['chen2012associating'],
-        citations['mcdonald2018unifrac']]
+                 " for all pairs of samples in a feature table.")
 )
 
 plugin.pipelines.register_function(
@@ -138,10 +131,7 @@ plugin.pipelines.register_function(
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
     description=("Computes a user-specified beta diversity metric for all "
-                 "pairs of samples in a feature table."),
-    # TODO: remove citations
-    citations=[
-        citations['Faith1987']]
+                 "pairs of samples in a feature table.")
 )
 
 plugin.pipelines.register_function(
