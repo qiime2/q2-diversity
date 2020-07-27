@@ -13,7 +13,8 @@ from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
 import q2_diversity
 from q2_diversity import _alpha as alpha
 from q2_diversity import _beta as beta
-from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
+from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency,
+                                    PresenceAbsence)
 from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
@@ -66,7 +67,8 @@ plugin = Plugin(
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta_phylogenetic,
-    inputs={'table': FeatureTable[Frequency],
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
                 'threads': Int % Range(1, None) | Str % Choices(['auto']),
@@ -117,7 +119,8 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta,
-    inputs={'table': FeatureTable[Frequency]},
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
                 'pseudocount': Int % Range(1, None),
                 'n_jobs': Int % Range(1, None) | Str % Choices(['auto'])},
@@ -143,7 +146,8 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_diversity.alpha_phylogenetic,
-    inputs={'table': FeatureTable[Frequency],
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(alpha.phylogenetic_metrics())},
     outputs=[('alpha_diversity',
@@ -171,7 +175,8 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_diversity.alpha,
-    inputs={'table': FeatureTable[Frequency]},
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
     # TODO: source these metrics lists from div-lib
     parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics()),
                 'drop_undefined_samples': Bool},
