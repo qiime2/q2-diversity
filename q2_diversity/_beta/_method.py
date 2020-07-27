@@ -12,7 +12,7 @@ import unifrac
 # TODO: remove these collections ASAP
 def phylogenetic_metrics_dict():
     return {'unweighted_unifrac': unifrac.unweighted,
-            'weighted_unnormalized_unifrac': unifrac.weighted_unnormalized,
+            'weighted_unifrac': unifrac.weighted_unnormalized,
             'weighted_normalized_unifrac': unifrac.weighted_normalized,
             'generalized_unifrac': unifrac.generalized}
 

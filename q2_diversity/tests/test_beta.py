@@ -270,9 +270,9 @@ class BetaDiversityTests(TestPluginBase):
 
         actual = self.beta_phylogenetic(table=bt,
                                         phylogeny=tree,
-                                        metric='weighted_unnormalized_unifrac')
+                                        metric='weighted_unifrac')
 
-        # computed with beta-phylogenetic (weighted_unnormalized_unifrac)
+        # computed with beta-phylogenetic (weighted_unifrac)
         data = np.array([0.44656238, 0.23771096, 0.30489123, 0.23446002,
                          0.65723575, 0.44911772, 0.381904, 0.69144829,
                          0.39611776, 0.36568012, 0.53377975, 0.48908025,

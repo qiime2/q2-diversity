@@ -290,15 +290,15 @@ plugin.pipelines.register_function(
         ('shannon_vector', SampleData[AlphaDiversity]),
         ('evenness_vector', SampleData[AlphaDiversity]),
         ('unweighted_unifrac_distance_matrix', DistanceMatrix),
-        ('weighted_unnormalized_unifrac_distance_matrix', DistanceMatrix),
+        ('weighted_unifrac_distance_matrix', DistanceMatrix),
         ('jaccard_distance_matrix', DistanceMatrix),
         ('bray_curtis_distance_matrix', DistanceMatrix),
         ('unweighted_unifrac_pcoa_results', PCoAResults),
-        ('weighted_unnormalized_unifrac_pcoa_results', PCoAResults),
+        ('weighted_unifrac_pcoa_results', PCoAResults),
         ('jaccard_pcoa_results', PCoAResults),
         ('bray_curtis_pcoa_results', PCoAResults),
         ('unweighted_unifrac_emperor', Visualization),
-        ('weighted_unnormalized_unifrac_emperor', Visualization),
+        ('weighted_unifrac_emperor', Visualization),
         ('jaccard_emperor', Visualization),
         ('bray_curtis_emperor', Visualization),
     ],
@@ -327,7 +327,7 @@ plugin.pipelines.register_function(
         'evenness_vector': 'Vector of Pielou\'s evenness values by sample.',
         'unweighted_unifrac_distance_matrix':
             'Matrix of unweighted UniFrac distances between pairs of samples.',
-        'weighted_unnormalized_unifrac_distance_matrix':
+        'weighted_unifrac_distance_matrix':
             'Matrix of weighted UniFrac distances between pairs of samples.',
         'jaccard_distance_matrix':
             'Matrix of Jaccard distances between pairs of samples.',
@@ -336,7 +336,7 @@ plugin.pipelines.register_function(
         'unweighted_unifrac_pcoa_results':
             'PCoA matrix computed from unweighted UniFrac distances between '
             'samples.',
-        'weighted_unnormalized_unifrac_pcoa_results':
+        'weighted_unifrac_pcoa_results':
             'PCoA matrix computed from weighted UniFrac distances between '
             'samples.',
         'jaccard_pcoa_results':
@@ -348,7 +348,7 @@ plugin.pipelines.register_function(
         'unweighted_unifrac_emperor':
             'Emperor plot of the PCoA matrix computed from unweighted'
             ' UniFrac.',
-        'weighted_unnormalized_unifrac_emperor':
+        'weighted_unifrac_emperor':
             'Emperor plot of the PCoA matrix computed from weighted UniFrac.',
         'jaccard_emperor':
             'Emperor plot of the PCoA matrix computed from Jaccard.',
