@@ -101,7 +101,7 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_parallel_beta(self):
-        parallel = self.beta(table=self.t, metric='braycurtis', n_jobs=-1)
+        parallel = self.beta(table=self.t, metric='braycurtis', n_jobs='auto')
         parallel = parallel[0].view(skbio.DistanceMatrix)
         single_thread = self.beta(table=self.t, metric='braycurtis', n_jobs=1)
         single_thread = single_thread[0].view(skbio.DistanceMatrix)

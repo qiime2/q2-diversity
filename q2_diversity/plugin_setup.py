@@ -120,7 +120,7 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency]},
     parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
                 'pseudocount': Int % Range(1, None),
-                'n_jobs': Int},
+                'n_jobs': Int % Range(1, None) | Str % Choices(['auto'])},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -172,6 +172,7 @@ plugin.pipelines.register_function(
 plugin.pipelines.register_function(
     function=q2_diversity.alpha,
     inputs={'table': FeatureTable[Frequency]},
+    # TODO: source these metrics lists from div-lib
     parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics()),
                 'drop_undefined_samples': Bool},
     outputs=[('alpha_diversity', SampleData[AlphaDiversity])],

@@ -137,6 +137,7 @@ class CoreMetricsTests(TestPluginBase):
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
                              name='observed_features')
         pdt.assert_series_equal(results[1].view(pd.Series), expected)
+        # TODO: check other results values as well....
 
 
 if __name__ == '__main__':

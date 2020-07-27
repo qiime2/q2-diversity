@@ -55,13 +55,12 @@ class AlphaTests(TestPluginBase):
         self.tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
     # TODO: Smoke test drop_undefined_samples here
-
     def test_alpha(self):
         actual = self.alpha(table=self.t, metric='observed_otus')
         actual = actual[0].view(pd.Series)
         # expected computed by hand
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                             name='observed_otus')
+                             name='observed_features')
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylo_metric(self):
