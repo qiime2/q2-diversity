@@ -45,7 +45,13 @@ class BetaDiversityTests(TestPluginBase):
         three_feature_tree = self.get_data_path('three_feature.tree')
         self.three_feature_tree = Artifact.import_data('Phylogeny[Rooted]',
                                                        three_feature_tree)
-        # TODO: should we add crawford.nwk here?
+
+        crawford_table = self.get_data_path('crawford.biom')
+        self.crawford_table = Artifact.import_data('FeatureTable[Frequency]',
+                                                   crawford_table)
+        crawford_tree = self.get_data_path('crawford.nwk')
+        self.crawford_tree = Artifact.import_data('Phylogeny[Rooted]',
+                                                  crawford_tree)
 
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
                   ['O1', 'O2'],
@@ -194,13 +200,8 @@ class BetaDiversityTests(TestPluginBase):
                                    metric='unweighted_unifrac')
 
     def test_beta_unweighted(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
-        tree_fp = self.get_data_path('crawford.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
-        actual = self.beta_phylogenetic(table=bt,
-                                        phylogeny=tree,
+        actual = self.beta_phylogenetic(table=self.crawford_table,
+                                        phylogeny=self.crawford_tree,
                                         metric='unweighted_unifrac')
 
         # computed with beta-phylogenetic
@@ -263,13 +264,8 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_weighted(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
-        tree_fp = self.get_data_path('crawford.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
-        actual = self.beta_phylogenetic(table=bt,
-                                        phylogeny=tree,
+        actual = self.beta_phylogenetic(table=self.crawford_table,
+                                        phylogeny=self.crawford_tree,
                                         metric='weighted_unifrac')
 
         # computed with beta-phylogenetic (weighted_unifrac)
@@ -369,13 +365,8 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_generalized_unifrac_no_alpha(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
-        tree_fp = self.get_data_path('crawford.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
-        actual = self.beta_phylogenetic(table=bt,
-                                        phylogeny=tree,
+        actual = self.beta_phylogenetic(table=self.crawford_table,
+                                        phylogeny=self.crawford_tree,
                                         metric='generalized_unifrac',
                                         alpha=None)
 
@@ -404,28 +395,20 @@ class BetaDiversityTests(TestPluginBase):
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
     def test_beta_phylogenetic_alpha_on_non_generalized(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
-        tree_fp = self.get_data_path('crawford.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
         with self.assertRaisesRegex(ValueError, 'The alpha parameter is only '
                                     'allowed when the choice of metric is '
                                     'generalized_unifrac'):
-            self.beta_phylogenetic(table=bt, phylogeny=tree,
+            self.beta_phylogenetic(table=self.crawford_table,
+                                   phylogeny=self.crawford_tree,
                                    metric='unweighted_unifrac',
                                    alpha=0.11)
 
     def test_beta_phylogenetic_too_many_jobs(self):
-        bt_fp = self.get_data_path('crawford.biom')
-        bt = Artifact.import_data('FeatureTable[Frequency]', bt_fp)
-        tree_fp = self.get_data_path('crawford.nwk')
-        tree = Artifact.import_data('Phylogeny[Rooted]', tree_fp)
-
         with self.assertRaises(ValueError):
             # cannot guarantee that this will always be true, but it would be
             # odd to see a machine with these many CPUs
-            self.beta_phylogenetic(table=bt, phylogeny=tree,
+            self.beta_phylogenetic(table=self.crawford_table,
+                                   phylogeny=self.crawford_tree,
                                    metric='unweighted_unifrac', threads=11117)
 
 
