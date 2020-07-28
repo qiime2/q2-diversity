@@ -56,7 +56,7 @@ class AlphaTests(TestPluginBase):
 
     # TODO: Smoke test drop_undefined_samples here
     def test_alpha(self):
-        actual = self.alpha(table=self.t, metric='observed_otus')
+        actual = self.alpha(table=self.t, metric='observed_features')
         actual = actual[0].view(pd.Series)
         # expected computed by hand
         expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
@@ -73,7 +73,7 @@ class AlphaTests(TestPluginBase):
 
     def test_alpha_empty_table(self):
         with self.assertRaisesRegex(ValueError, "empty"):
-            self.alpha(table=self.empty_table, metric='observed_otus')
+            self.alpha(table=self.empty_table, metric='observed_features')
 
     def test_alpha_phylogenetic(self):
         actual = self.alpha_phylogenetic(table=self.two_feature_table,
@@ -86,10 +86,11 @@ class AlphaTests(TestPluginBase):
         pdt.assert_series_equal(actual, expected)
 
     def test_alpha_phylogenetic_non_phylo_metric(self):
-        with self.assertRaisesRegex(TypeError, 'observed_otus.*incompatible'):
+        with self.assertRaisesRegex(TypeError,
+                                    'observed_features.*incompatible'):
             self.alpha_phylogenetic(table=self.two_feature_table,
                                     phylogeny=self.three_feature_tree,
-                                    metric='observed_otus')
+                                    metric='observed_features')
 
     def test_alpha_phylogenetic_unknown_metric(self):
         with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):

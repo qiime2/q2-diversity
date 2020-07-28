@@ -320,7 +320,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                       steps: int = 10, iterations: int = 10) -> None:
 
     if metrics is None:
-        metrics = {'observed_otus', 'shannon'}
+        metrics = {'observed_features', 'shannon'}
         if phylogeny is not None:
             metrics.add('faith_pd')
     elif not metrics:

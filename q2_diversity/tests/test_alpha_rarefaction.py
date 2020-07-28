@@ -42,7 +42,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
 
     def test_alpha_rarefaction_with_metadata(self):
@@ -58,7 +58,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
 
     def test_alpha_rarefaction_with_superset_metadata(self):
@@ -74,7 +74,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
             with open(metric_fp) as metric_fh:
@@ -97,7 +97,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp, 'r') as fh:
                 contents = fh.read()
-            self.assertTrue('observed_otus' in contents)
+            self.assertTrue('observed_features' in contents)
             self.assertTrue('shannon' in contents)
             self.assertTrue('didn\'t contain categorical data' in contents)
             self.assertTrue('consisted only of missing values:' in contents)
@@ -124,7 +124,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
             self.assertTrue('faith_pd' in index_content)
 
@@ -145,7 +145,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
             self.assertTrue('faith_pd' in index_content)
 
@@ -197,7 +197,7 @@ class AlphaRarefactionTests(unittest.TestCase):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
-        metrics = set(['observed_otus', 'shannon', 'pielou_e'])
+        metrics = set(['observed_features', 'shannon', 'pielou_e'])
         with tempfile.TemporaryDirectory() as output_dir:
             alpha_rarefaction(output_dir, t, metrics=metrics,
                               max_depth=200)
@@ -205,7 +205,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
             self.assertTrue('pielou_e' in index_content)
 
@@ -250,7 +250,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         return transform(tree, from_type=skbio.TreeNode,
                          to_type=NewickFormat)
 
-    def test_observed_otus(self):
+    def test_observed_features(self):
         t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
@@ -260,7 +260,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
                                         steps=2,
                                         iterations=1,
                                         phylogeny=None,
-                                        metrics=['observed_otus'])
+                                        metrics=['observed_features'])
 
         exp_ind = pd.MultiIndex.from_product(
             [[1, 200], [1]],
@@ -268,7 +268,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
-        pdt.assert_frame_equal(obs['observed_otus'], exp)
+        pdt.assert_frame_equal(obs['observed_features'], exp)
 
     def test_faith_pd(self):
         t = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
@@ -297,7 +297,8 @@ class ComputeRarefactionDataTests(unittest.TestCase):
                                         steps=2,
                                         iterations=1,
                                         phylogeny=None,
-                                        metrics=['observed_otus', 'shannon'])
+                                        metrics=['observed_features',
+                                                 'shannon'])
 
         exp_ind = pd.MultiIndex.from_product(
             [[1, 200], [1]],
@@ -305,7 +306,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[1, 2], [1, 2], [1, 2]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
-        pdt.assert_frame_equal(obs['observed_otus'], exp)
+        pdt.assert_frame_equal(obs['observed_features'], exp)
 
         exp = pd.DataFrame(data=[[0., 0.811278124459], [0., 1.], [0., 1.]],
                            columns=exp_ind,
