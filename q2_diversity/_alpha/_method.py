@@ -6,7 +6,20 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+from inspect import signature
+from functools import partial
+import warnings
+
 import unifrac
+
+from q2_diversity_lib.alpha import METRICS
+
+_all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
+_all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
+                       | METRICS['NONPHYLO']['UNIMPL']
+
+METRIC_NAME_TRANSLATIONS = {'shannon': 'shannon_entropy',
+                            'pielou_e': 'pielou_evenness'}
 
 
 # TODO: remove these collections ASAP
@@ -35,7 +48,20 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
     return tuple(result)
 
 
-def alpha(ctx, table, metric, drop_undefined_samples=False):
-    f = ctx.get_action('diversity_lib', 'alpha_dispatch')
-    result = f(table, metric, drop_undefined_samples)
+def alpha(ctx, table, metric):
+    implemented_metrics = METRICS['NONPHYLO']['IMPL']
+    if metric not in _all_nonphylo_metrics:
+        raise ValueError("Unknown metric: %s" % metric)
+
+    metric = METRIC_NAME_TRANSLATIONS[metric] if (
+            metric in METRIC_NAME_TRANSLATIONS) else metric
+
+    if metric in implemented_metrics:
+        func = ctx.get_action('diversity_lib', metric)
+        func = partial(func, table=table)
+    else:
+        func = ctx.get_action('diversity_lib', 'alpha_passthrough')
+        func = partial(func, table=table, metric=metric)
+
+    result = func()
     return tuple(result)

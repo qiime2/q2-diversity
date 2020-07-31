@@ -28,7 +28,8 @@ from q2_types.tree import NewickFormat
 from q2_diversity_lib import (alpha_rarefaction_dispatch,
                               alpha_rarefaction_phylogenetic_dispatch)
 
-from ._method import non_phylogenetic_metrics, phylogenetic_metrics
+from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
+                      METRIC_NAME_TRANSLATIONS)
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -330,6 +331,9 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
         if phylo_overlap and phylogeny is None:
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % phylo_overlap)
+
+    metrics = {(METRIC_NAME_TRANSLATIONS[m] if m in METRIC_NAME_TRANSLATIONS
+               else m) for m in metrics}
 
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '

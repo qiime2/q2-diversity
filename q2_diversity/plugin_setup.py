@@ -167,18 +167,15 @@ plugin.pipelines.register_function(
     function=q2_diversity.alpha,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
-    # TODO: source these metrics lists from div-lib
-    parameters={'metric': Str % Choices(alpha.non_phylogenetic_metrics()),
-                'drop_undefined_samples': Bool},
+    parameters={'metric': Str % Choices(
+                        q2_diversity._alpha._method._all_nonphylo_metrics)},
     outputs=[('alpha_diversity', SampleData[AlphaDiversity])],
     input_descriptions={
         'table': ('The feature table containing the samples for which alpha '
                   'diversity should be computed.')
     },
     parameter_descriptions={
-        'metric': 'The alpha diversity metric to be computed.',
-        'drop_undefined_samples': drop_undef_samples_description
-    },
+        'metric': 'The alpha diversity metric to be computed.'},
     output_descriptions={
         'alpha_diversity': 'Vector containing per-sample alpha diversities.'
     },

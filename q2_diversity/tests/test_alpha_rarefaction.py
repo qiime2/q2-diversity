@@ -76,7 +76,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                 index_content = index_fh.read()
             self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
-            metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
+            metric_fp = os.path.join(output_dir, 'shannon_entropy-pet.jsonp')
             with open(metric_fp) as metric_fh:
                 self.assertTrue('summer' not in metric_fh.read())
 
@@ -103,13 +103,13 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue('consisted only of missing values:' in contents)
             self.assertTrue('<strong>bar, foo' in contents)
 
-            metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
+            metric_fp = os.path.join(output_dir, 'shannon_entropy-pet.jsonp')
             with open(metric_fp) as metric_fh:
                 self.assertTrue('summer' not in metric_fh.read())
             self.assertFalse(
-                os.path.exists(os.path.join(output_dir, 'shannon-foo.jsonp')))
+                os.path.exists(os.path.join(output_dir, 'shannon_entropy-foo.jsonp')))
             self.assertFalse(
-                os.path.exists(os.path.join(output_dir, 'shannon-bar.jsonp')))
+                os.path.exists(os.path.join(output_dir, 'shannon_entropy-bar.jsonp')))
 
     def test_alpha_rarefaction_with_phylogeny(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -222,7 +222,8 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 self.assertTrue('pet%2520name' in index_fh.read())
-            jsonp_fp = os.path.join(output_dir, 'shannon-pet%20name.jsonp')
+            jsonp_fp = os.path.join(output_dir,
+                                    'shannon_entropy-pet%20name.jsonp')
             self.assertTrue(os.path.exists(jsonp_fp))
             with open(jsonp_fp) as jsonp_fh:
                 self.assertTrue('pet name' in jsonp_fh.read())
@@ -298,7 +299,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
                                         iterations=1,
                                         phylogeny=None,
                                         metrics=['observed_features',
-                                                 'shannon'])
+                                                 'shannon_entropy'])
 
         exp_ind = pd.MultiIndex.from_product(
             [[1, 200], [1]],
@@ -311,7 +312,7 @@ class ComputeRarefactionDataTests(unittest.TestCase):
         exp = pd.DataFrame(data=[[0., 0.811278124459], [0., 1.], [0., 1.]],
                            columns=exp_ind,
                            index=['S1', 'S2', 'S3'])
-        pdt.assert_frame_equal(obs['shannon'], exp)
+        pdt.assert_frame_equal(obs['shannon_entropy'], exp)
 
 # TODO: Note that this test is getting -0 instead of NaN when shannon runs at
 # depth=1. (These values are likely undefined.) pdt.assert_frame_equal finds

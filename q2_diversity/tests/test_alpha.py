@@ -54,7 +54,6 @@ class AlphaTests(TestPluginBase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         self.tree = Artifact.import_data('Phylogeny[Rooted]', tree)
 
-    # TODO: Smoke test drop_undefined_samples here
     def test_alpha(self):
         actual = self.alpha(table=self.t, metric='observed_features')
         actual = actual[0].view(pd.Series)
