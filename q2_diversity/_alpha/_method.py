@@ -30,11 +30,6 @@ def phylogenetic_metrics():
     return {'faith_pd'}
 
 
-# must contain an entry for every metric in phylogenetic_metrics
-def _phylogenetic_functions():
-    return {'faith_pd': unifrac.faith_pd}
-
-
 def non_phylogenetic_metrics():
     return {'ace', 'chao1', 'chao1_ci', 'berger_parker_d', 'brillouin_d',
             'dominance', 'doubles', 'enspie', 'esty_ci', 'fisher_alpha',
@@ -46,8 +41,14 @@ def non_phylogenetic_metrics():
 
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
-    f = ctx.get_action('diversity_lib', 'alpha_phylogenetic_dispatch')
-    result = f(table, phylogeny, metric)
+    metrics = _all_phylo_metrics
+    if metric not in metrics:
+        raise ValueError("Unknown metric: %s" % metric)
+
+    metric = _translate_metric_name_for_div_lib(metric)
+
+    f = ctx.get_action('diversity_lib', metric)
+    result = f(table, phylogeny)
     return tuple(result)
 
 
