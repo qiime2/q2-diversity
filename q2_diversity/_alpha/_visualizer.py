@@ -16,11 +16,13 @@ import functools
 import scipy
 import numpy as np
 import pandas as pd
-import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
-import q2templates
 import biom
 import itertools
+
+import qiime2
+import q2templates
+from q2_diversity import _alpha
 from q2_feature_table import rarefy
 from q2_types.feature_table import BIOMV210Format
 from qiime2.plugin.util import transform
@@ -28,8 +30,7 @@ from q2_types.tree import NewickFormat
 from q2_diversity_lib import (alpha_rarefaction_dispatch,
                               alpha_rarefaction_phylogenetic_dispatch)
 
-from ._method import (non_phylogenetic_metrics, phylogenetic_metrics,
-                      METRIC_NAME_TRANSLATIONS)
+from ._method import METRIC_NAME_TRANSLATIONS
 
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -296,7 +297,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     for d, i in itertools.product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
-            if m in phylogenetic_metrics():
+            if m in _alpha.all_phylo_metrics:
                 # need a new rarefied table here in case a phylogenetic
                 # metric comes before a non-phylogenetic metric
                 rt_p = transform(rt, to_type=BIOMV210Format,
@@ -327,7 +328,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     elif not metrics:
         raise ValueError('`metrics` was given an empty set.')
     else:
-        phylo_overlap = phylogenetic_metrics() & metrics
+        phylo_overlap = _alpha.all_phylo_metrics & metrics
         if phylo_overlap and phylogeny is None:
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % phylo_overlap)
@@ -421,8 +422,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                     os.path.join(output_dir, 'dist'))
 
 
-alpha_rarefaction_supported_metrics = ((non_phylogenetic_metrics()
-                                       | phylogenetic_metrics())
+alpha_rarefaction_supported_metrics = ((_alpha.all_nonphylo_metrics
+                                       | _alpha.all_phylo_metrics)
                                        - {'osd', 'lladser_ci', 'strong',
                                           'esty_ci', 'kempton_taylor_q',
                                           'chao1_ci'})

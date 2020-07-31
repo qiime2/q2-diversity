@@ -8,12 +8,12 @@
 
 
 from ._method import (alpha, alpha_phylogenetic,
-                      phylogenetic_metrics, non_phylogenetic_metrics)
+                      all_phylo_metrics, all_nonphylo_metrics)
 from ._visualizer import (alpha_group_significance, alpha_correlation,
                           alpha_rarefaction,
                           alpha_rarefaction_supported_metrics)
 
 __all__ = ['alpha', 'alpha_phylogenetic',
-           'alpha_group_significance', 'phylogenetic_metrics',
-           'non_phylogenetic_metrics', 'alpha_correlation',
+           'all_phylo_metrics', 'all_nonphylo_metrics',
+           'alpha_group_significance', 'alpha_correlation',
            'alpha_rarefaction', 'alpha_rarefaction_supported_metrics']
