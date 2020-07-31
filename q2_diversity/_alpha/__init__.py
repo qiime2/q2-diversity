@@ -7,8 +7,8 @@
 # ----------------------------------------------------------------------------
 
 
-from ._method import (alpha, alpha_phylogenetic,
-                      all_phylo_metrics, all_nonphylo_metrics)
+from ._pipeline import (alpha, alpha_phylogenetic,
+                        all_phylo_metrics, all_nonphylo_metrics)
 from ._visualizer import (alpha_group_significance, alpha_correlation,
                           alpha_rarefaction,
                           alpha_rarefaction_supported_metrics)

@@ -139,7 +139,7 @@ plugin.pipelines.register_function(
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha._method.all_phylo_metrics)},
+    parameters={'metric': Str % Choices(alpha.all_phylo_metrics)},
     outputs=[('alpha_diversity',
               SampleData[AlphaDiversity])],
     input_descriptions={
