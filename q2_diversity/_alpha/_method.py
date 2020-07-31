@@ -16,8 +16,13 @@ _all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 _all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
 
+
 METRIC_NAME_TRANSLATIONS = {'shannon': 'shannon_entropy',
                             'pielou_e': 'pielou_evenness'}
+
+
+def _translate_metric_name_for_div_lib(m: str) -> str:
+    return METRIC_NAME_TRANSLATIONS[m] if m in METRIC_NAME_TRANSLATIONS else m
 
 
 # TODO: remove these collections ASAP
@@ -51,8 +56,7 @@ def alpha(ctx, table, metric):
     if metric not in _all_nonphylo_metrics:
         raise ValueError("Unknown metric: %s" % metric)
 
-    metric = METRIC_NAME_TRANSLATIONS[metric] if (
-            metric in METRIC_NAME_TRANSLATIONS) else metric
+    metric = _translate_metric_name_for_div_lib(metric)
 
     if metric in implemented_metrics:
         func = ctx.get_action('diversity_lib', metric)
