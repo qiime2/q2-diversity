@@ -6,6 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+from functools import partial
+
 from q2_diversity_lib.beta import METRICS
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
@@ -22,12 +24,26 @@ def beta_phylogenetic(ctx, table, phylogeny,
                       variance_adjusted=False,
                       alpha=None,
                       bypass_tips=False):
+    if metric not in all_phylo_metrics:
+        raise ValueError("Unknown metric: %s" % metric)
 
-    func = ctx.get_action('diversity_lib', 'beta_phylogenetic_dispatch')
-    distance_matrix = func(table, phylogeny, metric=metric, threads=threads,
-                           variance_adjusted=variance_adjusted, alpha=alpha,
-                           bypass_tips=bypass_tips)
-    return tuple(distance_matrix)
+    if alpha is not None and metric != 'generalized_unifrac':
+        raise ValueError('The alpha parameter is only allowed when the choice'
+                         ' of metric is generalized_unifrac')
+
+    # HACK: this logic will be simpler once the remaining unifracs are done
+    if metric in ('unweighted_unifrac', 'weighted_unifrac') \
+            and not variance_adjusted:
+        func = ctx.get_action('diversity_lib', metric)
+    else:
+        # handle unimplemented unifracs
+        func = ctx.get_action('diversity_lib', 'beta_phylogenetic_passthrough')
+        func = partial(func, metric=metric, alpha=alpha,
+                       variance_adjusted=variance_adjusted)
+
+    result = func(table, phylogeny, threads=threads,
+                  bypass_tips=bypass_tips)
+    return tuple(result)
 
 
 def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
