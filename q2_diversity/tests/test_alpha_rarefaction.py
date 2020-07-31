@@ -107,9 +107,11 @@ class AlphaRarefactionTests(unittest.TestCase):
             with open(metric_fp) as metric_fh:
                 self.assertTrue('summer' not in metric_fh.read())
             self.assertFalse(
-                os.path.exists(os.path.join(output_dir, 'shannon_entropy-foo.jsonp')))
+                os.path.exists(os.path.join(output_dir,
+                               'shannon_entropy-foo.jsonp')))
             self.assertFalse(
-                os.path.exists(os.path.join(output_dir, 'shannon_entropy-bar.jsonp')))
+                os.path.exists(os.path.join(output_dir,
+                               'shannon_entropy-bar.jsonp')))
 
     def test_alpha_rarefaction_with_phylogeny(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
