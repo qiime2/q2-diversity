@@ -6,32 +6,15 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import unifrac
+from q2_diversity_lib.beta import METRICS
 
-
-# TODO: remove these collections ASAP
-def phylogenetic_metrics_dict():
-    return {'unweighted_unifrac': unifrac.unweighted,
-            'weighted_unifrac': unifrac.weighted_unnormalized,
-            'weighted_normalized_unifrac': unifrac.weighted_normalized,
-            'generalized_unifrac': unifrac.generalized}
-
-
-def phylogenetic_metrics():
-    return set(phylogenetic_metrics_dict())
-
-
-def non_phylogenetic_metrics():
-    return {'cityblock', 'euclidean', 'seuclidean', 'sqeuclidean', 'cosine',
-            'correlation', 'hamming', 'jaccard', 'chebyshev', 'canberra',
-            'braycurtis', 'mahalanobis', 'yule', 'matching', 'dice',
-            'kulsinski', 'rogerstanimoto', 'russellrao', 'sokalmichener',
-            'sokalsneath', 'wminkowski', 'aitchison', 'canberra_adkins',
-            'jensenshannon'}
+all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
+all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
+                       | METRICS['NONPHYLO']['UNIMPL']
 
 
 def all_metrics():
-    return phylogenetic_metrics() | non_phylogenetic_metrics()
+    return all_phylo_metrics | all_nonphylo_metrics
 
 
 def beta_phylogenetic(ctx, table, phylogeny,

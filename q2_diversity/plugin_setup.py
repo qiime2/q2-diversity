@@ -70,7 +70,7 @@ plugin.pipelines.register_function(
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.phylogenetic_metrics()),
+    parameters={'metric': Str % Choices(beta.all_phylo_metrics),
                 'threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
@@ -114,7 +114,7 @@ plugin.pipelines.register_function(
     function=q2_diversity.beta,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
-    parameters={'metric': Str % Choices(beta.non_phylogenetic_metrics()),
+    parameters={'metric': Str % Choices(beta.all_nonphylo_metrics),
                 'pseudocount': Int % Range(1, None),
                 'n_jobs': Int % Range(1, None) | Str % Choices(['auto'])},
     outputs=[('distance_matrix', DistanceMatrix)],

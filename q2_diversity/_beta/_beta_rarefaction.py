@@ -19,7 +19,7 @@ from emperor import Emperor
 
 import q2templates
 
-from ._method import phylogenetic_metrics
+from ._method import all_phylo_metrics
 from .._ordination import pcoa
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
@@ -42,7 +42,7 @@ def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,
 
         table = qiime2.Artifact.import_data('FeatureTable[Frequency]', table)
 
-        if metric in phylogenetic_metrics():
+        if metric in all_phylo_metrics:
             if phylogeny is None:
                 raise ValueError("A phylogenetic metric (%s) was requested, "
                                  "but a phylogenetic tree was not provided. "
