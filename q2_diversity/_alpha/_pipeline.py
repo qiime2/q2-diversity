@@ -6,8 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from functools import partial
-
 from q2_diversity_lib.alpha import METRICS
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
@@ -44,10 +42,9 @@ def alpha(ctx, table, metric):
 
     if metric in implemented_metrics:
         func = ctx.get_action('diversity_lib', metric)
-        func = partial(func, table=table)
+        result = func(table=table)
     else:
         func = ctx.get_action('diversity_lib', 'alpha_passthrough')
-        func = partial(func, table=table, metric=metric)
+        result = func(table=table, metric=metric)
 
-    result = func()
     return tuple(result)
