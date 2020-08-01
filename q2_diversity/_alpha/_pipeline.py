@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from q2_diversity_lib.alpha import METRICS
-from q2_diversity_lib._util import translate_metric_name
+from q2_diversity_lib import translate_metric_name
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \

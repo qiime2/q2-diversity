@@ -30,7 +30,7 @@ from q2_types.tree import NewickFormat
 from q2_diversity_lib import (alpha_rarefaction_dispatch,
                               alpha_rarefaction_phylogenetic_dispatch)
 from q2_diversity_lib.alpha import METRICS
-from q2_diversity_lib._util import translate_metric_name
+from q2_diversity_lib import translate_metric_name
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
