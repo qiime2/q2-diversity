@@ -19,7 +19,7 @@ from emperor import Emperor
 
 import q2templates
 
-from ._method import all_phylo_metrics
+from ._pipeline import all_phylo_metrics
 from .._ordination import pcoa
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
