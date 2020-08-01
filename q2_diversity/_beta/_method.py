@@ -50,7 +50,19 @@ def beta_phylogenetic(ctx, table, phylogeny,
 
 
 def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
+    implemented_metrics = METRICS['NONPHYLO']['IMPL']
 
-    func = ctx.get_action('diversity_lib', 'beta_dispatch')
-    distance_matrix = func(table, metric, pseudocount, n_jobs)
-    return tuple(distance_matrix)
+    if metric not in all_nonphylo_metrics:
+        raise ValueError("Unknown metric: %s" % metric)
+
+    metric_tr = translate_metric_name(metric, metric_name_translations)
+
+    if metric in implemented_metrics:
+        func = ctx.get_action('diversity_lib', metric_tr)
+        result = func(table=table, n_jobs=n_jobs)
+    else:
+        func = ctx.get_action('diversity_lib', 'beta_passthrough')
+        result = func(table=table, metric=metric_tr, pseudocount=pseudocount,
+                      n_jobs=n_jobs)
+
+    return tuple(result)
