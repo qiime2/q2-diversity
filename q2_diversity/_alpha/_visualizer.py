@@ -29,11 +29,11 @@ from qiime2.plugin.util import transform
 from q2_types.tree import NewickFormat
 from q2_diversity_lib import (alpha_rarefaction_dispatch,
                               alpha_rarefaction_phylogenetic_dispatch)
-
-from ._pipeline import METRIC_NAME_TRANSLATIONS
-
+from q2_diversity_lib.alpha import METRICS
+from q2_diversity_lib._util import translate_metric_name
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
+metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
@@ -333,8 +333,8 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % phylo_overlap)
 
-    metrics = {(METRIC_NAME_TRANSLATIONS[m] if m in METRIC_NAME_TRANSLATIONS
-               else m) for m in metrics}
+    metrics = {translate_metric_name(m, metric_name_translations)
+               for m in metrics}
 
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '

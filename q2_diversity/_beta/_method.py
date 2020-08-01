@@ -6,13 +6,13 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from functools import partial
-
 from q2_diversity_lib.beta import METRICS
+from q2_diversity_lib._util import translate_metric_name
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
+metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def all_metrics():
@@ -31,18 +31,21 @@ def beta_phylogenetic(ctx, table, phylogeny,
         raise ValueError('The alpha parameter is only allowed when the choice'
                          ' of metric is generalized_unifrac')
 
+    metric_tr = translate_metric_name(metric, metric_name_translations)
+
     # HACK: this logic will be simpler once the remaining unifracs are done
     if metric in ('unweighted_unifrac', 'weighted_unifrac') \
             and not variance_adjusted:
-        func = ctx.get_action('diversity_lib', metric)
+        func = ctx.get_action('diversity_lib', metric_tr)
+        result = func(table, phylogeny, threads=threads,
+                      bypass_tips=bypass_tips)
     else:
         # handle unimplemented unifracs
         func = ctx.get_action('diversity_lib', 'beta_phylogenetic_passthrough')
-        func = partial(func, metric=metric, alpha=alpha,
-                       variance_adjusted=variance_adjusted)
+        result = func(table, phylogeny, metric=metric_tr, threads=threads,
+                      variance_adjusted=variance_adjusted, alpha=alpha,
+                      bypass_tips=bypass_tips)
 
-    result = func(table, phylogeny, threads=threads,
-                  bypass_tips=bypass_tips)
     return tuple(result)
 
 

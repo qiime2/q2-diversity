@@ -7,18 +7,12 @@
 # ----------------------------------------------------------------------------
 
 from q2_diversity_lib.alpha import METRICS
+from q2_diversity_lib._util import translate_metric_name
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
-
-
-METRIC_NAME_TRANSLATIONS = {'shannon': 'shannon_entropy',
-                            'pielou_e': 'pielou_evenness'}
-
-
-def _translate_metric_name_for_div_lib(m: str) -> str:
-    return METRIC_NAME_TRANSLATIONS[m] if m in METRIC_NAME_TRANSLATIONS else m
+metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
@@ -26,9 +20,9 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
     if metric not in metrics:
         raise ValueError("Unknown metric: %s" % metric)
 
-    metric = _translate_metric_name_for_div_lib(metric)
+    metric_tr = translate_metric_name(metric, metric_name_translations)
 
-    f = ctx.get_action('diversity_lib', metric)
+    f = ctx.get_action('diversity_lib', metric_tr)
     result = f(table, phylogeny)
     return tuple(result)
 
@@ -38,13 +32,13 @@ def alpha(ctx, table, metric):
     if metric not in all_nonphylo_metrics:
         raise ValueError("Unknown metric: %s" % metric)
 
-    metric = _translate_metric_name_for_div_lib(metric)
+    metric_tr = translate_metric_name(metric, metric_name_translations)
 
     if metric in implemented_metrics:
-        func = ctx.get_action('diversity_lib', metric)
+        func = ctx.get_action('diversity_lib', metric_tr)
         result = func(table=table)
     else:
         func = ctx.get_action('diversity_lib', 'alpha_passthrough')
-        result = func(table=table, metric=metric)
+        result = func(table=table, metric=metric_tr)
 
     return tuple(result)
