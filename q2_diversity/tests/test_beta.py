@@ -75,37 +75,6 @@ class BetaDiversityTests(TestPluginBase):
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
-    def test_beta_canberra_adkins(self):
-        t = Table(np.array([[0, 0], [0, 1], [1, 2]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        d = (1. / 2.) * sum([abs(0. - 1.) / (0. + 1.),
-                             abs(1. - 2.) / (1. + 2.)])
-        expected = skbio.DistanceMatrix(np.array([[0.0, d], [d, 0.0]]),
-                                        ids=['S1', 'S2'])
-        actual = self.beta(table=t, metric='canberra_adkins')
-        actual = actual[0].view(skbio.DistanceMatrix)
-
-        self.assertEqual(actual.ids, expected.ids)
-        for id1 in actual.ids:
-            for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
-
-    def test_beta_jensenshannon(self):
-        actual = self.beta(table=self.t, metric='jensenshannon')
-        # expected computed with scipy.spatial.distance.jensenshannon
-        expected = skbio.DistanceMatrix([[0.0000000, 0.4645014, 0.52379239],
-                                         [0.4645014, 0.0000000, 0.07112939],
-                                         [0.52379239, 0.07112939, 0.0000000]],
-                                        ids=['S1', 'S2', 'S3'])
-
-        actual = actual[0].view(skbio.DistanceMatrix)
-        self.assertEqual(actual.ids, expected.ids)
-        for id1 in actual.ids:
-            for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
-
     def test_parallel_beta(self):
         parallel = self.beta(table=self.t, metric='braycurtis', n_jobs='auto')
         parallel = parallel[0].view(skbio.DistanceMatrix)
@@ -394,15 +363,6 @@ class BetaDiversityTests(TestPluginBase):
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
-    def test_beta_phylogenetic_alpha_on_non_generalized(self):
-        with self.assertRaisesRegex(ValueError, 'The alpha parameter is only '
-                                    'allowed when the choice of metric is '
-                                    'generalized_unifrac'):
-            self.beta_phylogenetic(table=self.crawford_table,
-                                   phylogeny=self.crawford_tree,
-                                   metric='unweighted_unifrac',
-                                   alpha=0.11)
-
     def test_beta_phylogenetic_too_many_jobs(self):
         with self.assertRaises(ValueError):
             # cannot guarantee that this will always be true, but it would be
@@ -497,24 +457,6 @@ class BioenvTests(TestPluginBase):
             self.assertTrue('<strong>metadata2' in open(index_fp).read())
 
             self.assertFalse('Warning' in open(index_fp).read())
-
-    def test_aitchison(self):
-        func = self.plugin.pipelines['beta']
-        t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
-                  ['O1', 'O2'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        actual = func(table=t, metric='aitchison')
-        actual = actual[0].view(skbio.DistanceMatrix)
-        expected = skbio.DistanceMatrix([[0.0000000, 0.4901290, 0.6935510],
-                                         [0.4901290, 0.0000000, 0.2034219],
-                                         [0.6935510, 0.2034219, 0.0000000]],
-                                        ids=['S1', 'S2', 'S3'])
-
-        self.assertEqual(actual.ids, expected.ids)
-        for id1 in actual.ids:
-            for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
 
 
 class BetaGroupSignificanceTests(unittest.TestCase):
