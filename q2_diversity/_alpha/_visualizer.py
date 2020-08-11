@@ -27,10 +27,9 @@ from q2_feature_table import rarefy
 from q2_types.feature_table import BIOMV210Format
 from qiime2.plugin.util import transform
 from q2_types.tree import NewickFormat
-from q2_diversity_lib import (alpha_rarefaction_dispatch,
-                              alpha_rarefaction_phylogenetic_dispatch)
+import q2_diversity
 from q2_diversity_lib.alpha import METRICS
-from q2_diversity_lib import translate_metric_name
+from q2_diversity_lib import MockPipelineContext
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
@@ -294,6 +293,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
+    ctx = MockPipelineContext()
     for d, i in itertools.product(depth_range, iter_range):
         rt = rarefy(feature_table, d)
         for m in metrics:
@@ -302,16 +302,10 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
                 # metric comes before a non-phylogenetic metric
                 rt_p = transform(rt, to_type=BIOMV210Format,
                                  from_type=biom.Table)
-                vector = alpha_rarefaction_phylogenetic_dispatch(
-                        table=rt_p, metric=m, phylogeny=phylogeny)
+                vector = q2_diversity.alpha_phylogenetic(
+                        ctx=ctx, table=rt_p, metric=m, phylogeny=phylogeny)
             else:
-                # TODO: drop_undefined_samples=True causes weird errors from
-                # skbio's _validate_counts_matrix, where counts.ndim is 3.
-                # This appears to happen during rarefaction at depth 1. I don't
-                # think we should drop samples at low rar. depth (for curve
-                # continuity), but I'm a little concerned about why it happens
-                vector = alpha_rarefaction_dispatch(
-                        table=rt, metric=m, drop_undefined_samples=False)
+                vector = q2_diversity.alpha(ctx=ctx, table=rt, metric=m)
             data[m][(d, i)] = vector
     return data
 
@@ -332,9 +326,6 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
         if phylo_overlap and phylogeny is None:
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % phylo_overlap)
-
-    metrics = {translate_metric_name(m, metric_name_translations)
-               for m in metrics}
 
     if max_depth <= min_depth:
         raise ValueError('Provided max_depth of %d must be greater than '
