@@ -16,8 +16,7 @@ metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
-    metrics = all_phylo_metrics
-    if metric not in metrics:
+    if metric not in all_phylo_metrics:
         raise ValueError("Unknown metric: %s" % metric)
 
     metric_tr = translate_metric_name(metric, metric_name_translations)

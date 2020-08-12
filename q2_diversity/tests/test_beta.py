@@ -23,7 +23,8 @@ from qiime2.plugin.testing import TestPluginBase
 
 
 from qiime2 import Artifact
-from q2_diversity import (bioenv, beta_group_significance, mantel)
+from q2_diversity import (bioenv, beta_group_significance, mantel,
+                          beta, beta_phylogenetic)
 from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
@@ -105,6 +106,11 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaisesRegex(TypeError,
                                     'received \'not-a-metric\''):
             self.beta(table=self.t, metric='not-a-metric')
+        # Check vanilla python function as well
+        with qiime2.sdk.Context() as scope:
+            with self.assertRaisesRegex(ValueError,
+                                        'Unknown metr.*not-a-metric'):
+                beta(ctx=scope.ctx, table=self.t, metric='not-a-metric')
 
     def test_beta_empty_table(self):
         t = Table(np.array([]), [], [])
@@ -157,6 +163,12 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaisesRegex(TypeError, 'received \'not-a-metric\''):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='not-a-metric')
+        # Check vanilla python function as well
+        with qiime2.sdk.Context() as scope:
+            with self.assertRaisesRegex(ValueError,
+                                        'Unknown metr.*not-a-metric'):
+                beta_phylogenetic(ctx=scope.ctx, table=t,
+                                  phylogeny=tree, metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
         t = self.get_data_path('empty.biom')
@@ -362,6 +374,14 @@ class BetaDiversityTests(TestPluginBase):
         for id1 in actual.ids:
             for id2 in actual.ids:
                 npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+
+    def test_not_generalized_passed_alpha(self):
+        with self.assertRaisesRegex(ValueError,
+                                    "alpha.*only allowed.*when.*generalized"):
+            self.beta_phylogenetic(table=self.crawford_table,
+                                   phylogeny=self.crawford_tree,
+                                   metric='unweighted_unifrac',
+                                   alpha=0.5)
 
     def test_beta_phylogenetic_too_many_jobs(self):
         with self.assertRaises(ValueError):
