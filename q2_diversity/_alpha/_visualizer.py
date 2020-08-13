@@ -24,12 +24,8 @@ import qiime2
 import q2templates
 from q2_diversity import _alpha
 from q2_feature_table import rarefy
-from q2_types.feature_table import BIOMV210Format
-from qiime2.plugin.util import transform
 from q2_types.tree import NewickFormat
-import q2_diversity
 from q2_diversity_lib.alpha import METRICS
-from q2_diversity_lib import MockPipelineContext
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
 metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
@@ -293,21 +289,30 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
-    ctx = MockPipelineContext()
-    for d, i in itertools.product(depth_range, iter_range):
-        rt = rarefy(feature_table, d)
-        for m in metrics:
-            if m in _alpha.all_phylo_metrics:
-                # need a new rarefied table here in case a phylogenetic
-                # metric comes before a non-phylogenetic metric
-                rt_p = transform(rt, to_type=BIOMV210Format,
-                                 from_type=biom.Table)
-                vector = q2_diversity.alpha_phylogenetic(
-                        ctx=ctx, table=rt_p, metric=m, phylogeny=phylogeny)
-            else:
-                vector = q2_diversity.alpha(ctx=ctx, table=rt, metric=m)
-            data[m][(d, i)] = vector
-    return data
+    if phylogeny:
+        phylogeny = qiime2.Artifact.import_data('Phylogeny[Rooted]', phylogeny)
+
+    with qiime2.sdk.Context() as scope:
+        for depth, i in itertools.product(depth_range, iter_range):
+            rt = rarefy(feature_table, depth)
+            rt = qiime2.Artifact.import_data('FeatureTable[Frequency]', rt)
+
+            for metric in metrics:
+                if metric in _alpha.all_phylo_metrics:
+                    # need a new rarefied table here in case a phylogenetic
+                    # metric comes before a non-phylogenetic metric
+                    # rt_p = transform(rt, to_type=BIOMV210Format,
+                    #                  from_type=biom.Table)
+                    alpha_phylo = scope.ctx.get_action('diversity',
+                                                       'alpha_phylogenetic')
+                    vector = alpha_phylo(table=rt, metric=metric,
+                                         phylogeny=phylogeny)
+                else:
+                    alpha = scope.ctx.get_action('diversity', 'alpha')
+                    vector = alpha(table=rt, metric=metric)
+                vector = vector[0].view(pd.Series)
+                data[metric][(depth, i)] = vector
+        return data
 
 
 def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,

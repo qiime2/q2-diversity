@@ -174,7 +174,7 @@ class AlphaRarefactionTests(unittest.TestCase):
                 alpha_rarefaction(output_dir, t, max_depth=200,
                                   metadata=md, metrics=set(['faith_pd']))
 
-            with self.assertRaisesRegex(ValueError, 'Unknown metric: pole'):
+            with self.assertRaisesRegex(TypeError, 'pole.*incompatible'):
                 alpha_rarefaction(output_dir, t, max_depth=200,
                                   metadata=md, metrics=set(['pole-position']))
 
