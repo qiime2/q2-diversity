@@ -44,14 +44,6 @@ n_jobs_or_threads_description = (
     'created for each identified CPU core on the host.'
 )
 
-drop_undef_samples_description = (
-    'When calculating some metrics, samples with fewer than a predetermined '
-    'number of features produce undefined (NaN) values. If true, affected '
-    'samples are are dropped from metrics with \'drop_undefined_samples\' '
-    'implemented. For metrics without a \'drop_undefined_samples\' parameter, '
-    'this value will be ignored and no samples will be dropped.'
-)
-
 plugin = Plugin(
     name='diversity',
     version=q2_diversity.__version__,
