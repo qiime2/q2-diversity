@@ -299,10 +299,6 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
 
             for metric in metrics:
                 if metric in _alpha.all_phylo_metrics:
-                    # need a new rarefied table here in case a phylogenetic
-                    # metric comes before a non-phylogenetic metric
-                    # rt_p = transform(rt, to_type=BIOMV210Format,
-                    #                  from_type=biom.Table)
                     alpha_phylo = scope.ctx.get_action('diversity',
                                                        'alpha_phylogenetic')
                     vector = alpha_phylo(table=rt, metric=metric,
