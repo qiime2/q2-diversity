@@ -118,7 +118,9 @@ class CoreMetricsTests(TestPluginBase):
         pdt.assert_series_equal(results[2].view(pd.Series), expected)
 
     def test_core_metrics(self):
-        table = biom.Table(np.array([[0, 11, 11], [13, 11, 11]]),
+        # NOTE: this test uses a table and sampling depth that produce
+        # deterministic values
+        table = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
                            ['O1', 'O2'],
                            ['S1', 'S2', 'S3'])
         table = Artifact.import_data('FeatureTable[Frequency]', table)
@@ -127,17 +129,20 @@ class CoreMetricsTests(TestPluginBase):
             pd.DataFrame({'foo': ['1', '2', '3']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
-        results = self.core_metrics(table, 13, metadata)
+        results = self.core_metrics(table=table, sampling_depth=200,
+                                    metadata=metadata)
 
         self.assertEqual(len(results), 10)
         self.assertEqual(repr(results.bray_curtis_distance_matrix.type),
                          'DistanceMatrix')
         self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
-        expected = pd.Series({'S1': 1, 'S2': 2, 'S3': 2},
-                             name='observed_features')
-        pdt.assert_series_equal(results[1].view(pd.Series), expected)
-        # TODO: check other results values as well....
+        obs_feat_exp = pd.Series({'S1': 2, 'S2': 2, 'S3': 2},
+                                 name='observed_features')
+        shannon_exp = pd.Series({'S1': 0.811278124459, 'S2': 1., 'S3': 1.},
+                                name='shannon_entropy')
+        pdt.assert_series_equal(results[1].view(pd.Series), obs_feat_exp)
+        pdt.assert_series_equal(results[2].view(pd.Series), shannon_exp)
 
 
 if __name__ == '__main__':

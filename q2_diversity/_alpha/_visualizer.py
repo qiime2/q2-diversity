@@ -25,10 +25,8 @@ import q2templates
 from q2_diversity import _alpha
 from q2_feature_table import rarefy
 from q2_types.tree import NewickFormat
-from q2_diversity_lib.alpha import METRICS
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
-metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,

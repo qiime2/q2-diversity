@@ -28,7 +28,6 @@ from q2_diversity import (bioenv, beta_group_significance, mantel,
 from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
-# TODO: test whether citation info is captured during dispatch?
 class BetaDiversityTests(TestPluginBase):
     # Note that some of these tests replicate the cases in biocore/unifrac
     package = 'q2_diversity.tests'
