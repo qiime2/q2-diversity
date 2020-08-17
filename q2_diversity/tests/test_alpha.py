@@ -73,20 +73,10 @@ class AlphaTests(TestPluginBase):
     def test_alpha_phylo_metric(self):
         with self.assertRaisesRegex(TypeError, 'faith_pd.*incompatible'):
             self.alpha(table=self.t, metric='faith_pd')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                alpha(ctx=scope.ctx, table=self.t, metric='not-a-metric')
 
     def test_alpha_unknown_metric(self):
         with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):
             self.alpha(table=self.t, metric='not-a-metric')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                alpha(ctx=scope.ctx, table=self.t, metric='not-a-metric')
 
     def test_alpha_empty_table(self):
         with self.assertRaisesRegex(ValueError, "empty"):
@@ -108,26 +98,12 @@ class AlphaTests(TestPluginBase):
             self.alpha_phylogenetic(table=self.two_feature_table,
                                     phylogeny=self.three_feature_tree,
                                     metric='observed_features')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                alpha_phylogenetic(ctx=scope.ctx, table=self.two_feature_table,
-                                   phylogeny=self.three_feature_tree,
-                                   metric='not-a-metric')
 
     def test_alpha_phylogenetic_unknown_metric(self):
         with self.assertRaisesRegex(TypeError, 'not-a-metric.*incompatible'):
             self.alpha_phylogenetic(table=self.two_feature_table,
                                     phylogeny=self.three_feature_tree,
                                     metric='not-a-metric')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                alpha_phylogenetic(ctx=scope.ctx, table=self.two_feature_table,
-                                   phylogeny=self.three_feature_tree,
-                                   metric='not-a-metric')
 
     def test_alpha_phylogenetic_empty_table(self):
         with self.assertRaisesRegex(ValueError, "empty"):

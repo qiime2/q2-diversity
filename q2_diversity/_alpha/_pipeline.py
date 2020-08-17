@@ -16,9 +16,6 @@ metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
 
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
-    if metric not in all_phylo_metrics:
-        raise ValueError("Unknown metric: %s" % metric)
-
     metric_tr = translate_metric_name(metric, metric_name_translations)
 
     f = ctx.get_action('diversity_lib', metric_tr)
@@ -28,9 +25,6 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
 
 def alpha(ctx, table, metric):
     implemented_metrics = METRICS['NONPHYLO']['IMPL']
-    if metric not in all_nonphylo_metrics:
-        raise ValueError("Unknown metric: %s" % metric)
-
     metric_tr = translate_metric_name(metric, metric_name_translations)
 
     if metric in implemented_metrics:

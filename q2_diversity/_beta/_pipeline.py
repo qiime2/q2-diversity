@@ -24,9 +24,6 @@ def beta_phylogenetic(ctx, table, phylogeny,
                       variance_adjusted=False,
                       alpha=None,
                       bypass_tips=False):
-    if metric not in all_phylo_metrics:
-        raise ValueError("Unknown metric: %s" % metric)
-
     if alpha is not None and metric != 'generalized_unifrac':
         raise ValueError('The alpha parameter is only allowed when the choice'
                          ' of metric is generalized_unifrac')
@@ -51,9 +48,6 @@ def beta_phylogenetic(ctx, table, phylogeny,
 
 def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
     implemented_metrics = METRICS['NONPHYLO']['IMPL']
-
-    if metric not in all_nonphylo_metrics:
-        raise ValueError("Unknown metric: %s" % metric)
 
     metric_tr = translate_metric_name(metric, metric_name_translations)
 

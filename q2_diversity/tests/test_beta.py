@@ -105,11 +105,6 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaisesRegex(TypeError,
                                     'received \'not-a-metric\''):
             self.beta(table=self.t, metric='not-a-metric')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                beta(ctx=scope.ctx, table=self.t, metric='not-a-metric')
 
     def test_beta_empty_table(self):
         t = Table(np.array([]), [], [])
@@ -162,12 +157,6 @@ class BetaDiversityTests(TestPluginBase):
         with self.assertRaisesRegex(TypeError, 'received \'not-a-metric\''):
             self.beta_phylogenetic(table=t, phylogeny=tree,
                                    metric='not-a-metric')
-        # Check vanilla python function as well
-        with qiime2.sdk.Context() as scope:
-            with self.assertRaisesRegex(ValueError,
-                                        'Unknown metr.*not-a-metric'):
-                beta_phylogenetic(ctx=scope.ctx, table=t,
-                                  phylogeny=tree, metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
         t = self.get_data_path('empty.biom')
