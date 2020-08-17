@@ -23,7 +23,6 @@ import itertools
 import qiime2
 import q2templates
 from q2_diversity import _alpha
-from q2_feature_table import rarefy
 from q2_types.tree import NewickFormat
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -290,10 +289,13 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     if phylogeny:
         phylogeny = qiime2.Artifact.import_data('Phylogeny[Rooted]', phylogeny)
 
+    feature_table = qiime2.Artifact.import_data(
+            'FeatureTable[Frequency]', feature_table)
+
     with qiime2.sdk.Context() as scope:
         for depth, i in itertools.product(depth_range, iter_range):
-            rt = rarefy(feature_table, depth)
-            rt = qiime2.Artifact.import_data('FeatureTable[Frequency]', rt)
+            rarefy_method = scope.ctx.get_action('feature_table', 'rarefy')
+            rt, = rarefy_method(feature_table, depth)
 
             for metric in metrics:
                 if metric in _alpha.all_phylo_metrics:
