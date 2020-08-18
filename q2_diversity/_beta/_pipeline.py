@@ -28,18 +28,18 @@ def beta_phylogenetic(ctx,
     if alpha is not None and metric != 'generalized_unifrac':
         raise ValueError('The alpha parameter is only allowed when the choice'
                          ' of metric is generalized_unifrac')
-    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     # HACK: this logic will be simpler once the remaining unifracs are done
     if metric in ('unweighted_unifrac', 'weighted_unifrac') \
             and not variance_adjusted:
-        func = ctx.get_action('diversity_lib', metric_tr)
+        metric = METRICS['NAME_TRANSLATIONS'][metric]
+        func = ctx.get_action('diversity_lib', metric)
         result = func(table, phylogeny, threads=threads,
                       bypass_tips=bypass_tips)
     else:
         # handle unimplemented unifracs
         func = ctx.get_action('diversity_lib', 'beta_phylogenetic_passthrough')
-        result = func(table, phylogeny, metric=metric_tr, threads=threads,
+        result = func(table, phylogeny, metric=metric, threads=threads,
                       variance_adjusted=variance_adjusted, alpha=alpha,
                       bypass_tips=bypass_tips)
 
@@ -48,14 +48,14 @@ def beta_phylogenetic(ctx,
 
 def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
     implemented_metrics = METRICS['NONPHYLO']['IMPL']
-    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     if metric in implemented_metrics:
-        func = ctx.get_action('diversity_lib', metric_tr)
+        metric = METRICS['NAME_TRANSLATIONS'][metric]
+        func = ctx.get_action('diversity_lib', metric)
         result = func(table=table, n_jobs=n_jobs)
     else:
         func = ctx.get_action('diversity_lib', 'beta_passthrough')
-        result = func(table=table, metric=metric_tr, pseudocount=pseudocount,
+        result = func(table=table, metric=metric, pseudocount=pseudocount,
                       n_jobs=n_jobs)
 
     return tuple(result)

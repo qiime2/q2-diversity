@@ -22,13 +22,12 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
 
 
 def alpha(ctx, table, metric):
-    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
-
     if metric in METRICS['NONPHYLO']['IMPL']:
-        func = ctx.get_action('diversity_lib', metric_tr)
+        metric = METRICS['NAME_TRANSLATIONS'][metric]
+        func = ctx.get_action('diversity_lib', metric)
         result = func(table=table)
     else:
         func = ctx.get_action('diversity_lib', 'alpha_passthrough')
-        result = func(table=table, metric=metric_tr)
+        result = func(table=table, metric=metric)
 
     return tuple(result)
