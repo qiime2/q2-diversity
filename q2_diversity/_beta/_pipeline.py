@@ -12,15 +12,18 @@ from q2_diversity_lib import translate_metric_name
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
-metric_name_translations = METRICS['METRIC_NAME_TRANSLATIONS']
+metric_name_translations = METRICS['NAME_TRANSLATIONS']
 
 
 def all_metrics():
     return all_phylo_metrics | all_nonphylo_metrics
 
 
-def beta_phylogenetic(ctx, table, phylogeny,
-                      metric, threads=1,
+def beta_phylogenetic(ctx,
+                      table,
+                      phylogeny,
+                      metric,
+                      threads=1,
                       variance_adjusted=False,
                       alpha=None,
                       bypass_tips=False):

@@ -16,12 +16,12 @@ import functools
 import scipy
 import numpy as np
 import pandas as pd
+import qiime2
 from statsmodels.sandbox.stats.multicomp import multipletests
+import q2templates
 import biom
 import itertools
 
-import qiime2
-import q2templates
 from q2_diversity import _alpha
 from q2_types.tree import NewickFormat
 
@@ -301,12 +301,13 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
                 if metric in _alpha.all_phylo_metrics:
                     alpha_phylo = scope.ctx.get_action('diversity',
                                                        'alpha_phylogenetic')
-                    vector = alpha_phylo(table=rt, metric=metric,
-                                         phylogeny=phylogeny)
+                    vector, = alpha_phylo(table=rt, metric=metric,
+                                          phylogeny=phylogeny)
                 else:
                     alpha = scope.ctx.get_action('diversity', 'alpha')
-                    vector = alpha(table=rt, metric=metric)
-                vector = vector[0].view(pd.Series)
+                    vector, = alpha(table=rt, metric=metric)
+
+                vector = vector.view(pd.Series)
                 data[metric][(depth, i)] = vector
         return data
 
