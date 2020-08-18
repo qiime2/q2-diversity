@@ -7,16 +7,14 @@
 # ----------------------------------------------------------------------------
 
 from q2_diversity_lib.alpha import METRICS
-from q2_diversity_lib import translate_metric_name
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
-metric_name_translations = METRICS['NAME_TRANSLATIONS']
 
 
 def alpha_phylogenetic(ctx, table, phylogeny, metric):
-    metric_tr = translate_metric_name(metric, metric_name_translations)
+    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     f = ctx.get_action('diversity_lib', metric_tr)
     result = f(table, phylogeny)
@@ -24,7 +22,7 @@ def alpha_phylogenetic(ctx, table, phylogeny, metric):
 
 
 def alpha(ctx, table, metric):
-    metric_tr = translate_metric_name(metric, metric_name_translations)
+    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     if metric in METRICS['NONPHYLO']['IMPL']:
         func = ctx.get_action('diversity_lib', metric_tr)

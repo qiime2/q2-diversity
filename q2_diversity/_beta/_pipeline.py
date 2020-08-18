@@ -7,12 +7,10 @@
 # ----------------------------------------------------------------------------
 
 from q2_diversity_lib.beta import METRICS
-from q2_diversity_lib import translate_metric_name
 
 all_phylo_metrics = METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 all_nonphylo_metrics = METRICS['NONPHYLO']['IMPL'] \
                        | METRICS['NONPHYLO']['UNIMPL']
-metric_name_translations = METRICS['NAME_TRANSLATIONS']
 
 
 def all_metrics():
@@ -30,8 +28,7 @@ def beta_phylogenetic(ctx,
     if alpha is not None and metric != 'generalized_unifrac':
         raise ValueError('The alpha parameter is only allowed when the choice'
                          ' of metric is generalized_unifrac')
-
-    metric_tr = translate_metric_name(metric, metric_name_translations)
+    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     # HACK: this logic will be simpler once the remaining unifracs are done
     if metric in ('unweighted_unifrac', 'weighted_unifrac') \
@@ -51,8 +48,7 @@ def beta_phylogenetic(ctx,
 
 def beta(ctx, table, metric, pseudocount=1, n_jobs=1):
     implemented_metrics = METRICS['NONPHYLO']['IMPL']
-
-    metric_tr = translate_metric_name(metric, metric_name_translations)
+    metric_tr = METRICS['NAME_TRANSLATIONS'][metric]
 
     if metric in implemented_metrics:
         func = ctx.get_action('diversity_lib', metric_tr)
