@@ -286,13 +286,13 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
-    if phylogeny:
-        phylogeny = qiime2.Artifact.import_data('Phylogeny[Rooted]', phylogeny)
-
-    feature_table = qiime2.Artifact.import_data(
-            'FeatureTable[Frequency]', feature_table)
-
     with qiime2.sdk.Context() as scope:
+        feature_table = scope.ctx.make_artifact(
+                'FeatureTable[Frequency]', feature_table)
+
+        if phylogeny:
+            phylogeny = scope.ctx.make_artifact('Phylogeny[Rooted]', phylogeny)
+
         for depth, i in itertools.product(depth_range, iter_range):
             rarefy_method = scope.ctx.get_action('feature_table', 'rarefy')
             rt, = rarefy_method(feature_table, depth)
