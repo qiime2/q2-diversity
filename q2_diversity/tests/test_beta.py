@@ -23,8 +23,7 @@ from qiime2.plugin.testing import TestPluginBase
 
 
 from qiime2 import Artifact
-from q2_diversity import (bioenv, beta_group_significance, mantel,
-                          beta, beta_phylogenetic)
+from q2_diversity import (bioenv, beta_group_significance, mantel)
 from q2_diversity._beta._visualizer import _get_distance_boxplot_data
 
 
