@@ -6,14 +6,15 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from ._pipeline import (beta_phylogenetic, beta,
-                        all_phylo_metrics, all_nonphylo_metrics,
-                        all_metrics)
-from ._visualizer import (bioenv, beta_group_significance, mantel, adonis)
+from q2_diversity_lib.beta import METRICS
+
+from ._pipeline import beta_phylogenetic, beta
+from ._visualizer import bioenv, beta_group_significance, mantel, adonis
 from ._beta_rarefaction import beta_rarefaction
 from ._beta_correlation import beta_correlation
 
-__all__ = ['beta_phylogenetic', 'beta', 'bioenv',
-           'beta_group_significance', 'all_phylo_metrics',
-           'all_nonphylo_metrics', 'all_metrics', 'mantel',
-           'beta_rarefaction', 'beta_correlation', 'adonis']
+
+__all__ = [
+    'beta_phylogenetic', 'beta', 'bioenv', 'beta_group_significance', 'mantel',
+    'beta_rarefaction', 'beta_correlation', 'adonis', 'METRICS',
+]

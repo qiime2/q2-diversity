@@ -22,7 +22,7 @@ import q2templates
 import biom
 import itertools
 
-from ._pipeline import all_phylo_metrics, all_nonphylo_metrics
+from . import METRICS
 from q2_types.tree import NewickFormat
 
 TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
@@ -298,7 +298,8 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
             rt, = rarefy_method(feature_table, depth)
 
             for metric in metrics:
-                if metric in all_phylo_metrics:
+                if metric in (METRICS['PHYLO']['IMPL'] |
+                              METRICS['PHYLO']['UNIMPL']):
                     alpha_phylo = scope.ctx.get_action('diversity',
                                                        'alpha_phylogenetic')
                     vector, = alpha_phylo(table=rt, metric=metric,
@@ -324,7 +325,9 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
     elif not metrics:
         raise ValueError('`metrics` was given an empty set.')
     else:
-        phylo_overlap = all_phylo_metrics & metrics
+        phylo_overlap = ((METRICS['PHYLO']['IMPL'] |
+                          METRICS['PHYLO']['UNIMPL']) &
+                         metrics)
         if phylo_overlap and phylogeny is None:
             raise ValueError('Phylogenetic metric %s was requested but '
                              'phylogeny was not provided.' % phylo_overlap)
@@ -415,8 +418,6 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
                     os.path.join(output_dir, 'dist'))
 
 
-alpha_rarefaction_supported_metrics = ((all_nonphylo_metrics
-                                       | all_phylo_metrics)
-                                       - {'osd', 'lladser_ci', 'strong',
-                                          'esty_ci', 'kempton_taylor_q',
-                                          'chao1_ci'})
+alpha_rarefaction_unsupported_metrics = {'osd', 'lladser_ci', 'strong',
+                                         'esty_ci', 'kempton_taylor_q',
+                                         'chao1_ci'}

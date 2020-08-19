@@ -62,7 +62,8 @@ plugin.pipelines.register_function(
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(beta.all_phylo_metrics),
+    parameters={'metric': Str % Choices(beta.METRICS['PHYLO']['IMPL'] |
+                                        beta.METRICS['PHYLO']['UNIMPL']),
                 'threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
@@ -106,7 +107,8 @@ plugin.pipelines.register_function(
     function=q2_diversity.beta,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
-    parameters={'metric': Str % Choices(beta.all_nonphylo_metrics),
+    parameters={'metric': Str % Choices(beta.METRICS['NONPHYLO']['IMPL'] |
+                                        beta.METRICS['NONPHYLO']['UNIMPL']),
                 'pseudocount': Int % Range(1, None),
                 'n_jobs': Int % Range(1, None) | Str % Choices(['auto'])},
     outputs=[('distance_matrix', DistanceMatrix)],
@@ -131,7 +133,8 @@ plugin.pipelines.register_function(
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
-    parameters={'metric': Str % Choices(alpha.all_phylo_metrics)},
+    parameters={'metric': Str % Choices(alpha.METRICS['PHYLO']['IMPL'] |
+                                        alpha.METRICS['PHYLO']['UNIMPL'])},
     outputs=[('alpha_diversity',
               SampleData[AlphaDiversity])],
     input_descriptions={
@@ -159,7 +162,8 @@ plugin.pipelines.register_function(
     function=q2_diversity.alpha,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
-    parameters={'metric': Str % Choices(alpha.all_nonphylo_metrics)},
+    parameters={'metric': Str % Choices(alpha.METRICS['NONPHYLO']['IMPL'] |
+                                        alpha.METRICS['NONPHYLO']['UNIMPL'])},
     outputs=[('alpha_diversity', SampleData[AlphaDiversity])],
     input_descriptions={
         'table': ('The feature table containing the samples for which alpha '
@@ -630,7 +634,11 @@ plugin.visualizers.register_function(
     citations=[citations['pearson1895note'], citations['spearman1904proof']]
 )
 
-_metric_set = Set[Str % Choices(alpha.alpha_rarefaction_supported_metrics)]
+_metric_set = Set[Str % Choices((alpha.METRICS['PHYLO']['IMPL'] |
+                                 alpha.METRICS['PHYLO']['UNIMPL'] |
+                                 alpha.METRICS['NONPHYLO']['IMPL'] |
+                                 alpha.METRICS['NONPHYLO']['UNIMPL']) -
+                                alpha.alpha_rarefaction_unsupported_metrics)]
 plugin.visualizers.register_function(
     function=q2_diversity.alpha_rarefaction,
     inputs={'table': FeatureTable[Frequency],
@@ -679,7 +687,10 @@ plugin.visualizers.register_function(
         'table': FeatureTable[Frequency],
         'phylogeny': Phylogeny[Rooted]},
     parameters={
-        'metric': Str % Choices(beta.all_metrics()),
+        'metric': Str % Choices(beta.METRICS['NONPHYLO']['IMPL'] |
+                                beta.METRICS['NONPHYLO']['UNIMPL'] |
+                                beta.METRICS['PHYLO']['IMPL'] |
+                                beta.METRICS['PHYLO']['UNIMPL']),
         'clustering_method': Str % Choices({'nj', 'upgma'}),
         'metadata': Metadata,
         'sampling_depth': Int % Range(1, None),
