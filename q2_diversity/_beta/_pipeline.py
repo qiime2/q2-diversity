@@ -24,7 +24,7 @@ def beta_phylogenetic_meta(ctx,
 
     action = ctx.get_action('diversity_lib',
                             'beta_phylogenetic_meta_passthrough')
-    print(type(table))
+
     dm, = action(table, phylogeny, metric=metric, threads=threads,
                  variance_adjusted=variance_adjusted, alpha=alpha,
                  bypass_tips=bypass_tips)
