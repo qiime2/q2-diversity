@@ -10,7 +10,8 @@ from ._alpha import (alpha, alpha_phylogenetic, alpha_group_significance,
                      alpha_correlation, alpha_rarefaction)
 from ._beta import (beta, beta_phylogenetic, bioenv,
                     beta_group_significance, mantel, beta_rarefaction,
-                    beta_correlation, adonis)
+                    beta_correlation, adonis,
+                    beta_phylogenetic_meta)
 from ._ordination import pcoa, pcoa_biplot
 from ._procrustes import procrustes_analysis
 from ._core_metrics import core_metrics_phylogenetic, core_metrics
@@ -28,4 +29,4 @@ __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
            'beta_rarefaction', 'procrustes_analysis', 'beta_correlation',
-           'adonis']
+           'adonis', 'beta_phylogenetic_meta']

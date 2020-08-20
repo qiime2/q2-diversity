@@ -9,6 +9,29 @@
 from . import METRICS
 
 
+def beta_phylogenetic_meta(ctx,
+                           table,
+                           phylogeny,
+                           metric,
+                           threads=1,
+                           variance_adjusted=False,
+                           alpha=None,
+                           bypass_tips=False):
+    # TODO: remove when we can handle optional type-mapped parameters
+    if alpha is not None and metric != 'generalized_unifrac':
+        raise ValueError('The alpha parameter is only allowed when the choice'
+                         ' of metric is generalized_unifrac')
+
+    action = ctx.get_action('diversity_lib',
+                            'beta_phylogenetic_meta_passthrough')
+    print(type(table))
+    dm, = action(table, phylogeny, metric=metric, threads=threads,
+                 variance_adjusted=variance_adjusted, alpha=alpha,
+                 bypass_tips=bypass_tips)
+
+    return dm
+
+
 def beta_phylogenetic(ctx,
                       table,
                       phylogeny,
