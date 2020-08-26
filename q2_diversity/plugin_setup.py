@@ -170,7 +170,10 @@ plugin.pipelines.register_function(
                   'diversity should be computed.')
     },
     parameter_descriptions={
-        'metric': 'The alpha diversity metric to be computed.'},
+        'metric': 'The alpha diversity metric to be computed. Information '
+        'about specific metrics is available at '
+        'https://docs.qiime2.org/a_diversity_metrics'
+    },
     output_descriptions={
         'alpha_diversity': 'Vector containing per-sample alpha diversities.'
     },
