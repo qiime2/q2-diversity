@@ -127,7 +127,7 @@ class AlphaRarefactionTests(unittest.TestCase):
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
                 index_content = index_fh.read()
-            self.assertTrue('observed_otus' in index_content)
+            self.assertTrue('observed_features' in index_content)
             self.assertTrue('shannon' in index_content)
 
     def test_alpha_rarefaction_with_phylogeny(self):
