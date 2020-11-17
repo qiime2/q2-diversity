@@ -5,9 +5,10 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
-
+from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
+import numpy as np
 
 
 def pcoa(distance_matrix: skbio.DistanceMatrix,
@@ -28,3 +29,30 @@ def pcoa(distance_matrix: skbio.DistanceMatrix,
 def pcoa_biplot(pcoa: skbio.OrdinationResults,
                 features: pd.DataFrame) -> skbio.OrdinationResults:
     return skbio.stats.ordination.pcoa_biplot(pcoa, features)
+
+def tsne(distance_matrix: skbio.DistanceMatrix, n_components=3, *, perplexity=30.0, 
+         early_exaggeration=12.0,learning_rate=200.0, n_iter=1000,
+         n_iter_without_progress=300,min_grad_norm=1e-07, metric='euclidean',
+         init='random', verbose=0, random_state=None, method='barnes_hut',
+         angle=0.5, n_jobs=None)-> skbio.OrdinationResults:
+    
+    data = distance_matrix.data
+    ids = distance_matrix.ids
+    long_method_name = "t-distributed stochastic neighbor embedding"
+    tsneData = TSNE(n_components,perplexity,early_exaggeration,learning_rate,
+                    n_iter,n_iter_without_progress,min_grad_norm,metric,init,
+                    verbose,random_state,method,angle,n_jobs).fit_transform(data)
+    
+    axis_labels = ["TSNE%d" % i for i in range(1, n_components + 1)]
+    eigenvalues = [0 for i in axis_labels]
+    
+    return skbio.OrdinationResults(
+        short_method_name="T-SNE",
+        long_method_name=long_method_name,
+        
+        eigvals=pd.Series(eigenvalues, index=axis_labels),
+        samples=pd.DataFrame(tsneData, index=ids,
+                             columns=axis_labels))
+        
+
+
