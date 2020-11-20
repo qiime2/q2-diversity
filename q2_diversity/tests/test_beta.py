@@ -119,26 +119,27 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            actual = method(
-                table=table_, phylogeny=tree_, metric='unweighted_unifrac')
+            with self.subTest(method=method):
+                actual = method(
+                    table=table_, phylogeny=tree_, metric='unweighted_unifrac')
 
-            self.assertEqual(len(actual), 1)
+                self.assertEqual(len(actual), 1)
 
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
 
-            # expected computed with skbio.diversity.beta_diversity
-            expected = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
-                                             [0.25, 0.00, 0.00],
-                                             [0.25, 0.00, 0.00]],
-                                            ids=['S1', 'S2', 'S3'])
+                # expected computed with skbio.diversity.beta_diversity
+                expected = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                                 [0.25, 0.00, 0.00],
+                                                 [0.25, 0.00, 0.00]],
+                                                ids=['S1', 'S2', 'S3'])
 
-            actual = actual[0].view(skbio.DistanceMatrix)
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_beta_phylogenetic_non_phylo_metric(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -152,8 +153,10 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            with self.assertRaisesRegex(TypeError, 'received \'braycurtis'):
-                method(table=table_, phylogeny=tree_, metric='braycurtis')
+            with self.subTest(method=method):
+                with self.assertRaisesRegex(TypeError,
+                                            'received \'braycurtis'):
+                    method(table=table_, phylogeny=tree_, metric='braycurtis')
 
     def test_beta_phylogenetic_unknown_metric(self):
         t = Table(np.array([[0, 1, 3], [1, 1, 2]]),
@@ -167,8 +170,11 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            with self.assertRaisesRegex(TypeError, "received 'not-a-metric'"):
-                method(table=table_, phylogeny=tree_, metric='not-a-metric')
+            with self.subTest(method=method):
+                with self.assertRaisesRegex(TypeError,
+                                            "received 'not-a-metric'"):
+                    method(table=table_, phylogeny=tree_,
+                           metric='not-a-metric')
 
     def test_beta_phylogenetic_empty_table(self):
         t = self.get_data_path('empty.biom')
@@ -179,9 +185,10 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            with self.assertRaisesRegex(ValueError, 'empty'):
-                method(table=table_, phylogeny=tree_,
-                       metric='unweighted_unifrac')
+            with self.subTest(method=method):
+                with self.assertRaisesRegex(ValueError, 'empty'):
+                    method(table=table_, phylogeny=tree_,
+                           metric='unweighted_unifrac')
 
     def test_beta_unweighted(self):
         t = self.crawford_table
@@ -190,37 +197,40 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            actual = method(table=table_, phylogeny=tree_,
-                            metric='unweighted_unifrac')
+            with self.subTest(method=method):
+                actual = method(table=table_, phylogeny=tree_,
+                                metric='unweighted_unifrac')
 
-            # computed with beta-phylogenetic
-            data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
-                             0.72826674, 0.72065895, 0.72640581, 0.73606053,
-                             0.70302967, 0.73407301, 0.6548042, 0.71547381,
-                             0.78397813, 0.72318399, 0.76138933, 0.61041275,
-                             0.62331299, 0.71848305, 0.70416337, 0.75258475,
-                             0.79249029, 0.64392779, 0.70052733, 0.69832716,
-                             0.77818938, 0.72959894, 0.75782689, 0.71005144,
-                             0.75065046, 0.78944369, 0.63593642, 0.71283615,
-                             0.58314638, 0.69200762, 0.68972056, 0.71514083])
-            ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
-                   '10084.PC.355', '10084.PC.354', '10084.PC.636',
-                   '10084.PC.635', '10084.PC.607', '10084.PC.634')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                # computed with beta-phylogenetic
+                data = np.array(
+                    [0.71836067, 0.71317361, 0.69746044, 0.62587207,
+                     0.72826674, 0.72065895, 0.72640581, 0.73606053,
+                     0.70302967, 0.73407301, 0.6548042, 0.71547381,
+                     0.78397813, 0.72318399, 0.76138933, 0.61041275,
+                     0.62331299, 0.71848305, 0.70416337, 0.75258475,
+                     0.79249029, 0.64392779, 0.70052733, 0.69832716,
+                     0.77818938, 0.72959894, 0.75782689, 0.71005144,
+                     0.75065046, 0.78944369, 0.63593642, 0.71283615,
+                     0.58314638, 0.69200762, 0.68972056, 0.71514083])
+                ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
+                       '10084.PC.355', '10084.PC.354', '10084.PC.636',
+                       '10084.PC.635', '10084.PC.607', '10084.PC.634')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_beta_unweighted_parallel(self):
         bt_fp = self.get_data_path('crawford.biom')
@@ -231,39 +241,42 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, bt, tree),
                                       (self.beta_phylogenetic_meta, [bt, bt],
                                        [tree, tree])):
-            actual = method(table=table_,
-                            phylogeny=tree_,
-                            metric='unweighted_unifrac',
-                            threads=2)
+            with self.subTest(method=method):
+                actual = method(table=table_,
+                                phylogeny=tree_,
+                                metric='unweighted_unifrac',
+                                threads=2)
 
-            # computed with beta-phylogenetic
-            data = np.array([0.71836067, 0.71317361, 0.69746044, 0.62587207,
-                             0.72826674, 0.72065895, 0.72640581, 0.73606053,
-                             0.70302967, 0.73407301, 0.6548042, 0.71547381,
-                             0.78397813, 0.72318399, 0.76138933, 0.61041275,
-                             0.62331299, 0.71848305, 0.70416337, 0.75258475,
-                             0.79249029, 0.64392779, 0.70052733, 0.69832716,
-                             0.77818938, 0.72959894, 0.75782689, 0.71005144,
-                             0.75065046, 0.78944369, 0.63593642, 0.71283615,
-                             0.58314638, 0.69200762, 0.68972056, 0.71514083])
-            ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
-                   '10084.PC.355', '10084.PC.354', '10084.PC.636',
-                   '10084.PC.635', '10084.PC.607', '10084.PC.634')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                # computed with beta-phylogenetic
+                data = np.array(
+                    [0.71836067, 0.71317361, 0.69746044, 0.62587207,
+                     0.72826674, 0.72065895, 0.72640581, 0.73606053,
+                     0.70302967, 0.73407301, 0.6548042, 0.71547381,
+                     0.78397813, 0.72318399, 0.76138933, 0.61041275,
+                     0.62331299, 0.71848305, 0.70416337, 0.75258475,
+                     0.79249029, 0.64392779, 0.70052733, 0.69832716,
+                     0.77818938, 0.72959894, 0.75782689, 0.71005144,
+                     0.75065046, 0.78944369, 0.63593642, 0.71283615,
+                     0.58314638, 0.69200762, 0.68972056, 0.71514083])
+                ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
+                       '10084.PC.355', '10084.PC.354', '10084.PC.636',
+                       '10084.PC.635', '10084.PC.607', '10084.PC.634')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_beta_weighted(self):
         t = self.crawford_table
@@ -272,38 +285,41 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, t, tree),
                                       (self.beta_phylogenetic_meta, [t, t],
                                        [tree, tree])):
-            actual = method(table=table_,
-                            phylogeny=tree_,
-                            metric='weighted_unifrac')
+            with self.subTest(method=method):
+                actual = method(table=table_,
+                                phylogeny=tree_,
+                                metric='weighted_unifrac')
 
-            # computed with beta-phylogenetic (weighted_unifrac)
-            data = np.array([0.44656238, 0.23771096, 0.30489123, 0.23446002,
-                             0.65723575, 0.44911772, 0.381904, 0.69144829,
-                             0.39611776, 0.36568012, 0.53377975, 0.48908025,
-                             0.35155196, 0.28318669, 0.57376916, 0.23395746,
-                             0.24658122, 0.60271637, 0.39802552, 0.36567394,
-                             0.68062701, 0.36862049, 0.48350632, 0.33024631,
-                             0.33266697, 0.53464744, 0.74605075, 0.53951035,
-                             0.49680733, 0.79178838, 0.37109012, 0.52629343,
-                             0.22118218, 0.32400805, 0.43189708, 0.59705893])
-            ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
-                   '10084.PC.355', '10084.PC.354', '10084.PC.636',
-                   '10084.PC.635', '10084.PC.607', '10084.PC.634')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                # computed with beta-phylogenetic (weighted_unifrac)
+                data = np.array(
+                    [0.44656238, 0.23771096, 0.30489123, 0.23446002,
+                     0.65723575, 0.44911772, 0.381904, 0.69144829,
+                     0.39611776, 0.36568012, 0.53377975, 0.48908025,
+                     0.35155196, 0.28318669, 0.57376916, 0.23395746,
+                     0.24658122, 0.60271637, 0.39802552, 0.36567394,
+                     0.68062701, 0.36862049, 0.48350632, 0.33024631,
+                     0.33266697, 0.53464744, 0.74605075, 0.53951035,
+                     0.49680733, 0.79178838, 0.37109012, 0.52629343,
+                     0.22118218, 0.32400805, 0.43189708, 0.59705893])
+                ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
+                       '10084.PC.355', '10084.PC.354', '10084.PC.636',
+                       '10084.PC.635', '10084.PC.607', '10084.PC.634')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_variance_adjusted_normalized(self):
         bt_fp = self.get_data_path('vaw.biom')
@@ -314,40 +330,42 @@ class BetaDiversityTests(TestPluginBase):
         for method, table_, tree_ in ((self.beta_phylogenetic, bt, tree),
                                       (self.beta_phylogenetic_meta, [bt, bt],
                                        [tree, tree])):
-            actual = method(table=table_,
-                            phylogeny=tree_,
-                            metric='weighted_normalized_unifrac',
-                            variance_adjusted=True)
+            with self.subTest(method=method):
+                actual = method(table=table_,
+                                phylogeny=tree_,
+                                metric='weighted_normalized_unifrac',
+                                variance_adjusted=True)
 
-            data = np.array([[0.0000000, 0.4086040, 0.6240185, 0.4639481,
-                              0.2857143, 0.2766318],
-                             [0.4086040, 0.0000000, 0.3798594, 0.6884992,
-                              0.6807616, 0.4735781],
-                             [0.6240185, 0.3798594, 0.0000000, 0.7713254,
-                              0.8812897, 0.5047114],
-                             [0.4639481, 0.6884992, 0.7713254, 0.0000000,
-                              0.6666667, 0.2709298],
-                             [0.2857143, 0.6807616, 0.8812897, 0.6666667,
-                              0.0000000, 0.4735991],
-                             [0.2766318, 0.4735781, 0.5047114, 0.2709298,
-                              0.4735991, 0.0000000]])
-            ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
-                   'Sample6')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                data = np.array([[0.0000000, 0.4086040, 0.6240185, 0.4639481,
+                                  0.2857143, 0.2766318],
+                                 [0.4086040, 0.0000000, 0.3798594, 0.6884992,
+                                  0.6807616, 0.4735781],
+                                 [0.6240185, 0.3798594, 0.0000000, 0.7713254,
+                                  0.8812897, 0.5047114],
+                                 [0.4639481, 0.6884992, 0.7713254, 0.0000000,
+                                  0.6666667, 0.2709298],
+                                 [0.2857143, 0.6807616, 0.8812897, 0.6666667,
+                                  0.0000000, 0.4735991],
+                                 [0.2766318, 0.4735781, 0.5047114, 0.2709298,
+                                  0.4735991, 0.0000000]])
+                ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
+                       'Sample6')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_generalized_unifrac(self):
         bt_fp = self.get_data_path('vaw.biom')
@@ -361,40 +379,42 @@ class BetaDiversityTests(TestPluginBase):
                                       # (self.beta_phylogenetic_meta, [bt, bt],
                                       # [tree, tree])
                                       ):
-            actual = method(table=table_,
-                            phylogeny=tree_,
-                            metric='generalized_unifrac',
-                            alpha=0.5)
+            with self.subTest(method=method):
+                actual = method(table=table_,
+                                phylogeny=tree_,
+                                metric='generalized_unifrac',
+                                alpha=0.5)
 
-            data = np.array([[0.0000000, 0.4040518, 0.6285560, 0.5869439,
-                              0.4082483, 0.2995673],
-                             [0.4040518, 0.0000000, 0.4160597, 0.7071068,
-                              0.7302479, 0.4860856],
-                             [0.6285560, 0.4160597, 0.0000000, 0.8005220,
-                              0.9073159, 0.5218198],
-                             [0.5869439, 0.7071068, 0.8005220, 0.0000000,
-                              0.4117216, 0.3485667],
-                             [0.4082483, 0.7302479, 0.9073159, 0.4117216,
-                              0.0000000, 0.6188282],
-                             [0.2995673, 0.4860856, 0.5218198, 0.3485667,
-                              0.6188282, 0.0000000]])
-            ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
-                   'Sample6')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                data = np.array([[0.0000000, 0.4040518, 0.6285560, 0.5869439,
+                                  0.4082483, 0.2995673],
+                                 [0.4040518, 0.0000000, 0.4160597, 0.7071068,
+                                  0.7302479, 0.4860856],
+                                 [0.6285560, 0.4160597, 0.0000000, 0.8005220,
+                                  0.9073159, 0.5218198],
+                                 [0.5869439, 0.7071068, 0.8005220, 0.0000000,
+                                  0.4117216, 0.3485667],
+                                 [0.4082483, 0.7302479, 0.9073159, 0.4117216,
+                                  0.0000000, 0.6188282],
+                                 [0.2995673, 0.4860856, 0.5218198, 0.3485667,
+                                  0.6188282, 0.0000000]])
+                ids = ('Sample1', 'Sample2', 'Sample3', 'Sample4', 'Sample5',
+                       'Sample6')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_generalized_unifrac_no_alpha(self):
         table = self.crawford_table
@@ -404,39 +424,42 @@ class BetaDiversityTests(TestPluginBase):
                                       (self.beta_phylogenetic_meta,
                                        [table, table],
                                        [tree, tree])):
-            actual = method(table=table_,
-                            phylogeny=tree_,
-                            metric='generalized_unifrac',
-                            alpha=None)
+            with self.subTest(method=method):
+                actual = method(table=table_,
+                                phylogeny=tree_,
+                                metric='generalized_unifrac',
+                                alpha=None)
 
-            # alpha=1 should be equal to weighted normalized UniFrac
-            data = np.array([0.2821874, 0.16148405, 0.20186143, 0.1634832,
-                             0.40351108, 0.29135056, 0.24790944, 0.41967404,
-                             0.24642185, 0.22218489, 0.34007547, 0.27722011,
-                             0.20963881, 0.16897221, 0.3217958, 0.15237816,
-                             0.16899207, 0.36445044, 0.25408941, 0.23358681,
-                             0.4069374, 0.24615927, 0.28573888, 0.20578184,
-                             0.20742006, 0.31249151, 0.46169893, 0.35294595,
-                             0.32522355, 0.48437103, 0.21534558, 0.30558908,
-                             0.12091004, 0.19817777, 0.24792853, 0.34293674])
-            ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
-                   '10084.PC.355', '10084.PC.354', '10084.PC.636',
-                   '10084.PC.635', '10084.PC.607', '10084.PC.634')
-            expected = skbio.DistanceMatrix(data, ids=ids)
+                # alpha=1 should be equal to weighted normalized UniFrac
+                data = np.array(
+                    [0.2821874, 0.16148405, 0.20186143, 0.1634832,
+                     0.40351108, 0.29135056, 0.24790944, 0.41967404,
+                     0.24642185, 0.22218489, 0.34007547, 0.27722011,
+                     0.20963881, 0.16897221, 0.3217958, 0.15237816,
+                     0.16899207, 0.36445044, 0.25408941, 0.23358681,
+                     0.4069374, 0.24615927, 0.28573888, 0.20578184,
+                     0.20742006, 0.31249151, 0.46169893, 0.35294595,
+                     0.32522355, 0.48437103, 0.21534558, 0.30558908,
+                     0.12091004, 0.19817777, 0.24792853, 0.34293674])
+                ids = ('10084.PC.481', '10084.PC.593', '10084.PC.356',
+                       '10084.PC.355', '10084.PC.354', '10084.PC.636',
+                       '10084.PC.635', '10084.PC.607', '10084.PC.634')
+                expected = skbio.DistanceMatrix(data, ids=ids)
 
-            self.assertEqual(len(actual), 1)
-            self.assertEqual(repr(actual.distance_matrix.type),
-                             'DistanceMatrix')
-            actual = actual[0].view(skbio.DistanceMatrix)
+                self.assertEqual(len(actual), 1)
+                self.assertEqual(repr(actual.distance_matrix.type),
+                                 'DistanceMatrix')
+                actual = actual[0].view(skbio.DistanceMatrix)
 
-            # id order can be different with _meta, so order w.r.t. expected.
-            actual = actual.filter(ids)
+                # id order can be different with _meta, so order w.r.t.
+                # expected.
+                actual = actual.filter(ids)
 
-            self.assertEqual(actual.ids, expected.ids)
-            for id1 in actual.ids:
-                for id2 in actual.ids:
-                    npt.assert_almost_equal(actual[id1, id2],
-                                            expected[id1, id2])
+                self.assertEqual(actual.ids, expected.ids)
+                for id1 in actual.ids:
+                    for id2 in actual.ids:
+                        npt.assert_almost_equal(actual[id1, id2],
+                                                expected[id1, id2])
 
     def test_not_generalized_passed_alpha(self):
         table = self.crawford_table
@@ -447,11 +470,12 @@ class BetaDiversityTests(TestPluginBase):
                                       (self.beta_phylogenetic_meta,
                                        [table, table],
                                        [tree, tree])):
-            with self.assertRaisesRegex(ValueError, msg):
-                method(table=table_,
-                       phylogeny=tree_,
-                       metric='unweighted_unifrac',
-                       alpha=0.5)
+            with self.subTest(method=method):
+                with self.assertRaisesRegex(ValueError, msg):
+                    method(table=table_,
+                           phylogeny=tree_,
+                           metric='unweighted_unifrac',
+                           alpha=0.5)
 
     def test_beta_phylogenetic_too_many_jobs(self):
         table = self.crawford_table
@@ -461,12 +485,13 @@ class BetaDiversityTests(TestPluginBase):
                                       (self.beta_phylogenetic_meta,
                                        [table, table],
                                        [tree, tree])):
-            with self.assertRaises(ValueError):
-                # cannot guarantee that this will always be true, but it would
-                # be odd to see a machine with these many CPUs
-                method(table=table_,
-                       phylogeny=tree_,
-                       metric='unweighted_unifrac', threads=11117)
+            with self.subTest(method=method):
+                with self.assertRaises(ValueError):
+                    # cannot guarantee that this will always be true, but it
+                    # would be odd to see a machine with these many CPUs
+                    method(table=table_,
+                           phylogeny=tree_,
+                           metric='unweighted_unifrac', threads=11117)
 
 
 class BioenvTests(TestPluginBase):

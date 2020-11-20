@@ -111,8 +111,7 @@ plugin.pipelines.register_function(
                           RelativeFrequency |
                           PresenceAbsence]],
             'phylogeny': List[Phylogeny[Rooted]]},
-    parameters={'metric': Str % Choices(beta.METRICS['PHYLO']['IMPL'] |
-                                        beta.METRICS['PHYLO']['UNIMPL']),
+    parameters={'metric': Str % Choices(beta.METRICS['PHYLO']['UNIMPL']),
                 'threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
@@ -155,7 +154,7 @@ plugin.pipelines.register_function(
                          'aggregated'
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
-    name='Beta diversity (phylogenetic)',
+    name='Beta diversity (phylogenetic) over multiple trees and tables',
     description="Computes a distance matrix for all pairs of samples in the "
                 "set of feature table and phylogeny pairs, using the unifrac "
                 "implementation of the selected beta diversity metric.",
