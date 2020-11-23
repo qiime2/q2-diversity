@@ -9,6 +9,7 @@ from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
 import numpy as np
+import umap
 
 
 def pcoa(distance_matrix: skbio.DistanceMatrix,
@@ -54,5 +55,23 @@ def tsne(distance_matrix: skbio.DistanceMatrix, n_components=3, *, perplexity=30
         samples=pd.DataFrame(tsneData, index=ids,
                              columns=axis_labels))
         
+def uMAP(distance_matrix: skbio.DistanceMatrix,n_components=3) -> skbio.OrdinationResults:
+    
+    reducer = umap.UMAP(n_components=n_components)
+   
+    data = distance_matrix.data
+    ids = distance_matrix.ids
+    umap_data = reducer.fit_transform(data)
+    axis_labels = ["UMAP%d" % i for i in range(1, n_components + 1)]
+    eigenvalues = [0 for i in axis_labels]
+    long_method_name = "Uniform Manifold Approximation and Projection"
+
+    return skbio.OrdinationResults(
+        short_method_name="UMAP",
+        long_method_name=long_method_name,
+        eigvals=pd.Series(eigenvalues, index=axis_labels),
+        samples=pd.DataFrame(umap_data, index=ids,
+                             columns=axis_labels))
+
 
 
