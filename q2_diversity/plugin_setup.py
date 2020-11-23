@@ -241,6 +241,80 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
+    function=q2_diversity.tsne,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'number_of_dimensions': Int % Range(1, None)
+    },
+    outputs=[('tsne', t-SNE-Results)],
+    input_descriptions={
+        'distance_matrix': ('The distance matrix on which t-SNE should be '
+                            'computed.')
+    },
+    parameter_descriptions={
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
+                                "This number determines how many "
+                                "eigenvectors and eigenvalues are returned,"
+                                "and influences the choice of algorithm used "
+                                "to compute them. "
+                                "By default, uses the default "
+                                "eigendecomposition method, SciPy's eigh, "
+                                "which computes all eigenvectors "
+                                "and eigenvalues in an exact manner. For very "
+                                "large matrices, this is expected to be slow. "
+                                "If a value is specified for this parameter, "
+                                "then the fast, heuristic "
+                                "eigendecomposition algorithm fsvd "
+                                "is used, which only computes and returns the "
+                                "number of dimensions specified, but suffers "
+                                "some degree of accuracy loss, the magnitude "
+                                "of which varies across different datasets."
+    },
+    output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
+    name='t-distributed stochastic neighbor embedding',
+    description=("Apply t-distributed stochastic neighbor embedding."),
+    #citations=[citations['legendrelegendre'],
+     #          citations['halko2010']]
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.uMAP,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'number_of_dimensions': Int % Range(1, None)
+    },
+    outputs=[('umap', UMAP-Results)],
+    input_descriptions={
+        'distance_matrix': ('The distance matrix on which UMAP should be '
+                            'computed.')
+    },
+    parameter_descriptions={
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
+                                "This number determines how many "
+                                "eigenvectors and eigenvalues are returned,"
+                                "and influences the choice of algorithm used "
+                                "to compute them. "
+                                "By default, uses the default "
+                                "eigendecomposition method, SciPy's eigh, "
+                                "which computes all eigenvectors "
+                                "and eigenvalues in an exact manner. For very "
+                                "large matrices, this is expected to be slow. "
+                                "If a value is specified for this parameter, "
+                                "then the fast, heuristic "
+                                "eigendecomposition algorithm fsvd "
+                                "is used, which only computes and returns the "
+                                "number of dimensions specified, but suffers "
+                                "some degree of accuracy loss, the magnitude "
+                                "of which varies across different datasets."
+    },
+    output_descriptions={'umap': 'The resulting UMAP matrix.'},
+    name='Uniform Manifold Approximation and Projection',
+    description=("Apply Uniform Manifold Approximation and Projection."),
+    #citations=[citations['legendrelegendre'],
+     #          citations['halko2010']]
+)
+
+plugin.methods.register_function(
     function=q2_diversity.procrustes_analysis,
     inputs={'reference': PCoAResults, 'other': PCoAResults},
     parameters={'dimensions': Int % Range(1, None)},
