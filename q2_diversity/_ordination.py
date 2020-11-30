@@ -5,40 +5,35 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
+
 from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
 import umap
 
 
-def pcoa(
-    distance_matrix: skbio.DistanceMatrix, number_of_dimensions: int = None
-) -> skbio.OrdinationResults:
+def pcoa(distance_matrix: skbio.DistanceMatrix,
+         number_of_dimensions: int = None) -> skbio.OrdinationResults:
     if number_of_dimensions is None:
         # calculate full decomposition using eigh
-        return skbio.stats.ordination.pcoa(
-            distance_matrix, method="eigh", inplace=False
-        )
+        return skbio.stats.ordination.pcoa(distance_matrix, method='eigh',
+                                           inplace=False)
     else:
         # calculate the decomposition only for the `number_of_dimensions`
         # using fast heuristic eigendecomposition (fsvd)
         return skbio.stats.ordination.pcoa(
-            distance_matrix,
-            method="fsvd",
+            distance_matrix, method='fsvd',
             number_of_dimensions=number_of_dimensions,
-            inplace=True,
-        )
+            inplace=True)
 
 
-def pcoa_biplot(
-    pcoa: skbio.OrdinationResults, features: pd.DataFrame
-) -> skbio.OrdinationResults:
+def pcoa_biplot(pcoa: skbio.OrdinationResults,
+                features: pd.DataFrame) -> skbio.OrdinationResults:
     return skbio.stats.ordination.pcoa_biplot(pcoa, features)
 
 
-def tsne(
-    distance_matrix: skbio.DistanceMatrix, **kwargs
-) -> skbio.OrdinationResults:
+def tsne(distance_matrix: skbio.DistanceMatrix,
+         **kwargs) -> skbio.OrdinationResults:
 
     p = {
         "n_components": 3,
@@ -94,9 +89,8 @@ def tsne(
     )
 
 
-def uMAP(
-    distance_matrix: skbio.DistanceMatrix, n_components=3
-) -> skbio.OrdinationResults:
+def uMAP(distance_matrix: skbio.DistanceMatrix,
+         n_components=3) -> skbio.OrdinationResults:
 
     reducer = umap.UMAP(n_components=n_components)
 
