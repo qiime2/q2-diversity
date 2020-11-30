@@ -246,7 +246,7 @@ plugin.methods.register_function(
     parameters={
         'number_of_dimensions': Int % Range(1, None)
     },
-    outputs=[('tsne', t-SNE-Results)],
+    outputs=[('pcoa', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which t-SNE should be '
                             'computed.')
@@ -273,8 +273,7 @@ plugin.methods.register_function(
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',
     description=("Apply t-distributed stochastic neighbor embedding."),
-    #citations=[citations['legendrelegendre'],
-     #          citations['halko2010']]
+
 )
 
 plugin.methods.register_function(
@@ -283,7 +282,7 @@ plugin.methods.register_function(
     parameters={
         'number_of_dimensions': Int % Range(1, None)
     },
-    outputs=[('umap', UMAP-Results)],
+    outputs=[('pcoa', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which UMAP should be '
                             'computed.')
@@ -310,9 +309,7 @@ plugin.methods.register_function(
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
     description=("Apply Uniform Manifold Approximation and Projection."),
-    #citations=[citations['legendrelegendre'],
-     #          citations['halko2010']]
-)
+    )
 
 plugin.methods.register_function(
     function=q2_diversity.procrustes_analysis,
