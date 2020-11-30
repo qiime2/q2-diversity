@@ -246,7 +246,7 @@ plugin.methods.register_function(
     parameters={
         'number_of_dimensions': Int % Range(1, None)
     },
-    outputs=[('pcoa', PCoAResults)],
+    outputs=[('tsne', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which t-SNE should be '
                             'computed.')
@@ -280,9 +280,10 @@ plugin.methods.register_function(
     function=q2_diversity.uMAP,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(1, None)
+        'number_of_dimensions': Int % Range(1, None),
+        'threads': Int % Range(1, None) | Str % Choices(['auto'])
     },
-    outputs=[('pcoa', PCoAResults)],
+    outputs=[('uMAP', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which UMAP should be '
                             'computed.')
