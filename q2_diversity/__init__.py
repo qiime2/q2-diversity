@@ -23,7 +23,7 @@ del get_versions
 
 
 __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
-           'pcoa', 'tsne', 'uMAP' 'pcoa_biplot', 'alpha_group_significance',
+           'pcoa', 'tsne', 'uMAP', 'pcoa_biplot', 'alpha_group_significance',
            'bioenv', 'beta_group_significance', 'alpha_correlation',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
