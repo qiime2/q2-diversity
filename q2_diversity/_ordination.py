@@ -32,8 +32,7 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
     return skbio.stats.ordination.pcoa_biplot(pcoa, features)
 
 
-def tsne(distance_matrix: skbio.DistanceMatrix,
-         **kwargs) -> skbio.OrdinationResults:
+def tsne(distance_matrix: skbio.DistanceMatrix) -> skbio.OrdinationResults:
 
     p = {
         "n_components": 3,
@@ -52,14 +51,8 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
         "n_jobs": None,
     }
 
-    for key, value in kwargs.items():
-        if key not in p:
-            continue
-            p[key] = value
-
     data = distance_matrix.data
     ids = distance_matrix.ids
-    long_method_name = "t-distributed stochastic neighbor embedding"
 
     tsneData = TSNE(
         p["n_components"],
@@ -83,7 +76,7 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 
     return skbio.OrdinationResults(
         short_method_name="T-SNE",
-        long_method_name=long_method_name,
+        long_method_name="t-distributed stochastic neighbor embedding",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         samples=pd.DataFrame(tsneData, index=ids, columns=axis_labels),
     )
@@ -99,11 +92,10 @@ def uMAP(distance_matrix: skbio.DistanceMatrix,
     umap_data = reducer.fit_transform(data)
     axis_labels = ["UMAP%d" % i for i in range(1, n_components + 1)]
     eigenvalues = [0 for i in axis_labels]
-    long_method_name = "Uniform Manifold Approximation and Projection"
 
     return skbio.OrdinationResults(
         short_method_name="UMAP",
-        long_method_name=long_method_name,
+        long_method_name="Uniform Manifold Approximation and Projection",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         samples=pd.DataFrame(umap_data, index=ids, columns=axis_labels),
     )
