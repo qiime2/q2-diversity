@@ -32,7 +32,8 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
     return skbio.stats.ordination.pcoa_biplot(pcoa, features)
 
 
-def tsne(distance_matrix: skbio.DistanceMatrix) -> skbio.OrdinationResults:
+def tsne(distance_matrix: skbio.DistanceMatrix,
+         number_of_dimensions: int = None) -> skbio.OrdinationResults:
 
     p = {
         "n_components": 3,
@@ -83,14 +84,14 @@ def tsne(distance_matrix: skbio.DistanceMatrix) -> skbio.OrdinationResults:
 
 
 def uMAP(distance_matrix: skbio.DistanceMatrix,
-         n_components=3) -> skbio.OrdinationResults:
+         number_of_dimensions: int = 3) -> skbio.OrdinationResults:
 
-    reducer = umap.UMAP(n_components=n_components)
+    reducer = umap.UMAP(n_components=number_of_dimensions)
 
     data = distance_matrix.data
     ids = distance_matrix.ids
     umap_data = reducer.fit_transform(data)
-    axis_labels = ["UMAP%d" % i for i in range(1, n_components + 1)]
+    axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
 
     return skbio.OrdinationResults(
