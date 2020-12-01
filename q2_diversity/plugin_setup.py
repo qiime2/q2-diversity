@@ -281,7 +281,6 @@ plugin.methods.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
         'number_of_dimensions': Int % Range(1, None),
-        'threads': Int % Range(1, None) | Str % Choices(['auto'])
     },
     outputs=[('uMAP', PCoAResults)],
     input_descriptions={
