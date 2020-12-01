@@ -306,7 +306,7 @@ plugin.methods.register_function(
                                 "some degree of accuracy loss, the magnitude "
                                 "of which varies across different datasets."
     },
-    output_descriptions={'umap': 'The resulting UMAP matrix.'},
+    output_descriptions={'uMAP': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
     description=("Apply Uniform Manifold Approximation and Projection."),
     )
