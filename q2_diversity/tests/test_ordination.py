@@ -54,6 +54,7 @@ class PCoATests(unittest.TestCase):
         skbio.util.assert_ordination_results_equal(observed, expected,
                                                    ignore_directionality=True)
 
+
 class tsneTests(unittest.TestCase):
 
     def setUp(self):
@@ -61,7 +62,6 @@ class tsneTests(unittest.TestCase):
                                         [0.3333333, 0.0000000, 0.4285714],
                                         [0.6666667, 0.4285714, 0.0000000]],
                                        ids=['S1', 'S2', 'S3'])
-
 
     def test_tsne_default(self):
         observed = tsne(self.dm).samples.shape
