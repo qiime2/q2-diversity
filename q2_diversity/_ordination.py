@@ -33,10 +33,10 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
 
 
 def tsne(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = None) -> skbio.OrdinationResults:
+         number_of_dimensions: int = 3) -> skbio.OrdinationResults:
 
     p = {
-        "n_components": 3,
+        "n_components": number_of_dimensions,
         "perplexity": 30.0,
         "early_exaggeration": 12.0,
         "learning_rate": 200.0,
