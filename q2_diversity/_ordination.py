@@ -9,6 +9,7 @@
 from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
+import numpy as np
 import umap
 
 
@@ -35,44 +36,19 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
 def tsne(distance_matrix: skbio.DistanceMatrix,
          number_of_dimensions: int = 3) -> skbio.OrdinationResults:
 
-    p = {
-        "n_components": number_of_dimensions,
-        "perplexity": 30.0,
-        "early_exaggeration": 12.0,
-        "learning_rate": 200.0,
-        "n_iter": 1000,
-        "n_iter_without_progress": 300,
-        "min_grad_norm": 1e-07,
-        "metric": "euclidean",
-        "init": "random",
-        "verbose": 0,
-        "random_state": None,
-        "method": "barnes_hut",
-        "angle": 0.5,
-        "n_jobs": None,
-    }
-
     data = distance_matrix.data
     ids = distance_matrix.ids
 
-    tsneData = TSNE(
-        p["n_components"],
-        p["perplexity"],
-        p["early_exaggeration"],
-        p["learning_rate"],
-        p["n_iter"],
-        p["n_iter_without_progress"],
-        p["min_grad_norm"],
-        p["metric"],
-        p["init"],
-        p["verbose"],
-        p["random_state"],
-        p["method"],
-        p["angle"],
-        p["n_jobs"],
-    ).fit_transform(data)
+    if number_of_dimensions == 2:
+        number_of_dimensions = 3
+        tsne = TSNE(2).fit_transform(data)
+        add_zeros = np.zeros((tsne.shape[0], 1), dtype=np.int64)
+        tsneData = np.append(tsne, add_zeros, axis=1)
 
-    axis_labels = ["TSNE%d" % i for i in range(1, p["n_components"] + 1)]
+    else:
+        tsneData = TSNE().fit_transform(data)
+
+    axis_labels = ["TSNE%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
 
     return skbio.OrdinationResults(
@@ -86,11 +62,18 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 def uMAP(distance_matrix: skbio.DistanceMatrix,
          number_of_dimensions: int = 3) -> skbio.OrdinationResults:
 
-    reducer = umap.UMAP(n_components=number_of_dimensions)
-
     data = distance_matrix.data
     ids = distance_matrix.ids
-    umap_data = reducer.fit_transform(data)
+
+    if number_of_dimensions == 2:
+        number_of_dimensions = 3
+        reducer = umap.UMAP(n_components=2).fit_transform(data)
+        add_zeros = np.zeros((reducer.shape[0], 1), dtype=np.int64)
+        umap_data = np.append(reducer, add_zeros, axis=1)
+    else:
+        reducer = umap.UMAP(n_components=number_of_dimensions)
+        umap_data = reducer.fit_transform(data)
+
     axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
 
