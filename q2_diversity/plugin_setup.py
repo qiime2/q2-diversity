@@ -277,12 +277,12 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
-    function=q2_diversity.uMAP,
+    function=q2_diversity.umap,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
         'number_of_dimensions': Int % Range(1, None),
     },
-    outputs=[('uMAP', PCoAResults)],
+    outputs=[('umap', PCoAResults)],
     input_descriptions={
         'distance_matrix': ('The distance matrix on which UMAP should be '
                             'computed.')
@@ -306,7 +306,7 @@ plugin.methods.register_function(
                                 "some degree of accuracy loss, the magnitude "
                                 "of which varies across different datasets."
     },
-    output_descriptions={'uMAP': 'The resulting UMAP matrix.'},
+    output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
     description=("Apply Uniform Manifold Approximation and Projection."),
     )

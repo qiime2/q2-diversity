@@ -10,7 +10,7 @@ from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
 import numpy as np
-import umap
+import umap as up
 
 
 def pcoa(distance_matrix: skbio.DistanceMatrix,
@@ -55,11 +55,12 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
         short_method_name="T-SNE",
         long_method_name="t-distributed stochastic neighbor embedding",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
+        proportion_explained=pd.Series(None, index=axis_labels),
         samples=pd.DataFrame(tsneData, index=ids, columns=axis_labels),
     )
 
 
-def uMAP(distance_matrix: skbio.DistanceMatrix,
+def umap(distance_matrix: skbio.DistanceMatrix,
          number_of_dimensions: int = 3) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
@@ -67,11 +68,11 @@ def uMAP(distance_matrix: skbio.DistanceMatrix,
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        reducer = umap.UMAP(n_components=2).fit_transform(data)
+        reducer = up.UMAP(n_components=2).fit_transform(data)
         add_zeros = np.zeros((reducer.shape[0], 1), dtype=np.int64)
         umap_data = np.append(reducer, add_zeros, axis=1)
     else:
-        reducer = umap.UMAP(n_components=number_of_dimensions)
+        reducer = up.UMAP(n_components=number_of_dimensions)
         umap_data = reducer.fit_transform(data)
 
     axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]
@@ -81,5 +82,6 @@ def uMAP(distance_matrix: skbio.DistanceMatrix,
         short_method_name="UMAP",
         long_method_name="Uniform Manifold Approximation and Projection",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
+        proportion_explained=pd.Series(None, index=axis_labels),
         samples=pd.DataFrame(umap_data, index=ids, columns=axis_labels),
     )

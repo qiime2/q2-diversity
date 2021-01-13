@@ -13,7 +13,7 @@ from skbio.util import assert_ordination_results_equal
 import pandas as pd
 import numpy as np
 
-from q2_diversity import pcoa, pcoa_biplot, tsne, uMAP
+from q2_diversity import pcoa, pcoa_biplot, tsne, umap
 
 
 class PCoATests(unittest.TestCase):
@@ -69,7 +69,7 @@ class tsneTests(unittest.TestCase):
 
     def test_tsne__custom(self):
         observed_second = tsne(self.dm, 2).samples.shape
-        self.assertEqual(observed_second, (3, 2))
+        self.assertEqual(observed_second, (3, 3))
 
 
 class umapTests(unittest.TestCase):
@@ -81,9 +81,9 @@ class umapTests(unittest.TestCase):
                                        ids=['S1', 'S2', 'S3', 'S4', 'S5'])
 
     def test_umap_default(self):
-        observed = uMAP(self.dm).samples.shape
+        observed = umap(self.dm).samples.shape
         self.assertEqual(observed, (5, 3))
 
     def test_umap_custom(self):
-        observed_second = uMAP(self.dm, 2).samples.shape
-        self.assertEqual(observed_second, (5, 2))
+        observed_second = umap(self.dm, 2).samples.shape
+        self.assertEqual(observed_second, (5, 3))
