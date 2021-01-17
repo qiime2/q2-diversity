@@ -46,7 +46,7 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
         tsneData = np.append(tsne, add_zeros, axis=1)
 
     else:
-        tsneData = TSNE().fit_transform(data)
+        tsneData = TSNE(number_of_dimensions).fit_transform(data)
 
     axis_labels = ["TSNE%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
