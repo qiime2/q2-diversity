@@ -34,19 +34,25 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
 
 
 def tsne(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = 3) -> skbio.OrdinationResults:
+         number_of_dimensions: int = 3,
+         perplexity: float = 30.0,
+         early_exaggeration: float = 12.0) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        tsne = TSNE(2).fit_transform(data)
+        tsne = TSNE(2, perplexity=perplexity,
+                    early_exaggeration=early_exaggeration).fit_transform(data)
         add_zeros = np.zeros((tsne.shape[0], 1), dtype=np.int64)
         tsneData = np.append(tsne, add_zeros, axis=1)
 
     else:
-        tsneData = TSNE(number_of_dimensions).fit_transform(data)
+        tsneData = TSNE(number_of_dimensions,
+                        perplexity=perplexity,
+                        early_exaggeration=early_exaggeration
+                        ).fit_transform(data)
 
     axis_labels = ["TSNE%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
@@ -61,7 +67,9 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 
 
 def umap(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = 3) -> skbio.OrdinationResults:
+         number_of_dimensions: int = 3,
+         n_neighbors: int = 15,
+         min_dist: float = 0.1) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
@@ -72,7 +80,9 @@ def umap(distance_matrix: skbio.DistanceMatrix,
         add_zeros = np.zeros((reducer.shape[0], 1), dtype=np.int64)
         umap_data = np.append(reducer, add_zeros, axis=1)
     else:
-        reducer = up.UMAP(n_components=number_of_dimensions)
+        reducer = up.UMAP(n_components=number_of_dimensions,
+                          n_neighbors=n_neighbors,
+                          min_dist=min_dist)
         umap_data = reducer.fit_transform(data)
 
     axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]

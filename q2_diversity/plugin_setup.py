@@ -244,7 +244,9 @@ plugin.methods.register_function(
     function=q2_diversity.tsne,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(1, None)
+        'number_of_dimensions': Int % Range(1, None),
+        'perplexity': Float % Range(1, None),
+        'early_exaggeration': Float % Range(0, None),
     },
     outputs=[('tsne', PCoAResults)],
     input_descriptions={
@@ -268,7 +270,9 @@ plugin.methods.register_function(
                                 "is used, which only computes and returns the "
                                 "number of dimensions specified, but suffers "
                                 "some degree of accuracy loss, the magnitude "
-                                "of which varies across different datasets."
+                                "of which varies across different datasets.",
+        'perplexity':           ("Text will follow"),
+        'early_exaggeration':   ("Text will follow")
     },
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',
@@ -281,6 +285,8 @@ plugin.methods.register_function(
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
         'number_of_dimensions': Int % Range(1, None),
+        'n_neighbors': Int % Range(1, None),
+        'min_dist': Float % Range(0, None),
     },
     outputs=[('umap', PCoAResults)],
     input_descriptions={
@@ -304,7 +310,9 @@ plugin.methods.register_function(
                                 "is used, which only computes and returns the "
                                 "number of dimensions specified, but suffers "
                                 "some degree of accuracy loss, the magnitude "
-                                "of which varies across different datasets."
+                                "of which varies across different datasets.",
+        'n_neighbors':          ("text will follow."),
+        'min_dist':             ("text will follow")
     },
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
