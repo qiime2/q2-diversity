@@ -363,11 +363,11 @@ def adonis(output_dir: str,
     terms = ModelDesc.from_formula(formula)
     for t in terms.rhs_termlist:
         for i in t.factors:
-            metadata.get_column(i.name())
-
-    metadata_df = metadata.to_dataframe()
-    if metadata_df.isnull().values.any():
-        raise ValueError("Adonis cannot run with NaNs in metadata.")
+            column = metadata.get_column(i.name())
+            if column.has_missing_values():
+                raise ValueError('adonis requires metadata columns with no '
+                                 'NaN values (missing values in column `%s`.)'
+                                 % (column.name, ))
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')

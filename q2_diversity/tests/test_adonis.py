@@ -13,6 +13,7 @@ import tempfile
 import skbio
 import pandas as pd
 import qiime2
+from qiime2.util import redirected_stdio
 import numpy as np
 from q2_diversity import adonis
 import pandas.util.testing as pdt
@@ -91,6 +92,23 @@ class AdonisTests(TestPluginBase):
                            name='#SampleID')))
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
+
+    def test_nans_in_formula_column(self):
+        md = qiime2.Metadata(pd.DataFrame(
+            [[1, 'a'], [1, 'b'], [np.nan, 'b']], columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+        with redirected_stdio(stderr=os.devnull):
+            with self.assertRaisesRegex(ValueError, "no NaN values.*`number`"):
+                with tempfile.TemporaryDirectory() as temp_dir_name:
+                    adonis(temp_dir_name, self.dm, md, 'letter+number')
+
+    def test_nans_in_unused_column(self):
+        md = qiime2.Metadata(pd.DataFrame(
+            [[1, 'a'], [1, 'b'], [np.nan, 'b']], columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+        with redirected_stdio(stderr=os.devnull):
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                adonis(temp_dir_name, self.dm, md, 'letter+letter')
 
 
 if __name__ == '__main__':
