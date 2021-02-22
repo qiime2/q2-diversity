@@ -110,10 +110,8 @@ def _procrustes_monte_carlo(reference: np.ndarray,
             trials_below_m2 += 1
     
     p_val = trials_below_m2 / trials
-    rounded_m2 = round(m2, 5) 
-    rounded_p_val = round(p_val, 5)
-    results.append(rounded_m2) 
-    results.append(rounded_p_val)
+    results.append(true_m2) 
+    results.append(p_val)
     df['Procrustes Results'] = results 
 
     return df 
