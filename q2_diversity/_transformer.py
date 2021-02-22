@@ -14,4 +14,4 @@ def _1(data: pd.DataFrame) -> M2CalcFmt:
 
 @plugin.register_transformer
 def _2(ff: M2CalcFmt) -> pd.DataFrame:
-    return pd.read_csv(str(ff))
+    return pd.read_csv(str(ff), index_col=0)
