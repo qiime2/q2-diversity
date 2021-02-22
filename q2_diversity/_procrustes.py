@@ -74,7 +74,6 @@ def _procrustes_monte_carlo(reference: np.ndarray,
                             other: np.ndarray,
                             true_m2, 
                             trials=1000) -> (pd.DataFrame):
-                                            
     '''Adapted from QIIME 1's transform_coordinate_matrices
     1. set up axes for resulting dataframe 
     2. iterating through total # of permutations 
@@ -115,6 +114,3 @@ def _procrustes_monte_carlo(reference: np.ndarray,
     df['Procrustes Results'] = results 
 
     return df 
-        
-    
-

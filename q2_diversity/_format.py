@@ -1,5 +1,3 @@
-# format from q2-dada2 and q2-deblur 
-
 import qiime2.plugin.model as model
 
 class M2CalcFmt(model.TextFileFormat):

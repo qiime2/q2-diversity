@@ -91,8 +91,8 @@ class PCoATests(unittest.TestCase):
         skbio.util.assert_ordination_results_equal(ref, self.expected_ref)
         skbio.util.assert_ordination_results_equal(other, self.expected_other)
 
-        assert math.isclose(true_m2, self.expected_m2, 0.001)
-        assert math.isclose(true_p_value, self.expected_p, 0.05)
+        self.assertTrue(math.isclose(true_m2, self.expected_m2, 0.001))
+        self.assertTrue(math.isclose(true_p_value, self.expected_p, 0.05))
 
     def test_procrustes_bad_dimensions(self):
 
