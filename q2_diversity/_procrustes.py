@@ -117,6 +117,3 @@ def _procrustes_monte_carlo(reference: np.ndarray,
     df['Procrustes Results'] = results 
 
     return df 
-        
-    
-
