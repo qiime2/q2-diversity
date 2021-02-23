@@ -61,8 +61,8 @@ plugin = Plugin(
 
 plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatisticDirFmt)
 plugin.register_semantic_types(ProcrustesM2Statistic)
-plugin.register_semantic_type_to_format(ProcrustesM2Statistic,
-                                        artifact_format=ProcrustesM2StatisticDirFmt)
+plugin.register_semantic_type_to_format(ProcrustesM2Statistic,artifact_format=
+                                        ProcrustesM2StatisticDirFmt)
 
 
 plugin.pipelines.register_function(
