@@ -1,8 +1,9 @@
 import qiime2.plugin.model as model
 
-class M2CalcFmt(model.TextFileFormat):
+class ProcrustesM2StatisticFmt(model.TextFileFormat):
     def validate(*args):
         pass
 
-M2CalcDirFmt = model.SingleFileDirectoryFormat(
-    'M2CalcDirFmt', 'm2.csv', M2CalcFmt)
+ProcrustesM2StatisticDirFmt = model.SingleFileDirectoryFormat(
+    'ProcrustesM2StatisticDirFmt', 'ProcrustesM2Statistic.csv', 
+    ProcrustesM2StatisticFmt)

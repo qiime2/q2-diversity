@@ -2,4 +2,4 @@
 
 from qiime2.plugin import SemanticType
 
-M2Calc = SemanticType('M2Calc')
+ProcrustesM2Statistic = SemanticType('ProcrustesM2Statistic')
