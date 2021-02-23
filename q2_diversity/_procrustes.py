@@ -74,20 +74,11 @@ def _procrustes_monte_carlo(reference: np.ndarray,
                             other: np.ndarray,
                             true_m2, 
                             trials=1000) -> (pd.DataFrame):
-    '''Adapted from QIIME 1's transform_coordinate_matrices
-    1. set up axes for resulting dataframe 
-    2. iterating through total # of permutations 
-    2a. shuffle rows of the other matrix 
-    2b. run procrustes analysis & store the resulting values 
-    2c. store M^2 results into final dataframe 
-
-    separate dataframe 
-    true m^2 value 
-    p value (# of m^2 trials < true m^2 / n trials)
-
-    remove dimensions from function signature & require that dimensions for ref
-    & other are the same 
-
+    '''
+    Outputs a dataframe containing: 
+    0: True M^2 value 
+    1: p-value for true M^2 value 
+    2: number of Monte Carlo trials done in simulation
     '''
     
     df = pd.DataFrame()
@@ -111,6 +102,7 @@ def _procrustes_monte_carlo(reference: np.ndarray,
     p_val = trials_below_m2 / trials
     results.append(true_m2) 
     results.append(p_val)
+    results.append(trials)
     df['Procrustes Results'] = results 
 
     return df 
