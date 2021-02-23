@@ -6,12 +6,13 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import numpy as np 
+import numpy as np
 import pandas as pd
 
 from skbio import OrdinationResults
 from scipy.spatial import procrustes
 from numpy.random import default_rng
+
 
 def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
                         dimensions: int = 5) -> (OrdinationResults,
@@ -44,9 +45,9 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
                             columns=axes.copy())
 
     info = _procrustes_monte_carlo(reference.samples.values[:, :dimensions],
-                                       other.samples.values[:, :dimensions], 
-                                       m2,
-                                       1000)
+                                   other.samples.values[:, :dimensions],
+                                   m2,
+                                   1000)
 
     out1 = OrdinationResults(
             short_method_name=reference.short_method_name,
@@ -70,39 +71,40 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
             .copy())
     return out1, out2, info
 
+
 def _procrustes_monte_carlo(reference: np.ndarray,
                             other: np.ndarray,
-                            true_m2, 
+                            true_m2,
                             trials=1000) -> (pd.DataFrame):
     '''
-    Outputs a dataframe containing: 
-    0: True M^2 value 
-    1: p-value for true M^2 value 
+    Outputs a dataframe containing:
+    0: True M^2 value
+    1: p-value for true M^2 value
     2: number of Monte Carlo trials done in simulation
     '''
-    
+
     df = pd.DataFrame()
     rng = default_rng()
 
     results = []
     trials_below_m2 = 0
-    
+
     for i in range(trials):
 
-        # shuffle rows in np array 
+        # shuffle rows in np array
         rng.shuffle(other)
 
         # run procrustes analysis
         _, _, m2 = procrustes(reference, other)
-        
-        # check m2 value 
-        if m2 < true_m2: 
+
+        # check m2 value
+        if m2 < true_m2:
             trials_below_m2 += 1
-    
+
     p_val = trials_below_m2 / trials
-    results.append(true_m2) 
+    results.append(true_m2)
     results.append(p_val)
     results.append(trials)
-    df['Procrustes Results'] = results 
+    df['Procrustes Results'] = results
 
-    return df 
+    return df

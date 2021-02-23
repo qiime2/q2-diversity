@@ -84,7 +84,8 @@ class PCoATests(unittest.TestCase):
         self.expected_p = 0.08
 
     def test_procrustes(self):
-        ref, other, m2_results = procrustes_analysis(self.reference, self.other)
+        ref, other, m2_results = procrustes_analysis(self.reference,
+                                                     self.other)
         true_m2 = m2_results['Procrustes Results'][0]
         true_p_value = m2_results['Procrustes Results'][1]
 

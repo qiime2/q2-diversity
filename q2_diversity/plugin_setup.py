@@ -20,7 +20,8 @@ from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults
 from q2_diversity._type import ProcrustesM2Statistic
-from q2_diversity._format import ProcrustesM2StatisticFmt, ProcrustesM2StatisticDirFmt
+from q2_diversity._format import (ProcrustesM2StatisticFmt,
+                                  ProcrustesM2StatisticDirFmt)
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
@@ -58,10 +59,10 @@ plugin = Plugin(
     short_description='Plugin for exploring community diversity.',
 )
 
-plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatisticDirFmt) 
+plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatisticDirFmt)
 plugin.register_semantic_types(ProcrustesM2Statistic)
-plugin.register_semantic_type_to_format(ProcrustesM2Statistic, 
-					artifact_format=ProcrustesM2StatisticDirFmt)
+plugin.register_semantic_type_to_format(ProcrustesM2Statistic,
+                                        artifact_format=ProcrustesM2StatisticDirFmt)
 
 
 plugin.pipelines.register_function(
@@ -267,8 +268,9 @@ plugin.methods.register_function(
                                  'ordination matrix.',
         'transformed_other': 'A normalized and fitted version of the "other" '
                              'ordination matrix.',
-        'disparity_results': 'The sum of the squares of the pointwise differences'
-		                     'between the two input datasets & its p value.'},
+        'disparity_results': 'The sum of the squares of the pointwise     '
+                             'differences between the two input datasets &'
+                             'its p value.'},
     name='Procrustes Analysis',
     description='Fit two ordination matrices with Procrustes analysis'
 )
