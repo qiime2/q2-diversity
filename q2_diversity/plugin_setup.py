@@ -21,7 +21,7 @@ from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults
 from q2_diversity._type import ProcrustesM2Statistic
 from q2_diversity._format import (ProcrustesM2StatisticFmt,
-                                  ProcrustesM2StatisticDirFmt)
+                                  ProcrustesM2StatDFmt)
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
@@ -59,10 +59,10 @@ plugin = Plugin(
     short_description='Plugin for exploring community diversity.',
 )
 
-plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatisticDirFmt)
+plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatDFmt)
 plugin.register_semantic_types(ProcrustesM2Statistic)
-plugin.register_semantic_type_to_format(ProcrustesM2Statistic,artifact_format=
-                                        ProcrustesM2StatisticDirFmt)
+plugin.register_semantic_type_to_format(ProcrustesM2Statistic, 
+                                        artifact_format=ProcrustesM2StatDFmt)
 
 
 plugin.pipelines.register_function(

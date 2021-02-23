@@ -14,6 +14,6 @@ class ProcrustesM2StatisticFmt(model.TextFileFormat):
         pass
 
 
-ProcrustesM2StatisticDirFmt = model.SingleFileDirectoryFormat(
-    'ProcrustesM2StatisticDirFmt', 'ProcrustesM2Statistic.csv',
+ProcrustesM2StatDFmt = model.SingleFileDirectoryFormat(
+    'ProcrustesM2StatDFmt', 'ProcrustesM2Statistic.csv',
     ProcrustesM2StatisticFmt)
