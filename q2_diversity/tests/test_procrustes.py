@@ -11,7 +11,6 @@ import unittest
 import skbio
 import numpy as np
 import pandas as pd
-import math
 
 from q2_diversity import procrustes_analysis
 
