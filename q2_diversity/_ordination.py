@@ -34,8 +34,10 @@ def pcoa_biplot(pcoa: skbio.OrdinationResults,
 
 
 def tsne(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = 3,
-         perplexity: float = 30.0,
+         number_of_dimensions: int = 2,
+         perplexity: float = 25.0,
+         n_iter: int = 1000,
+         learning_rate: float = 200.0,
          early_exaggeration: float = 12.0) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
@@ -44,6 +46,8 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
     if number_of_dimensions == 2:
         number_of_dimensions = 3
         tsne = TSNE(2, perplexity=perplexity,
+                    learning_rate=learning_rate,
+                    n_iter=n_iter,
                     early_exaggeration=early_exaggeration).fit_transform(data)
         add_zeros = np.zeros((tsne.shape[0], 1), dtype=np.int64)
         tsneData = np.append(tsne, add_zeros, axis=1)
@@ -51,6 +55,8 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
     else:
         tsneData = TSNE(number_of_dimensions,
                         perplexity=perplexity,
+                        n_iter=n_iter,
+                        learning_rate=learning_rate,
                         early_exaggeration=early_exaggeration
                         ).fit_transform(data)
 
@@ -67,16 +73,19 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 
 
 def umap(distance_matrix: skbio.DistanceMatrix,
-         number_of_dimensions: int = 3,
+         number_of_dimensions: int = 2,
          n_neighbors: int = 15,
-         min_dist: float = 0.1) -> skbio.OrdinationResults:
+         min_dist: float = 0.4) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        reducer = up.UMAP(n_components=2).fit_transform(data)
+        reducer = up.UMAP(n_components=2,
+                          n_neighbors=n_neighbors,
+                          min_dist=min_dist)
+        reducer = reducer.fit_transform(data)
         add_zeros = np.zeros((reducer.shape[0], 1), dtype=np.int64)
         umap_data = np.append(reducer, add_zeros, axis=1)
     else:
