@@ -247,6 +247,8 @@ plugin.methods.register_function(
         'number_of_dimensions': Int % Range(1, None),
         'perplexity': Float % Range(1, None),
         'early_exaggeration': Float % Range(0, None),
+        'learning_rate': Float % Range(10.0, None),
+        'n_iter': Int % Range(1, None)
     },
     outputs=[('tsne', PCoAResults)],
     input_descriptions={
@@ -254,25 +256,18 @@ plugin.methods.register_function(
                             'computed.')
     },
     parameter_descriptions={
-        'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
-                                "This number determines how many "
-                                "eigenvectors and eigenvalues are returned,"
-                                "and influences the choice of algorithm used "
-                                "to compute them. "
-                                "By default, uses the default "
-                                "eigendecomposition method, SciPy's eigh, "
-                                "which computes all eigenvectors "
-                                "and eigenvalues in an exact manner. For very "
-                                "large matrices, this is expected to be slow. "
-                                "If a value is specified for this parameter, "
-                                "then the fast, heuristic "
-                                "eigendecomposition algorithm fsvd "
-                                "is used, which only computes and returns the "
-                                "number of dimensions specified, but suffers "
-                                "some degree of accuracy loss, the magnitude "
-                                "of which varies across different datasets.",
-        'perplexity':           ("Text will follow"),
-        'early_exaggeration':   ("Text will follow")
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
+        'perplexity':           "Provide the Balance between local and global"
+                                "structure. Low values concentrate on local"
+                                "structure. Large values sacrafice local "
+                                "details for a broader global embedding."
+                                "The default value is 25 to achive  better"
+                                "results for small microbiome datasets",
+        'early_exaggeration':   "Affects the tightnes of the shown clusters"
+                                "Larger values increase the distance between"
+                                "natural clusters in the embedded space",
+        'learning_rate':        "controls how much the weights are adjusted "
+                                "at each update",
     },
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',
@@ -294,25 +289,16 @@ plugin.methods.register_function(
                             'computed.')
     },
     parameter_descriptions={
-        'number_of_dimensions': "Dimensions to reduce the distance matrix to. "
-                                "This number determines how many "
-                                "eigenvectors and eigenvalues are returned,"
-                                "and influences the choice of algorithm used "
-                                "to compute them. "
-                                "By default, uses the default "
-                                "eigendecomposition method, SciPy's eigh, "
-                                "which computes all eigenvectors "
-                                "and eigenvalues in an exact manner. For very "
-                                "large matrices, this is expected to be slow. "
-                                "If a value is specified for this parameter, "
-                                "then the fast, heuristic "
-                                "eigendecomposition algorithm fsvd "
-                                "is used, which only computes and returns the "
-                                "number of dimensions specified, but suffers "
-                                "some degree of accuracy loss, the magnitude "
-                                "of which varies across different datasets.",
-        'n_neighbors':          ("text will follow."),
-        'min_dist':             ("text will follow")
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
+        'n_neighbors':          "Provide the Balance between local and global"
+                                " structure. Low Values concentrate on local"
+                                "structure. Large Values sacrafice local "
+                                "details for a broader global embedding",
+        'min_dist':             "controls the Cluster Size. Low Values cause "
+                                "clumpier CLusters. Higher Values preserve a"
+                                "broad topological structure. To get"
+                                "less overlapping data points the min_dist"
+                                "default value is set to 0,4",
     },
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
