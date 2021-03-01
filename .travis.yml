@@ -17,7 +17,6 @@ install:
   - pip install -q flake8 coveralls
   - pip install -q https://github.com/qiime2/q2lint/archive/master.zip
   - make install
-  - conda install -c conda-forge umap-learn
 script:
   - make lint
   - make test-cov
