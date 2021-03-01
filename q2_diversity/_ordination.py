@@ -103,4 +103,4 @@ def umap(distance_matrix: skbio.DistanceMatrix,
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         proportion_explained=pd.Series(None, index=axis_labels),
         samples=pd.DataFrame(umap_data, index=ids, columns=axis_labels),
-    )
+        )
