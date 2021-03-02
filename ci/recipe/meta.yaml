@@ -46,6 +46,7 @@ requirements:
     - q2-emperor {{ release }}.*
     - q2-diversity-lib {{ release }}.*
     - r-vegan >=2.5_3
+    - umap-learn
 
 test:
   imports:
