@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2020, QIIME 2 development team.
+# Copyright (c) 2016-2021, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -363,7 +363,11 @@ def adonis(output_dir: str,
     terms = ModelDesc.from_formula(formula)
     for t in terms.rhs_termlist:
         for i in t.factors:
-            metadata.get_column(i.name())
+            column = metadata.get_column(i.name())
+            if column.has_missing_values():
+                raise ValueError('adonis requires metadata columns with no '
+                                 'NaN values (missing values in column `%s`.)'
+                                 % (column.name, ))
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')

@@ -65,6 +65,7 @@ target/
 .*.swp
 
 node_modules
+package-lock.json
 *.qzv
 
 #VSCode Workspace Files
