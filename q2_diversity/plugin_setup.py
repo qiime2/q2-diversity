@@ -266,8 +266,8 @@ plugin.methods.register_function(
         'early_exaggeration':   "Affects the tightnes of the shown clusters"
                                 "Larger values increase the distance between"
                                 "natural clusters in the embedded space",
-        'learning_rate':        "controls how much the weights are adjusted "
-                                "at each update",
+        'learning_rate':        "Controls how much the weights are adjusted "
+                                "at each update.",
     },
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',
