@@ -257,12 +257,12 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
-        'perplexity':           "Provide the Balance between local and global"
-                                "structure. Low values concentrate on local"
-                                "structure. Large values sacrafice local "
-                                "details for a broader global embedding."
-                                "The default value is 25 to achive  better"
-                                "results for small microbiome datasets",
+        'perplexity':           "Provide the balance between local and global"
+                                "structure. Low values concentrate on local "
+                                "structure. Large values sacrifice local "
+                                "details for a broader global embedding. "
+                                "The default value is 25 to achieve better "
+                                "results for small microbiome datasets.",
         'early_exaggeration':   "Affects the tightness of the shown clusters. "
                                 "Larger values increase the distance between "
                                 "natural clusters in the embedded space.",
