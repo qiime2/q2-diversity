@@ -263,9 +263,9 @@ plugin.methods.register_function(
                                 "details for a broader global embedding."
                                 "The default value is 25 to achive  better"
                                 "results for small microbiome datasets",
-        'early_exaggeration':   "Affects the tightnes of the shown clusters"
-                                "Larger values increase the distance between"
-                                "natural clusters in the embedded space",
+        'early_exaggeration':   "Affects the tightness of the shown clusters. "
+                                "Larger values increase the distance between "
+                                "natural clusters in the embedded space.",
         'learning_rate':        "Controls how much the weights are adjusted "
                                 "at each update.",
     },
