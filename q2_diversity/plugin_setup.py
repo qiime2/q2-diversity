@@ -268,8 +268,8 @@ plugin.methods.register_function(
                                  'ordination matrix.',
         'transformed_other': 'A normalized and fitted version of the "other" '
                              'ordination matrix.',
-        'disparity_results': 'The sum of the squares of the pointwise     '
-                             'differences between the two input datasets &'
+        'disparity_results': 'The sum of the squares of the pointwise '
+                             'differences between the two input datasets & '
                              'its p value.'},
     name='Procrustes Analysis',
     description='Fit two ordination matrices with Procrustes analysis'

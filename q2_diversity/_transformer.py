@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import pandas as pd
+import qiime2
 
 from .plugin_setup import plugin
 from ._format import ProcrustesM2StatisticFmt
@@ -15,10 +16,15 @@ from ._format import ProcrustesM2StatisticFmt
 @plugin.register_transformer
 def _1(data: pd.DataFrame) -> ProcrustesM2StatisticFmt:
     ff = ProcrustesM2StatisticFmt()
-    data.to_csv(str(ff))
+    qiime2.Metadata(data).save(str(ff))
     return ff
 
 
 @plugin.register_transformer
 def _2(ff: ProcrustesM2StatisticFmt) -> pd.DataFrame:
-    return pd.read_csv(str(ff), index_col=0)
+    return qiime2.Metadata.load(str(ff)).to_dataframe()
+
+
+@plugin.register_transformer
+def _3(ff: ProcrustesM2StatisticFmt) -> qiime2.Metadata:
+    return qiime2.Metadata.load(str(ff))
