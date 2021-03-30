@@ -79,11 +79,20 @@ class PCoATests(unittest.TestCase):
                 samples_df.copy(),
                 proportion_explained=proportion_explained[:5].copy())
 
+        self.expected_m2 = 0.72240956
+        self.expected_p = 0.5
+
     def test_procrustes(self):
-        ref, other = procrustes_analysis(self.reference, self.other)
+        ref, other, m2_results = procrustes_analysis(self.reference,
+                                                     self.other)
+        true_m2 = m2_results['Procrustes Results'][0]
+        true_p_value = m2_results['Procrustes Results'][1]
 
         skbio.util.assert_ordination_results_equal(ref, self.expected_ref)
         skbio.util.assert_ordination_results_equal(other, self.expected_other)
+
+        self.assertAlmostEqual(true_m2, self.expected_m2)
+        self.assertNotAlmostEqual(true_p_value, self.expected_p)
 
     def test_procrustes_bad_dimensions(self):
 
