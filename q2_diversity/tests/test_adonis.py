@@ -16,7 +16,7 @@ import qiime2
 from qiime2.util import redirected_stdio
 import numpy as np
 from q2_diversity import adonis
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 
 from qiime2.plugin.testing import TestPluginBase
 

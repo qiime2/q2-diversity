@@ -27,7 +27,8 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
         raise ValueError('Cannot fit fewer dimensions than available')
 
     # fail if there are any elements in the symmetric difference
-    if not (reference.samples.index ^ other.samples.index).empty:
+    diff = reference.samples.index.symmetric_difference(other.samples.index)
+    if not diff.empty:
         raise ValueError('The ordinations represent two different sets of '
                          'samples')
 

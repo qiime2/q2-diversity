@@ -13,7 +13,7 @@ import biom
 import skbio
 import numpy as np
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 
 from qiime2.plugin.testing import TestPluginBase
 from qiime2 import Artifact, Metadata
