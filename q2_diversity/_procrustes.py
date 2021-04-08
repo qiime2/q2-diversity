@@ -84,10 +84,8 @@ def _procrustes_monte_carlo(reference: np.ndarray,
     2: number of Monte Carlo trials done in simulation
     '''
 
-    df = pd.DataFrame()
     rng = default_rng()
 
-    results = []
     trials_below_m2 = 0
 
     for i in range(trials):
@@ -103,9 +101,10 @@ def _procrustes_monte_carlo(reference: np.ndarray,
             trials_below_m2 += 1
 
     p_val = trials_below_m2 / trials
-    results.append(true_m2)
-    results.append(p_val)
-    results.append(trials)
-    df['Procrustes Results'] = results
+
+    df = pd.DataFrame({'true M^2 value': [true_m2],
+                       'p-value for true M^2 value': [p_val],
+                       'number of Monte Carlo trials': [trials]},
+                      index=pd.Index(['results'], name='id'))
 
     return df

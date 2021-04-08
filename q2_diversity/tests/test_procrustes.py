@@ -85,8 +85,8 @@ class PCoATests(unittest.TestCase):
     def test_procrustes(self):
         ref, other, m2_results = procrustes_analysis(self.reference,
                                                      self.other)
-        true_m2 = m2_results['Procrustes Results'][0]
-        true_p_value = m2_results['Procrustes Results'][1]
+        true_m2 = m2_results['true M^2 value'][0]
+        true_p_value = m2_results['p-value for true M^2 value'][0]
 
         skbio.util.assert_ordination_results_equal(ref, self.expected_ref)
         skbio.util.assert_ordination_results_equal(other, self.expected_other)
