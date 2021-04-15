@@ -251,7 +251,10 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_diversity.procrustes_analysis,
     inputs={'reference': PCoAResults, 'other': PCoAResults},
-    parameters={'dimensions': Int % Range(1, None)},
+    parameters={
+        'dimensions': Int % Range(1, None),
+        'permutations': Int % Range(0, None)
+    },
     outputs=[
         ('transformed_reference', PCoAResults),
         ('transformed_other', PCoAResults),
@@ -260,9 +263,18 @@ plugin.methods.register_function(
     input_descriptions={
         'reference': ('The ordination matrix to which data is fitted to.'),
         'other': ("The ordination matrix that's fitted to the reference "
-                  "ordination.")
+                  "ordination."),
     },
-    parameter_descriptions={},
+    parameter_descriptions={
+        'dimensions': ('The number of dimensions to use when fitting the two '
+                       'matrices'),
+        'permutations': 'The number of permutations to be run when computing '
+                        'p-values. Supplying a value of zero will disable '
+                        'permutation testing and p-values will not be '
+                        'calculated (this results in *much* quicker execution '
+                        'time if p-values are not desired).',
+
+    },
     output_descriptions={
         'transformed_reference': 'A normalized version of the "reference" '
                                  'ordination matrix.',

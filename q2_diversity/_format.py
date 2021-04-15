@@ -15,7 +15,7 @@ class ProcrustesM2StatisticFmt(model.TextFileFormat):
     METADATA_COLUMNS = {
         'true M^2 value',
         'p-value for true M^2 value',
-        'number of Monte Carlo trials',
+        'number of Monte Carlo permutations',
     }
 
     def validate(self, level):
