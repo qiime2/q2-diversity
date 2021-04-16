@@ -15,9 +15,10 @@ from numpy.random import default_rng
 
 
 def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
-                        dimensions: int = 5) -> (OrdinationResults,
-                                                 OrdinationResults,
-                                                 pd.DataFrame):
+                        dimensions: int = 5,
+                        permutations: int = 999) -> (OrdinationResults,
+                                                     OrdinationResults,
+                                                     pd.DataFrame):
 
     if reference.samples.shape != other.samples.shape:
         raise ValueError('The matrices cannot be fitted unless they have the '
@@ -47,8 +48,7 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
 
     info = _procrustes_monte_carlo(reference.samples.values[:, :dimensions],
                                    other.samples.values[:, :dimensions],
-                                   m2,
-                                   1000)
+                                   m2, permutations)
 
     out1 = OrdinationResults(
             short_method_name=reference.short_method_name,
@@ -73,22 +73,23 @@ def procrustes_analysis(reference: OrdinationResults, other: OrdinationResults,
     return out1, out2, info
 
 
-def _procrustes_monte_carlo(reference: np.ndarray,
-                            other: np.ndarray,
-                            true_m2,
-                            trials=1000) -> (pd.DataFrame):
+def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
+                            true_m2, permutations) -> (pd.DataFrame):
     '''
     Outputs a dataframe containing:
     0: True M^2 value
     1: p-value for true M^2 value
-    2: number of Monte Carlo trials done in simulation
+    2: number of Monte Carlo permutations done in simulation
     '''
 
     rng = default_rng()
 
     trials_below_m2 = 0
 
-    for i in range(trials):
+    if permutations == 'disable':
+        permutations = 0
+
+    for i in range(permutations):
 
         # shuffle rows in np array
         rng.shuffle(other)
@@ -100,11 +101,16 @@ def _procrustes_monte_carlo(reference: np.ndarray,
         if m2 < true_m2:
             trials_below_m2 += 1
 
-    p_val = trials_below_m2 / trials
+    if permutations == 0:
+        p_val = np.nan
+    else:
+        # mimic the behaviour in scikit-bio's permutation-based tests and avoid
+        # returning p-values equal to zero
+        p_val = (trials_below_m2 + 1) / (permutations + 1)
 
     df = pd.DataFrame({'true M^2 value': [true_m2],
                        'p-value for true M^2 value': [p_val],
-                       'number of Monte Carlo trials': [trials]},
+                       'number of Monte Carlo permutations': [permutations]},
                       index=pd.Index(['results'], name='id'))
 
     return df

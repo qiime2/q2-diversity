@@ -79,6 +79,21 @@ class PCoATests(unittest.TestCase):
                 samples_df.copy(),
                 proportion_explained=proportion_explained[:5].copy())
 
+        noise = [
+            [0.04988341, -0.03234447, 0.03177641, -0.03507789, -0.13564394],
+            [0.09117347, -0.08318546, -0.02249053, -0.01597601, -0.10901541],
+            [0.05077765, -0.003994, -0.00984688, -0.09356729, -0.09648388],
+            [-0.19183453, 0.11952393, 0.000561, 0.14462118, 0.34114323]]
+        samples_df = pd.DataFrame(np.array(noise),
+                                  index=['A', 'B', 'C', 'D'],
+                                  columns=axes[:5])
+        self.expected_noise = skbio.OrdinationResults(
+                'PCoA',
+                'Principal Coordinate Analysis',
+                eigvals[:5].copy(),
+                samples_df.copy(),
+                proportion_explained=proportion_explained[:5].copy())
+
         self.expected_m2 = 0.72240956
         self.expected_p = 0.5
 
@@ -93,6 +108,45 @@ class PCoATests(unittest.TestCase):
 
         self.assertAlmostEqual(true_m2, self.expected_m2)
         self.assertNotAlmostEqual(true_p_value, self.expected_p)
+
+    def test_non_zero_p(self):
+        # generated with np.random.seed(3); np.random.randn(4, 6)
+        noise = np.array(
+            [[1.78862847, 0.43650985, 0.09649747, -1.8634927, -0.2773882,
+              -0.35475898],
+             [-0.08274148, -0.62700068, -0.04381817, -0.47721803, -1.31386475,
+              0.88462238],
+             [0.88131804, 1.70957306, 0.05003364, -0.40467741, -0.54535995,
+              -1.54647732],
+             [0.98236743, -1.10106763, -1.18504653, -0.2056499, 1.48614836,
+              0.23671627]])
+        self.other.samples += noise
+
+        ref, other, m2_results = procrustes_analysis(self.reference,
+                                                     self.other)
+
+        true_m2 = m2_results['true M^2 value'][0]
+        true_p_value = m2_results['p-value for true M^2 value'][0]
+
+        skbio.util.assert_ordination_results_equal(ref, self.expected_ref)
+        skbio.util.assert_ordination_results_equal(other, self.expected_noise)
+
+        # the p value shouldn't be zero even in the presence of noise
+        self.assertAlmostEqual(true_m2, 0.7388121)
+        self.assertNotAlmostEqual(true_p_value, 0.001)
+
+    def test_zero_permutations_nan_pvalue(self):
+        ref, other, m2_results = procrustes_analysis(self.reference,
+                                                     self.other,
+                                                     permutations='disable')
+        true_m2 = m2_results['true M^2 value'][0]
+        true_p_value = m2_results['p-value for true M^2 value'][0]
+
+        skbio.util.assert_ordination_results_equal(ref, self.expected_ref)
+        skbio.util.assert_ordination_results_equal(other, self.expected_other)
+
+        self.assertAlmostEqual(true_m2, self.expected_m2)
+        self.assertTrue(np.isnan(true_p_value))
 
     def test_procrustes_bad_dimensions(self):
 
