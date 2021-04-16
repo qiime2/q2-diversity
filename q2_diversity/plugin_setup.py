@@ -269,8 +269,8 @@ plugin.methods.register_function(
         'dimensions': ('The number of dimensions to use when fitting the two '
                        'matrices'),
         'permutations': 'The number of permutations to be run when computing '
-                        'p-values. Supplying a value of `disable` will disable '
-                        'permutation testing and p-values will not be '
+                        'p-values. Supplying a value of `disable` will disable'
+                        ' permutation testing and p-values will not be '
                         'calculated (this results in *much* quicker execution '
                         'time if p-values are not desired).',
 
