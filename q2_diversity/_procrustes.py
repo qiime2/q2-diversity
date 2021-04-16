@@ -86,6 +86,9 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
 
     trials_below_m2 = 0
 
+    if permutations == 'disable':
+        permutations = 0
+
     for i in range(permutations):
 
         # shuffle rows in np array
@@ -98,7 +101,7 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
         if m2 < true_m2:
             trials_below_m2 += 1
 
-    if permutations == 'disable':
+    if permutations == 0:
         p_val = np.nan
     else:
         # mimic the behaviour in scikit-bio's permutation-based tests and avoid
