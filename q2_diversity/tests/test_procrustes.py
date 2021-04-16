@@ -138,7 +138,7 @@ class PCoATests(unittest.TestCase):
     def test_zero_permutations_nan_pvalue(self):
         ref, other, m2_results = procrustes_analysis(self.reference,
                                                      self.other,
-                                                     permutations=0)
+                                                     permutations='disable')
         true_m2 = m2_results['true M^2 value'][0]
         true_p_value = m2_results['p-value for true M^2 value'][0]
 

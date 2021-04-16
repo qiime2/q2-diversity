@@ -98,7 +98,7 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
         if m2 < true_m2:
             trials_below_m2 += 1
 
-    if permutations == 0:
+    if permutations == 'disable':
         p_val = np.nan
     else:
         # mimic the behaviour in scikit-bio's permutation-based tests and avoid
