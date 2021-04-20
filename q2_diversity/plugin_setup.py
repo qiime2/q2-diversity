@@ -9,7 +9,6 @@
 from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
                            Float, Set, Visualization, Metadata, MetadataColumn,
                            Categorical, Numeric, Citations)
-import importlib
 import q2_diversity
 from q2_diversity import _alpha as alpha
 from q2_diversity import _beta as beta
@@ -18,10 +17,7 @@ from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency,
 from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
-from q2_types.ordination import PCoAResults
-from q2_diversity._type import ProcrustesM2Statistic
-from q2_diversity._format import (ProcrustesM2StatisticFmt,
-                                  ProcrustesM2StatDFmt)
+from q2_types.ordination import PCoAResults, ProcrustesStatistics
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
@@ -58,12 +54,6 @@ plugin = Plugin(
                  'metadata.'),
     short_description='Plugin for exploring community diversity.',
 )
-
-plugin.register_formats(ProcrustesM2StatisticFmt, ProcrustesM2StatDFmt)
-plugin.register_semantic_types(ProcrustesM2Statistic)
-plugin.register_semantic_type_to_format(ProcrustesM2Statistic,
-                                        artifact_format=ProcrustesM2StatDFmt)
-
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta_phylogenetic,
@@ -258,7 +248,7 @@ plugin.methods.register_function(
     outputs=[
         ('transformed_reference', PCoAResults),
         ('transformed_other', PCoAResults),
-        ('disparity_results', ProcrustesM2Statistic)
+        ('disparity_results', ProcrustesStatistics)
     ],
     input_descriptions={
         'reference': ('The ordination matrix to which data is fitted to.'),
@@ -808,5 +798,3 @@ plugin.visualizers.register_function(
                  'html/adonis.html'),
     citations=[citations['anderson2001new'], citations['Oksanen2018']]
 )
-
-importlib.import_module('q2_diversity._transformer')
