@@ -51,5 +51,5 @@ jobs:
       with:
         package-name: q2-diversity
         build-target: tested
-        # additional-tests: py.test --pyargs q2_diversity
+        additional-tests: py.test --pyargs q2_diversity
         library-token: ${{ secrets.LIBRARY_TOKEN }}
