@@ -43,22 +43,15 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
     data = distance_matrix.data
     ids = distance_matrix.ids
 
+    tsne = TSNE(number_of_dimensions, perplexity=perplexity,
+                learning_rate=learning_rate,
+                n_iter=n_iter,
+                early_exaggeration=early_exaggeration).fit_transform(data)
+
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        tsne = TSNE(2, perplexity=perplexity,
-                    learning_rate=learning_rate,
-                    n_iter=n_iter,
-                    early_exaggeration=early_exaggeration).fit_transform(data)
         add_zeros = np.zeros((tsne.shape[0], 1), dtype=np.int64)
-        tsneData = np.append(tsne, add_zeros, axis=1)
-
-    else:
-        tsneData = TSNE(number_of_dimensions,
-                        perplexity=perplexity,
-                        n_iter=n_iter,
-                        learning_rate=learning_rate,
-                        early_exaggeration=early_exaggeration
-                        ).fit_transform(data)
+        tsne = np.append(tsne, add_zeros, axis=1)
 
     axis_labels = ["TSNE%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
