@@ -244,7 +244,7 @@ plugin.methods.register_function(
     function=q2_diversity.tsne,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(1, None),
+        'number_of_dimensions': Int % Range(2, None),
         'perplexity': Float % Range(1, None),
         'early_exaggeration': Float % Range(0, None),
         'learning_rate': Float % Range(10.0, None),
