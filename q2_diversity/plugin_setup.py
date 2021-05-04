@@ -244,7 +244,7 @@ plugin.methods.register_function(
     function=q2_diversity.tsne,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(1, None),
+        'number_of_dimensions': Int % Range(2, None),
         'perplexity': Float % Range(1, None),
         'early_exaggeration': Float % Range(0, None),
         'learning_rate': Float % Range(10.0, None),
@@ -257,17 +257,17 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
-        'perplexity':           "Provide the Balance between local and global"
-                                "structure. Low values concentrate on local"
-                                "structure. Large values sacrafice local "
-                                "details for a broader global embedding."
-                                "The default value is 25 to achive  better"
-                                "results for small microbiome datasets",
-        'early_exaggeration':   "Affects the tightnes of the shown clusters"
-                                "Larger values increase the distance between"
-                                "natural clusters in the embedded space",
-        'learning_rate':        "controls how much the weights are adjusted "
-                                "at each update",
+        'perplexity':           "Provide the balance between local and global"
+                                "structure. Low values concentrate on local "
+                                "structure. Large values sacrifice local "
+                                "details for a broader global embedding. "
+                                "The default value is 25 to achieve better "
+                                "results for small microbiome datasets.",
+        'early_exaggeration':   "Affects the tightness of the shown clusters. "
+                                "Larger values increase the distance between "
+                                "natural clusters in the embedded space.",
+        'learning_rate':        "Controls how much the weights are adjusted "
+                                "at each update.",
     },
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',

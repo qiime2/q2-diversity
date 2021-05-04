@@ -43,22 +43,15 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
     data = distance_matrix.data
     ids = distance_matrix.ids
 
+    tsne = TSNE(number_of_dimensions, perplexity=perplexity,
+                learning_rate=learning_rate,
+                n_iter=n_iter,
+                early_exaggeration=early_exaggeration).fit_transform(data)
+
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        tsne = TSNE(2, perplexity=perplexity,
-                    learning_rate=learning_rate,
-                    n_iter=n_iter,
-                    early_exaggeration=early_exaggeration).fit_transform(data)
         add_zeros = np.zeros((tsne.shape[0], 1), dtype=np.int64)
-        tsneData = np.append(tsne, add_zeros, axis=1)
-
-    else:
-        tsneData = TSNE(number_of_dimensions,
-                        perplexity=perplexity,
-                        n_iter=n_iter,
-                        learning_rate=learning_rate,
-                        early_exaggeration=early_exaggeration
-                        ).fit_transform(data)
+        tsne = np.append(tsne, add_zeros, axis=1)
 
     axis_labels = ["TSNE%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
@@ -68,7 +61,7 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
         long_method_name="t-distributed stochastic neighbor embedding",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         proportion_explained=pd.Series(None, index=axis_labels),
-        samples=pd.DataFrame(tsneData, index=ids, columns=axis_labels),
+        samples=pd.DataFrame(tsne, index=ids, columns=axis_labels),
     )
 
 
@@ -80,19 +73,14 @@ def umap(distance_matrix: skbio.DistanceMatrix,
     data = distance_matrix.data
     ids = distance_matrix.ids
 
+    umap = up.UMAP(n_components=2,
+                   n_neighbors=n_neighbors,
+                   min_dist=min_dist).fit_transform(data)
+
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        reducer = up.UMAP(n_components=2,
-                          n_neighbors=n_neighbors,
-                          min_dist=min_dist)
-        reducer = reducer.fit_transform(data)
-        add_zeros = np.zeros((reducer.shape[0], 1), dtype=np.int64)
-        umap_data = np.append(reducer, add_zeros, axis=1)
-    else:
-        reducer = up.UMAP(n_components=number_of_dimensions,
-                          n_neighbors=n_neighbors,
-                          min_dist=min_dist)
-        umap_data = reducer.fit_transform(data)
+        add_zeros = np.zeros((umap.shape[0], 1), dtype=np.int64)
+        umap = np.append(umap, add_zeros, axis=1)
 
     axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
@@ -102,5 +90,5 @@ def umap(distance_matrix: skbio.DistanceMatrix,
         long_method_name="Uniform Manifold Approximation and Projection",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         proportion_explained=pd.Series(None, index=axis_labels),
-        samples=pd.DataFrame(umap_data, index=ids, columns=axis_labels),
+        samples=pd.DataFrame(umap, index=ids, columns=axis_labels),
         )

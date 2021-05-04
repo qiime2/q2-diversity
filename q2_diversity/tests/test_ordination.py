@@ -67,7 +67,7 @@ class tsneTests(unittest.TestCase):
         observed = tsne(self.dm).samples.shape
         self.assertEqual(observed, (3, 3))
 
-    def test_tsne__custom(self):
+    def test_tsne_custom_number_of_dims(self):
         observed_second = tsne(self.dm, 2).samples.shape
         self.assertEqual(observed_second, (3, 3))
 
