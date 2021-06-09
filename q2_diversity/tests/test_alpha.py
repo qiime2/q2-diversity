@@ -17,7 +17,7 @@ import qiime2
 from qiime2.plugin.testing import TestPluginBase
 import numpy as np
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 
 from qiime2 import Artifact
 from q2_diversity import (alpha_correlation, alpha_group_significance)

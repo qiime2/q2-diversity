@@ -17,7 +17,6 @@ from ._core_metrics import core_metrics_phylogenetic, core_metrics
 from ._filter import filter_distance_matrix
 from ._version import get_versions
 
-
 __version__ = get_versions()['version']
 del get_versions
 
@@ -28,4 +27,5 @@ __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
            'beta_rarefaction', 'procrustes_analysis', 'beta_correlation',
-           'adonis']
+           'adonis',
+           ]

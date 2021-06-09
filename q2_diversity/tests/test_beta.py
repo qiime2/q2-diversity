@@ -835,40 +835,40 @@ class TestMantel(unittest.TestCase):
         mantel(self.output_dir, self.dm1, self.dm2)
 
         self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=0.5,
-                                    exp_p_value=1)
+                                    exp_p_value=1.0)
 
     def test_defaults_negative_correlation(self):
         mantel(self.output_dir, self.dm1, self.dm3)
 
         # p-value will be stochastic with this dataset so not asserting its
         # value.
-        self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=-1)
+        self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=-1.0)
 
     def test_defaults_reverse_comparison(self):
         # Comparing X to Y should be the same as comparing Y to X.
         mantel(self.output_dir, self.dm2, self.dm1)
 
         self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=0.5,
-                                    exp_p_value=1)
+                                    exp_p_value=1.0)
 
     def test_defaults_reordered(self):
         # Order of IDs in distance matrices shouldn't change the results.
         mantel(self.output_dir, self.dm1, self.dm2_reordered)
 
         self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=0.5,
-                                    exp_p_value=1)
+                                    exp_p_value=1.0)
 
     def test_pearson(self):
         mantel(self.output_dir, self.dm1, self.dm2, method='pearson')
 
         self.assertBasicVizValidity(self.output_dir, 3, method='pearson',
-                                    exp_test_stat=0.5, exp_p_value=1)
+                                    exp_test_stat=0.5, exp_p_value=1.0)
 
     def test_alt_permutations(self):
         mantel(self.output_dir, self.dm1, self.dm2, permutations=42)
 
         self.assertBasicVizValidity(self.output_dir, 3, permutations=42,
-                                    exp_test_stat=0.5, exp_p_value=1)
+                                    exp_test_stat=0.5, exp_p_value=1.0)
 
     def test_zero_permutations(self):
         mantel(self.output_dir, self.dm1, self.dm2, permutations=0)
@@ -882,7 +882,7 @@ class TestMantel(unittest.TestCase):
 
         self.assertBasicVizValidity(self.output_dir, 3, label1='Peanut',
                                     label2='Milo', exp_test_stat=0.5,
-                                    exp_p_value=1)
+                                    exp_p_value=1.0)
 
     def test_error_on_sample_mismatch(self):
         with self.assertRaisesRegex(ValueError,
@@ -895,7 +895,7 @@ class TestMantel(unittest.TestCase):
 
         self.assertBasicVizValidity(self.output_dir, 3,
                                     mismatched_ids={'foo', 'x'},
-                                    exp_test_stat=0.5, exp_p_value=1)
+                                    exp_test_stat=0.5, exp_p_value=1.0)
 
     def test_warn_on_sample_mismatch_reverse_comparison(self):
         # Comparing X to Y should be the same as comparing Y to X.
@@ -904,13 +904,13 @@ class TestMantel(unittest.TestCase):
 
         self.assertBasicVizValidity(self.output_dir, 3,
                                     mismatched_ids={'foo', 'x'},
-                                    exp_test_stat=0.5, exp_p_value=1)
+                                    exp_test_stat=0.5, exp_p_value=1.0)
 
     def test_same_matrices(self):
         mantel(self.output_dir, self.dm1, self.dm1)
 
-        self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=1,
-                                    exp_p_value=1)
+        self.assertBasicVizValidity(self.output_dir, 3, exp_test_stat=1.0,
+                                    exp_p_value=1.0)
 
     def test_same_filtered_matrices(self):
         # These two matrices filter down to the same data.
@@ -919,7 +919,7 @@ class TestMantel(unittest.TestCase):
 
         self.assertBasicVizValidity(self.output_dir, 3,
                                     mismatched_ids={'foo', 'x'},
-                                    exp_test_stat=1, exp_p_value=1)
+                                    exp_test_stat=1.0, exp_p_value=1.0)
 
 
 if __name__ == '__main__':

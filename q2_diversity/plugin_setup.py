@@ -9,7 +9,6 @@
 from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
                            Float, Set, Visualization, Metadata, MetadataColumn,
                            Categorical, Numeric, Citations)
-
 import q2_diversity
 from q2_diversity import _alpha as alpha
 from q2_diversity import _beta as beta
@@ -18,7 +17,7 @@ from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency,
 from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
-from q2_types.ordination import PCoAResults
+from q2_types.ordination import PCoAResults, ProcrustesStatistics
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
@@ -55,7 +54,6 @@ plugin = Plugin(
                  'metadata.'),
     short_description='Plugin for exploring community diversity.',
 )
-
 
 plugin.pipelines.register_function(
     function=q2_diversity.beta_phylogenetic,
@@ -308,22 +306,38 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_diversity.procrustes_analysis,
     inputs={'reference': PCoAResults, 'other': PCoAResults},
-    parameters={'dimensions': Int % Range(1, None)},
+    parameters={
+        'dimensions': Int % Range(1, None),
+        'permutations': Int % Range(1, None) | Str % Choices('disable')
+    },
     outputs=[
         ('transformed_reference', PCoAResults),
-        ('transformed_other', PCoAResults)
+        ('transformed_other', PCoAResults),
+        ('disparity_results', ProcrustesStatistics)
     ],
     input_descriptions={
         'reference': ('The ordination matrix to which data is fitted to.'),
         'other': ("The ordination matrix that's fitted to the reference "
-                  "ordination.")
+                  "ordination."),
     },
-    parameter_descriptions={},
+    parameter_descriptions={
+        'dimensions': ('The number of dimensions to use when fitting the two '
+                       'matrices'),
+        'permutations': 'The number of permutations to be run when computing '
+                        'p-values. Supplying a value of `disable` will disable'
+                        ' permutation testing and p-values will not be '
+                        'calculated (this results in *much* quicker execution '
+                        'time if p-values are not desired).',
+
+    },
     output_descriptions={
         'transformed_reference': 'A normalized version of the "reference" '
                                  'ordination matrix.',
         'transformed_other': 'A normalized and fitted version of the "other" '
-                             'ordination matrix.'},
+                             'ordination matrix.',
+        'disparity_results': 'The sum of the squares of the pointwise '
+                             'differences between the two input datasets & '
+                             'its p value.'},
     name='Procrustes Analysis',
     description='Fit two ordination matrices with Procrustes analysis'
 )
