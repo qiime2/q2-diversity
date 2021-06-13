@@ -68,7 +68,7 @@ class tsneTests(unittest.TestCase):
         self.assertEqual(observed, (3, 3))
 
     def test_tsne_custom_number_of_dims(self):
-        observed_second = tsne(self.dm, 2).samples.shape
+        observed_second = tsne(self.dm, 3).samples.shape
         self.assertEqual(observed_second, (3, 3))
 
 
@@ -85,5 +85,5 @@ class umapTests(unittest.TestCase):
         self.assertEqual(observed, (5, 3))
 
     def test_umap_custom(self):
-        observed_second = umap(self.dm, 2).samples.shape
+        observed_second = umap(self.dm, 3).samples.shape
         self.assertEqual(observed_second, (5, 3))

@@ -73,7 +73,7 @@ def umap(distance_matrix: skbio.DistanceMatrix,
     data = distance_matrix.data
     ids = distance_matrix.ids
 
-    umap = up.UMAP(n_components=2,
+    umap = up.UMAP(n_components=number_of_dimensions,
                    n_neighbors=n_neighbors,
                    min_dist=min_dist).fit_transform(data)
 
