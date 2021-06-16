@@ -794,7 +794,7 @@ plugin.visualizers.register_function(
                  'This action differs from beta_group_significance in that it '
                  'accepts R formulae to perform multi-way ADONIS tests; '
                  'beta_group_signficance only performs one-way tests. For '
-                 'more details, consult the reference manual available'
+                 'more details, consult the reference manual available '
                  'on the CRAN vegan page: '
                  'https://CRAN.R-project.org/package=vegan'),
     citations=[citations['anderson2001new'], citations['Oksanen2018']]
