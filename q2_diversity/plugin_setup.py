@@ -255,7 +255,7 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
-        'perplexity':           "Provide the balance between local and global"
+        'perplexity':           "Provide the balance between local and global "
                                 "structure. Low values concentrate on local "
                                 "structure. Large values sacrifice local "
                                 "details for a broader global embedding. "
