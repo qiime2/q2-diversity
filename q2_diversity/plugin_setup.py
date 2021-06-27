@@ -298,7 +298,7 @@ plugin.methods.register_function(
                                 "broad topological structure. To get "
                                 "less overlapping data points the "
                                 "default value is set to 0.4. For more "
-                                "details visit:\n\n"
+                                "details visit: "
                                 "https://umap-learn.readthedocs.io/en/latest/"
                                 "parameters.html",
     },
