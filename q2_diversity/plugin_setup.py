@@ -297,7 +297,10 @@ plugin.methods.register_function(
                                 "clumpier clusters. Higher values preserve a "
                                 "broad topological structure. To get "
                                 "less overlapping data points the "
-                                "default value is set to 0.4.",
+                                "default value is set to 0.4. For more "
+                                "details visit:\n\n"
+                                "https://umap-learn.readthedocs.io/en/latest/"
+                                "parameters.html",
     },
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
