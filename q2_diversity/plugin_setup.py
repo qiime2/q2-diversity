@@ -292,11 +292,11 @@ plugin.methods.register_function(
                                 " structure. Low values concentrate on local "
                                 "structure. Large values sacrifice local "
                                 "details for a broader global embedding",
-        'min_dist':             "controls the Cluster Size. Low Values cause "
-                                "clumpier CLusters. Higher Values preserve a"
-                                "broad topological structure. To get"
-                                "less overlapping data points the min_dist"
-                                "default value is set to 0,4",
+        'min_dist':             "Controls the cluster size. Low values cause "
+                                "clumpier clusters. Higher values preserve a "
+                                "broad topological structure. To get "
+                                "less overlapping data points the "
+                                "default value is set to 0.4.",
     },
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
