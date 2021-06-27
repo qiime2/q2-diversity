@@ -277,7 +277,7 @@ plugin.methods.register_function(
     function=q2_diversity.umap,
     inputs={'distance_matrix': DistanceMatrix},
     parameters={
-        'number_of_dimensions': Int % Range(1, None),
+        'number_of_dimensions': Int % Range(2, None),
         'n_neighbors': Int % Range(1, None),
         'min_dist': Float % Range(0, None),
     },
