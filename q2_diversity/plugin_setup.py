@@ -288,9 +288,9 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
-        'n_neighbors':          "Provide the Balance between local and global"
-                                " structure. Low Values concentrate on local"
-                                "structure. Large Values sacrafice local "
+        'n_neighbors':          "Provide the balance between local and global"
+                                " structure. Low values concentrate on local "
+                                "structure. Large values sacrifice local "
                                 "details for a broader global embedding",
         'min_dist':             "controls the Cluster Size. Low Values cause "
                                 "clumpier CLusters. Higher Values preserve a"
