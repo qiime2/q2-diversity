@@ -35,19 +35,22 @@ requirements:
     - natsort
     - biom-format >=2.1.5,<2.2.0
     - unifrac >=0.10.0
-    - qiime2 {{ release }}.*
-    - q2templates {{ release }}.*
-    - q2-types {{ release }}.*
-    - q2-feature-table {{ release }}.*
-    - q2-metadata {{ release }}.*
+    - qiime2 {{ qiime2 }}
+    - q2templates {{ q2templates }}
+    - q2-types {{ q2_types }}
+    - q2-feature-table {{ q2_feature_table }}
+    - q2-metadata {{ q2_metadata }}
     # TODO: `emperor` is also a dependency, but q2-emperor should be in charge
     # of the version pin. Eventually there will not be a direct dependency on
     # `emperor` and this comment can be removed.
-    - q2-emperor {{ release }}.*
-    - q2-diversity-lib {{ release }}.*
+    - q2-emperor {{ q2_emperor }}
+    - q2-diversity-lib {{ q2_diversity_lib }}
     - r-vegan >=2.5_3
 
 test:
+  requires:
+    - pytest
+
   imports:
     - q2_diversity
     - qiime2.plugins.diversity
