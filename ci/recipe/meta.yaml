@@ -21,7 +21,7 @@ requirements:
     - python {{ python }}
     - numpy
     - scipy
-    - pandas >1
+    - pandas {{ pandas }}
     - statsmodels
     - seaborn
     # `ipywidgets` included to avoid ShimWarning from
