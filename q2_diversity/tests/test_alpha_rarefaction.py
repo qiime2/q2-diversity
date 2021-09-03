@@ -458,9 +458,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
-        exp = pd.DataFrame(data=[[5.0, 6.0, 7.0, 8.0],
-                                 [9.0, 10.0, 11.0, 12.0],
-                                 [1.0, 2.0, 3.0, 4.0]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, median)
@@ -484,7 +482,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
-        exp = pd.DataFrame(data=[[5.0, 6.0, 7.0, 8.0], [5.0, 6.0, 7.0, 8.0]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, median)
@@ -508,7 +506,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['russ'], name='pet')
-        exp = pd.DataFrame(data=[[5.0, 6.0, 7.0, 8.0]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, median)
@@ -534,9 +532,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
-        exp = pd.DataFrame(data=[[5.0, 6.0, 7.0, 8.0],
-                                 [9.0, 10.0, 11.0, 12.0],
-                                 [1.0, 2.0, 3.0, 4.0]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [9, 10, 11, 12], [1, 2, 3, 4]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, median)
@@ -549,7 +545,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
         median, counts = _reindex_with_metadata('toy', ['pet', 'toy'], data)
 
         exp_ind = pd.Index(['stick', 'yeti'], name='toy')
-        exp = pd.DataFrame(data=[[5.0, 6.0, 7.0, 8.0], [5.0, 6.0, 7.0, 8.0]],
+        exp = pd.DataFrame(data=[[5, 6, 7, 8], [5, 6, 7, 8]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, median)
