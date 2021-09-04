@@ -333,6 +333,7 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
     scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
     sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False)
     plt.savefig(os.path.join(output_dir, 'mantel-scatter.svg'))
+    plt.close()
 
     context = {
         'table': table_html,
