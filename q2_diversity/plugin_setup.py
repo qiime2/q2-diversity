@@ -586,6 +586,7 @@ plugin.visualizers.register_function(
     parameters={'permutations': Int % Range(0, None),
                 'method': Str % Choices(['spearman', 'pearson']),
                 'intersect_ids': Bool,
+                'metadata': MetadataColumn[Categorical],
                 'label1': Str,
                 'label2': Str},
     name='Apply the Mantel test to two distance matrices',
@@ -615,6 +616,7 @@ plugin.visualizers.register_function(
                          'distance matrices will be discarded before applying '
                          'the Mantel test. Default behavior is to error on '
                          'any mismatched IDs.',
+        'metadata': 'A categorical variable to color the scatter plot by',
         'label1': 'Label for `dm1` in the output visualization.',
         'label2': 'Label for `dm2` in the output visualization.'
     },

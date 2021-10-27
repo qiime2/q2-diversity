@@ -268,6 +268,7 @@ def beta_group_significance(output_dir: str,
 def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
            dm2: skbio.DistanceMatrix, method: str = 'spearman',
            permutations: int = 999, intersect_ids: bool = False,
+           metadata: qiime2.CategoricalMetadataColumn = None,
            label1: str = 'Distance Matrix 1',
            label2: str = 'Distance Matrix 2') -> None:
     test_statistics = {'spearman': 'rho', 'pearson': 'r'}
@@ -320,18 +321,45 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
                        name='Mantel test results')
     table_html = q2templates.df_to_html(result.to_frame())
 
+    # if we have metadata, construct a lookup to easily determine the category
+    # a sample is associated with
+    metadata = metadata.filter_ids(dm1.ids)
+    metadata = metadata.drop_missing_values()
+    if metadata is None:
+        metadata = pd.Series(['single-group'] * len(dm1.ids),
+                             index=list(dm1.ids))
+    else:
+        metadata = metadata.to_series()
+    metadata = metadata.to_dict()
+
     # We know the distance matrices have matching ID sets at this point, so we
     # can safely generate all pairs of IDs using one of the matrices' ID sets
     # (it doesn't matter which one).
+
     scatter_data = []
     for id1, id2 in itertools.combinations(dm1.ids, 2):
-        scatter_data.append((dm1[id1, id2], dm2[id1, id2]))
+        scatter_data.append((dm1[id1, id2], dm2[id1, id2], metadata[id1]))
 
     plt.figure()
     x = 'Pairwise Distance (%s)' % label1
     y = 'Pairwise Distance (%s)' % label2
-    scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
-    sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False)
+    hue = 'Hue from (%s)' % label1
+    scatter_data = pd.DataFrame(scatter_data, columns=[x, y, hue])
+
+    # if we do not have variation (or no metadata was provided), do a simple
+    # regplot as prior, otherwise allow for depicting hue
+    if len(scatter_data[hue].unique()) == 1:
+        sns.regplot(x=x, y=y, data=scatter_data, fit_reg=False)
+    else:
+        g = sns.lmplot(x=x, y=y, data=scatter_data, hue=hue, fit_reg=False,
+                       scatter_kws={"s": 1, 'alpha': 0.65})
+
+        # based off of
+        # https://stackoverflow.com/a/48694686
+        for lh in g._legend.legendHandles:
+            lh.set_alpha(1)
+            lh._sizes = [50]
+
     plt.savefig(os.path.join(output_dir, 'mantel-scatter.svg'))
     plt.close()
 
