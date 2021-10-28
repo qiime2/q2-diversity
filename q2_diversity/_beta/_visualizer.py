@@ -323,12 +323,12 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
 
     # if we have metadata, construct a lookup to easily determine the category
     # a sample is associated with
-    metadata = metadata.filter_ids(dm1.ids)
-    metadata = metadata.drop_missing_values()
     if metadata is None:
         metadata = pd.Series(['single-group'] * len(dm1.ids),
                              index=list(dm1.ids))
     else:
+        metadata = metadata.filter_ids(dm1.ids)
+        metadata = metadata.drop_missing_values()
         metadata = metadata.to_series()
     metadata = metadata.to_dict()
 
