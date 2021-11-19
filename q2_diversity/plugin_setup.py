@@ -239,6 +239,75 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
+    function=q2_diversity.tsne,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'number_of_dimensions': Int % Range(2, None),
+        'perplexity': Float % Range(1, None),
+        'early_exaggeration': Float % Range(0, None),
+        'learning_rate': Float % Range(10.0, None),
+        'n_iter': Int % Range(1, None)
+    },
+    outputs=[('tsne', PCoAResults)],
+    input_descriptions={
+        'distance_matrix': ('The distance matrix on which t-SNE should be '
+                            'computed.')
+    },
+    parameter_descriptions={
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
+        'perplexity':           "Provide the balance between local and global "
+                                "structure. Low values concentrate on local "
+                                "structure. Large values sacrifice local "
+                                "details for a broader global embedding. "
+                                "The default value is 25 to achieve better "
+                                "results for small microbiome datasets.",
+        'early_exaggeration':   "Affects the tightness of the shown clusters. "
+                                "Larger values increase the distance between "
+                                "natural clusters in the embedded space.",
+        'learning_rate':        "Controls how much the weights are adjusted "
+                                "at each update.",
+    },
+    output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
+    name='t-distributed stochastic neighbor embedding',
+    description=("Apply t-distributed stochastic neighbor embedding."),
+
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.umap,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'number_of_dimensions': Int % Range(2, None),
+        'n_neighbors': Int % Range(1, None),
+        'min_dist': Float % Range(0, None),
+    },
+    outputs=[('umap', PCoAResults)],
+    input_descriptions={
+        'distance_matrix': ('The distance matrix on which UMAP should be '
+                            'computed.')
+    },
+    parameter_descriptions={
+        'number_of_dimensions': "Dimensions to reduce the distance matrix to.",
+        'n_neighbors':          "Provide the balance between local and global "
+                                "structure. Low values prioritize the "
+                                "preservation of local structures. Large "
+                                "values sacrifice local details for a "
+                                "broader global embedding.",
+        'min_dist':             "Controls the cluster size. Low values cause "
+                                "clumpier clusters. Higher values preserve a "
+                                "broad topological structure. To get "
+                                "less overlapping data points the "
+                                "default value is set to 0.4. For more "
+                                "details visit: "
+                                "https://umap-learn.readthedocs.io/en/latest/"
+                                "parameters.html",
+    },
+    output_descriptions={'umap': 'The resulting UMAP matrix.'},
+    name='Uniform Manifold Approximation and Projection',
+    description=("Apply Uniform Manifold Approximation and Projection."),
+    )
+
+plugin.methods.register_function(
     function=q2_diversity.procrustes_analysis,
     inputs={'reference': PCoAResults, 'other': PCoAResults},
     parameters={
