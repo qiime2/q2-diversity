@@ -73,14 +73,14 @@ def umap(distance_matrix: skbio.DistanceMatrix,
     data = distance_matrix.data
     ids = distance_matrix.ids
 
-    umap = up.UMAP(n_components=number_of_dimensions,
-                   n_neighbors=n_neighbors,
-                   min_dist=min_dist).fit_transform(data)
+    umap_results = up.UMAP(n_components=number_of_dimensions,
+                           n_neighbors=n_neighbors,
+                           min_dist=min_dist).fit_transform(data)
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
-        add_zeros = np.zeros((umap.shape[0], 1), dtype=np.int64)
-        umap = np.append(umap, add_zeros, axis=1)
+        add_zeros = np.zeros((umap_results.shape[0], 1), dtype=np.int64)
+        umap_results = np.append(umap_results, add_zeros, axis=1)
 
     axis_labels = ["UMAP%d" % i for i in range(1, number_of_dimensions + 1)]
     eigenvalues = [0 for i in axis_labels]
@@ -90,5 +90,5 @@ def umap(distance_matrix: skbio.DistanceMatrix,
         long_method_name="Uniform Manifold Approximation and Projection",
         eigvals=pd.Series(eigenvalues, index=axis_labels),
         proportion_explained=pd.Series(None, index=axis_labels),
-        samples=pd.DataFrame(umap, index=ids, columns=axis_labels),
+        samples=pd.DataFrame(umap_results, index=ids, columns=axis_labels),
         )
