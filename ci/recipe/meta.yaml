@@ -12,10 +12,15 @@ build:
   script: make install
 
 requirements:
+  build:
+    # nodejs is only necessary in the build phase - our build script needs it
+    # in order to render out transpiled js assets for various visualizations.
+    # once rendered, node is no longer necessary. don't set this in host reqs.
+    - nodejs
+
   host:
     - python {{ python }}
     - setuptools
-    - nodejs
 
   run:
     - python {{ python }}
