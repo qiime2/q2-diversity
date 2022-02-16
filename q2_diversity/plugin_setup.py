@@ -246,7 +246,8 @@ plugin.methods.register_function(
         'perplexity': Float % Range(1, None),
         'early_exaggeration': Float % Range(0, None),
         'learning_rate': Float % Range(10.0, None),
-        'n_iter': Int % Range(1, None)
+        'n_iter': Int % Range(1, None),
+        'random_state': Int
     },
     outputs=[('tsne', PCoAResults)],
     input_descriptions={
@@ -266,6 +267,7 @@ plugin.methods.register_function(
                                 "natural clusters in the embedded space.",
         'learning_rate':        "Controls how much the weights are adjusted "
                                 "at each update.",
+        'random_state':         "Seed used by random number generator."
     },
     output_descriptions={'tsne': 'The resulting t-SNE matrix.'},
     name='t-distributed stochastic neighbor embedding',
@@ -280,6 +282,7 @@ plugin.methods.register_function(
         'number_of_dimensions': Int % Range(2, None),
         'n_neighbors': Int % Range(1, None),
         'min_dist': Float % Range(0, None),
+        'random_state': Int
     },
     outputs=[('umap', PCoAResults)],
     input_descriptions={
@@ -301,6 +304,7 @@ plugin.methods.register_function(
                                 "details visit: "
                                 "https://umap-learn.readthedocs.io/en/latest/"
                                 "parameters.html",
+        'random_state':         "Seed used by random number generator."
     },
     output_descriptions={'umap': 'The resulting UMAP matrix.'},
     name='Uniform Manifold Approximation and Projection',
