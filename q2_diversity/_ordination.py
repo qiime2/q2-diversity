@@ -39,7 +39,7 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
          n_iter: int = 1000,
          learning_rate: float = 200.0,
          early_exaggeration: float = 12.0,
-         random_state: int = 1) -> skbio.OrdinationResults:
+         random_state: int = None) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
@@ -71,7 +71,7 @@ def umap(distance_matrix: skbio.DistanceMatrix,
          number_of_dimensions: int = 2,
          n_neighbors: int = 15,
          min_dist: float = 0.4,
-         random_state: int = 1) -> skbio.OrdinationResults:
+         random_state: int = None) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
