@@ -38,7 +38,8 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
          perplexity: float = 25.0,
          n_iter: int = 1000,
          learning_rate: float = 200.0,
-         early_exaggeration: float = 12.0) -> skbio.OrdinationResults:
+         early_exaggeration: float = 12.0,
+         random_state: int = None) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
@@ -46,7 +47,8 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
     tsne = TSNE(number_of_dimensions, perplexity=perplexity,
                 learning_rate=learning_rate,
                 n_iter=n_iter,
-                early_exaggeration=early_exaggeration).fit_transform(data)
+                early_exaggeration=early_exaggeration,
+                random_state=random_state).fit_transform(data)
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
@@ -68,14 +70,16 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 def umap(distance_matrix: skbio.DistanceMatrix,
          number_of_dimensions: int = 2,
          n_neighbors: int = 15,
-         min_dist: float = 0.4) -> skbio.OrdinationResults:
+         min_dist: float = 0.4,
+         random_state: int = None) -> skbio.OrdinationResults:
 
     data = distance_matrix.data
     ids = distance_matrix.ids
 
     umap_results = up.UMAP(n_components=number_of_dimensions,
                            n_neighbors=n_neighbors,
-                           min_dist=min_dist).fit_transform(data)
+                           min_dist=min_dist,
+                           random_state=random_state).fit_transform(data)
 
     if number_of_dimensions == 2:
         number_of_dimensions = 3
