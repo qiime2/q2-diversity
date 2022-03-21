@@ -21,6 +21,12 @@ from q2_types.ordination import PCoAResults, ProcrustesStatistics
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
+
+with_replacement_description = (
+    'Rarefy with replacement by sampling from the multinomial distribution '
+    'instead of rarefying without replacement.'
+)
+
 n_jobs_description = (
     'The number of concurrent jobs to use in performing this calculation. '
     'May not exceed the number of available physical cores. If n_jobs = '
@@ -359,6 +365,7 @@ plugin.pipelines.register_function(
     parameters={
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
+        'with_replacement': Bool,
         'n_jobs_or_threads': Int % Range(1, None) | Str % Choices(['auto']),
     },
     outputs=[
@@ -393,6 +400,7 @@ plugin.pipelines.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
+        'with_replacement': with_replacement_description,
         'n_jobs_or_threads': '[beta/beta-phylogenetic methods only] - %s'
                           % n_jobs_or_threads_description
     },
@@ -469,9 +477,7 @@ plugin.pipelines.register_function(
         'sampling_depth': 'The total frequency that each sample should be '
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
-        'with_replacement': 'Rarefy with replacement by sampling from the '
-                            'multinomial distribution instead of rarefying '
-                            'without replacement.',
+        'with_replacement': with_replacement_description,
         'n_jobs': '[beta methods only] - %s' % n_jobs_description
     },
     output_descriptions={
