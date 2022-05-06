@@ -220,7 +220,7 @@ plugin.methods.register_function(
     name='Principal Coordinate Analysis',
     description=("Apply principal coordinate analysis."),
     citations=[citations['legendrelegendre'],
-               citations['halko2010']]
+               citations['halko2011']]
 )
 
 plugin.methods.register_function(
