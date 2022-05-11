@@ -49,4 +49,4 @@ jobs:
         build-target: release
         additional-tests: py.test --pyargs q2_diversity
         # library-token: ${{ secrets.LIBRARY_TOKEN }}
-        library-token: spleen
+        library-token:
