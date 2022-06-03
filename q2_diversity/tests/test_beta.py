@@ -862,7 +862,7 @@ class TestMantel(unittest.TestCase):
         mantel(self.output_dir, self.dm1, self.dm2, method='pearson')
 
         self.assertBasicVizValidity(self.output_dir, 3, method='pearson',
-                                    exp_test_stat=0.5, exp_p_value=1.0)
+                                    exp_test_stat=0.5)
 
     def test_alt_permutations(self):
         mantel(self.output_dir, self.dm1, self.dm2, permutations=42)
