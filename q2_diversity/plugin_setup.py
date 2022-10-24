@@ -548,7 +548,8 @@ plugin.pipelines.register_function(
                  'apply a two-sided Mantel test to identify correlation '
                  'between two distance matrices. Actions used internally: '
                  '`distance-matrix` from q2-metadata and `mantel` from '
-                 'q2-diversity.')
+                 'q2-diversity.'),
+    examples={'beta_correlation_jaccard': ex.beta_correlation_jaccard}
 )
 
 plugin.methods.register_function(
@@ -730,7 +731,8 @@ plugin.visualizers.register_function(
     name='Alpha diversity correlation',
     description=('Determine whether numeric sample metadata columns are '
                  'correlated with alpha diversity.'),
-    citations=[citations['pearson1895note'], citations['spearman1904proof']]
+    citations=[citations['pearson1895note'], citations['spearman1904proof']],
+    examples={'alpha_correlation_faith_pd': ex.alpha_correlation_faith_pd}
 )
 
 _metric_set = Set[Str % Choices((alpha.METRICS['PHYLO']['IMPL'] |
