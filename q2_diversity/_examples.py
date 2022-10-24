@@ -31,3 +31,22 @@ def alpha_group_significance_faith_pd(use):
     )
 
     viz.assert_output_type('Visualization')
+
+
+def alpha_correlation_faith_pd(use):
+    alpha_div_faith_pd = use.init_artifact_from_url('alpha_div_faith_pd',
+                                                    alpha_div_faith_pd_url)
+    metadata = use.init_metadata_from_url('metadata', metadata_url)
+
+    viz, = use.action(
+        use.UsageAction('diversity', 'alpha_correlation'),
+        use.UsageInputs(
+            alpha_diversity=alpha_div_faith_pd,
+            metadata=metadata
+        ),
+        use.UsageOutputNames(
+            visualization='visualization'
+        )
+    )
+
+    viz.assert_output_type('Visualization')
