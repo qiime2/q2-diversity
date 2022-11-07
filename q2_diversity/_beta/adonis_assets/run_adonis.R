@@ -1,5 +1,15 @@
 #!/usr/bin/env Rscript
 
+### ERROR HANDLING ###
+options(error = function() {
+  sink(stderr())
+  on.exit(sink(NULL))
+  traceback(3)
+  if (!interactive()) {
+    q(status = 1)
+  }
+})
+
 ### LOAD LIBRARIES ###
 
 cat(R.version$version.string, "\n")
