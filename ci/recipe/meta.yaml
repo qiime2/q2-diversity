@@ -48,6 +48,7 @@ requirements:
     # `emperor` and this comment can be removed.
     - q2-emperor {{ qiime2_epoch }}.*
     - q2-diversity-lib {{ qiime2_epoch }}.*
+    - r-base {{ r_base }}
     - r-vegan >=2.5_3
     - umap-learn
 
