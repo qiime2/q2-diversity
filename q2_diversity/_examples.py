@@ -6,20 +6,23 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-# PD Mice Data
-pd_alpha_div_faith_pd_url = 'https://docs.qiime2.org/{epoch}/data/tutorials' \
-                         '/pd-mice/core-metrics-results/faith_pd_vector.qza'
+import qiime2
 
-pd_metadata_url = 'https://data.qiime2.org/{epoch}/tutorials' \
-               '/pd-mice/sample_metadata.tsv'
+
+# PD Mice Data
+pd_alpha_div_faith_pd_url = 'https://data.qiime2.org/usage-examples/' \
+                            'pd-mice/core-metrics-results/faith_pd_vector.qza'
+
+pd_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
+                   'pd-mice/sample_metadata.tsv')
 
 # Moving Pictures Data
-mp_beta_div_jaccard_url = 'https://docs.qiime2.org/{epoch}/data/tutorials/' \
-                       'moving-pictures/core-metrics-results/' \
-                       'jaccard_distance_matrix.qza'
+mp_beta_div_jaccard_url = 'data.qiime2.org/usage-examples/' \
+                          'moving-pictures/core-metrics-results/' \
+                          'jaccard_distance_matrix.qza'
 
-mp_metadata_url = 'https://data.qiime2.org/{epoch}/tutorials/' \
-                  'moving-pictures/sample_metadata.tsv'
+mp_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
+                   'moving-pictures/sample_metadata.tsv')
 
 
 def mp_metadata_column(use):
