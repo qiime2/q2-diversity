@@ -10,16 +10,16 @@ import qiime2
 
 
 # PD Mice Data
-pd_alpha_div_faith_pd_url = 'https://data.qiime2.org/usage-examples/' \
-                            'pd-mice/core-metrics-results/faith_pd_vector.qza'
+pd_alpha_div_faith_pd_url = ('https://data.qiime2.org/usage-examples/pd-mice/'
+                             'core-metrics-results/faith_pd_vector.qza')
 
 pd_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
                    'pd-mice/sample_metadata.tsv')
 
 # Moving Pictures Data
-mp_beta_div_jaccard_url = 'data.qiime2.org/usage-examples/' \
-                          'moving-pictures/core-metrics-results/' \
-                          'jaccard_distance_matrix.qza'
+mp_beta_div_jaccard_url = ('https://data.qiime2.org/usage-examples/'
+                           'moving-pictures/core-metrics-results/'
+                           'jaccard_distance_matrix.qza')
 
 mp_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
                    'moving-pictures/sample_metadata.tsv')
