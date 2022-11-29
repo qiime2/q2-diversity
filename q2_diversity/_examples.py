@@ -16,20 +16,6 @@ pd_alpha_div_faith_pd_url = ('https://data.qiime2.org/usage-examples/pd-mice/'
 pd_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
                    'pd-mice/sample_metadata.tsv')
 
-# Moving Pictures Data
-mp_beta_div_jaccard_url = ('https://data.qiime2.org/usage-examples/'
-                           'moving-pictures/core-metrics-results/'
-                           'jaccard_distance_matrix.qza')
-
-mp_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
-                   'moving-pictures/sample_metadata.tsv')
-
-
-def mp_metadata_column(use):
-    md = use.init_metadata_from_url('metadata', mp_metadata_url)
-    md_column = use.get_metadata_column('metadata_column', 'month', md)
-    return md_column
-
 
 # Alpha Diversity examples
 def alpha_group_significance_faith_pd(use):
@@ -68,26 +54,3 @@ def alpha_correlation_faith_pd(use):
     )
 
     viz.assert_output_type('Visualization')
-
-
-# Beta Diversity examples
-def beta_correlation_jaccard(use):
-    beta_div_jaccard = use.init_artifact_from_url('beta_div_jaccard',
-                                                  mp_beta_div_jaccard_url)
-    metadata_column = mp_metadata_column(use)
-
-    md_distance_matrix, mantel_scatter_viz = use.action(
-        use.UsageAction('diversity', 'beta_correlation'),
-        use.UsageInputs(
-            distance_matrix=beta_div_jaccard,
-            metadata=metadata_column,
-            intersect_ids=True
-        ),
-        use.UsageOutputNames(
-            metadata_distance_matrix='metadata_distance_matrix',
-            mantel_scatter_visualization='mantel_scatter_visualization'
-        )
-    )
-
-    md_distance_matrix.assert_output_type('DistanceMatrix')
-    mantel_scatter_viz.assert_output_type('Visualization')

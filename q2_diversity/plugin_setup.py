@@ -549,7 +549,6 @@ plugin.pipelines.register_function(
                  'between two distance matrices. Actions used internally: '
                  '`distance-matrix` from q2-metadata and `mantel` from '
                  'q2-diversity.'),
-    examples={'beta_correlation_jaccard': ex.beta_correlation_jaccard}
 )
 
 plugin.methods.register_function(
