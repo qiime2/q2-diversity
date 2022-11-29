@@ -23,6 +23,13 @@ from qiime2 import Artifact
 from q2_diversity import (alpha_correlation, alpha_group_significance)
 
 
+class TestExamples(TestPluginBase):
+    package = 'q2_diversity.tests'
+
+    def test_examples(self):
+        self.execute_examples()
+
+
 class AlphaTests(TestPluginBase):
 
     package = 'q2_diversity.tests'
