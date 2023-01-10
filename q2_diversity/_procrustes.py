@@ -11,6 +11,7 @@ import pandas as pd
 
 from skbio import OrdinationResults
 from scipy.spatial import procrustes
+from scipy.linalg import orthogonal_procrustes
 from numpy.random import default_rng
 
 
@@ -114,3 +115,62 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
                       index=pd.Index(['results'], name='id'))
 
     return df
+
+
+def deconstructed_procrustes(mtx1: np.array,
+                             mtx2: np.array) -> (np.ndarray, np.ndarray,
+                                                 float, float, np.ndarray,
+                                                 float):
+    """Derived from scipy procrustes."""
+    mtx1 = mtx1.copy()
+    mtx2 = mtx2.copy()
+
+    # translate all the data to the origin
+    mtx1_translate = np.mean(mtx1, 0)
+    mtx2_translate = np.mean(mtx2, 0)
+    mtx1 -= mtx1_translate
+    mtx2 -= mtx2_translate
+
+    # uniform scaling
+    norm1 = np.linalg.norm(mtx1)
+    norm2 = np.linalg.norm(mtx2)
+
+    if norm1 == 0 or norm2 == 0:
+        raise ValueError('Input matrices must contain >1 unique points')
+
+    # change scaling of data (in rows) such that trace(mtx*mtx') = 1
+    mtx1 /= norm1
+    mtx2 /= norm2
+
+    R, s = orthogonal_procrustes(mtx1, mtx2)
+
+    return mtx1_translate, mtx2_translate, norm1, norm2, R, s
+
+
+def partial_procrustes(df_mtx1: pd.DataFrame,
+                       df_mtx2: pd.DataFrame,
+                       df_mtx1_pair_ids: list,
+                       df_mtx2_pair_ids: list) -> (pd.DataFrame, pd.DataFrame):
+    df_mtx1 = df_mtx1.copy()
+    df_mtx2 = df_mtx2.copy()
+
+    # pull paired samples
+    paired_mtx1 = df_mtx1.loc[df_mtx1_pair_ids]
+    paired_mtx2 = df_mtx2.loc[df_mtx2_pair_ids]
+
+    # compute procrustes on paired data
+    results = deconstructed_procrustes(paired_mtx1, paired_mtx2)
+    mtx1_translate, mtx2_translate, norm1, norm2, R, s = results
+
+    # transform both full input matrices
+    df_mtx1 -= mtx1_translate
+    df_mtx2 -= mtx2_translate
+    df_mtx1 /= norm1
+    df_mtx2 /= norm2
+
+    # rotate mtx2 to orient relative to mtx1 (derived from scipy procrustes)
+    df_mtx2_mat = np.dot(df_mtx2.values, R.T) * s
+    df_mtx2 = pd.DataFrame(df_mtx2_mat, columns=df_mtx2.columns,
+                           index=df_mtx2.index)
+
+    return df_mtx1, df_mtx2
