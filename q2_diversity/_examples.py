@@ -6,15 +6,13 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import qiime2
-
 
 # PD Mice Data
 pd_alpha_div_faith_pd_url = ('https://data.qiime2.org/usage-examples/pd-mice/'
                              'core-metrics-results/faith_pd_vector.qza')
 
-pd_metadata_url = (f'https://data.qiime2.org/{qiime2.__release__}/tutorials/'
-                   'pd-mice/sample_metadata.tsv')
+pd_metadata_url = ('https://data.qiime2.org/usage-examples/'
+                   'pd-mice/sample-metadata.tsv')
 
 
 # Alpha Diversity examples
