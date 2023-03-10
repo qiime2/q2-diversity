@@ -117,11 +117,9 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
     return df
 
 
-def deconstructed_procrustes(mtx1: np.array,
-                             mtx2: np.array) -> (np.ndarray, np.ndarray,
-                                                 float, float, np.ndarray,
-                                                 float):
-    """Derived from scipy procrustes."""
+def _deconstructed_procrustes(mtx1, mtx2):
+    # Derived from scipy procrustes
+    # https://github.com/scipy/scipy/blob/d541c752246a9e196034957d3e044950eec75907/scipy/spatial/_procrustes.py#L100-L125
     mtx1 = mtx1.copy()
     mtx2 = mtx2.copy()
 
@@ -147,10 +145,7 @@ def deconstructed_procrustes(mtx1: np.array,
     return mtx1_translate, mtx2_translate, norm1, norm2, R, s
 
 
-def partial_procrustes(df_mtx1: pd.DataFrame,
-                       df_mtx2: pd.DataFrame,
-                       df_mtx1_pair_ids: list,
-                       df_mtx2_pair_ids: list) -> (pd.DataFrame, pd.DataFrame):
+def _partial_procrustes(df_mtx1, df_mtx2, df_mtx1_pair_ids, df_mtx2_pair_ids):
     df_mtx1 = df_mtx1.copy()
     df_mtx2 = df_mtx2.copy()
 
@@ -159,7 +154,7 @@ def partial_procrustes(df_mtx1: pd.DataFrame,
     paired_mtx2 = df_mtx2.loc[df_mtx2_pair_ids]
 
     # compute procrustes on paired data
-    results = deconstructed_procrustes(paired_mtx1, paired_mtx2)
+    results = _deconstructed_procrustes(paired_mtx1, paired_mtx2)
     mtx1_translate, mtx2_translate, norm1, norm2, R, s = results
 
     # transform both full input matrices

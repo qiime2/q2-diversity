@@ -10,9 +10,84 @@ import unittest
 
 import skbio
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 
 from q2_diversity import procrustes_analysis
+from q2_diversity._procrustes import  (_deconstructed_procrustes,
+                                       _partial_procrustes)
+
+
+class PartialProcrustesTests(unittest.TestCase):
+    def _complete_procrustes(self, mtx1, mtx2, mtx1_translate, mtx2_translate,
+                             norm1, norm2, R, s):
+        mtx1 = mtx1.copy()
+        mtx2 = mtx2.copy()
+
+        mtx1_translate = np.mean(mtx1, 0)
+        mtx2_translate = np.mean(mtx2, 0)
+        mtx1 -= mtx1_translate
+        mtx2 -= mtx2_translate
+        mtx1 /= norm1
+        mtx2 /= norm2
+
+        mtx2 = np.dot(mtx2, R.T) * s
+
+        disparity = np.sum(np.square(mtx1 - mtx2))
+
+        return mtx1, mtx2, disparity
+
+    def test_deconstructed_procrustes(self):
+        # test adapted from scipy
+        # https://github.com/scipy/scipy/blob/d541c752246a9e196034957d3e044950eec75907/scipy/spatial/tests/test__procrustes.py#L37-L54
+        # an L
+        data1 = np.array([[1, 3], [1, 2], [1, 1], [2, 1]], 'd')
+
+        # a larger, shifted, mirrored L
+        data2 = np.array([[4, -2], [4, -4], [4, -6], [2, -6]], 'd')
+
+        # data4, data5 are standardized (trace(A*A') = 1).
+        # procrustes should return an identical copy if they are used
+        # as the first matrix argument.
+        shiftangle = np.pi / 8
+        data4 = np.array([[1, 0], [0, 1], [-1, 0],
+                          [0, -1]], 'd') / np.sqrt(4)
+        data5 = np.array([[np.cos(shiftangle), np.sin(shiftangle)],
+                          [np.cos(np.pi / 2 - shiftangle),
+                           np.sin(np.pi / 2 - shiftangle)],
+                          [-np.cos(shiftangle),
+                           -np.sin(shiftangle)],
+                          [-np.cos(np.pi / 2 - shiftangle),
+                           -np.sin(np.pi / 2 - shiftangle)]],
+                          'd') / np.sqrt(4)
+        result = _deconstructed_procrustes(data1, data2)
+        a, b, disparity = self._complete_procrustes(data1, data2, *result)
+        npt.assert_allclose(b, a)
+        npt.assert_almost_equal(disparity, 0.)
+
+        result = _deconstructed_procrustes(data4, data5)
+        m4, m5, disp45 = self._complete_procrustes(data4, data5, *result)
+        npt.assert_equal(m4, data4)
+
+    def test_partial_procrustes(self):
+        # an L with an extra point on vertical
+        mtx1 = np.array([[1, 4], [1, 3], [1, 2], [1, 1], [2, 1]], 'd')
+        data1 = pd.DataFrame(mtx1, index=['foo', 'a1', 'b1', 'c1', 'd1'],
+                             columns=[0, 1])
+        data1paired = ['a1', 'b1', 'c1', 'd1']
+
+        # a larger L, shifted, mirrored, with an extra point on the horizontal
+        mtx2 = np.array([[4, -2], [4, -4], [4, -6], [2, -6], [0, -6]], 'd')
+        data2 = pd.DataFrame(mtx2, index=['a2', 'b2', 'c2', 'd2', 'bar'],
+                             columns=[0, 1])
+        data2paired = ['a2', 'b2', 'c2', 'd2']
+
+        df1_obs, df2_obs = _partial_procrustes(data1, data2, data1paired,
+                                               data2paired)
+
+        # we should be anchored
+        npt.assert_allclose(df1_obs.loc[data1paired].values,
+                            df2_obs.loc[data2paired].values)
 
 
 class PCoATests(unittest.TestCase):
