@@ -377,8 +377,7 @@ plugin.methods.register_function(
     parameter_descriptions={
         'dimensions': ('The number of dimensions to use when fitting the two '
                        'matrices'),
-        'pairing': ("The metadata column describing the pair a sample may "
-                    "sample pairs.")
+        'pairing': ("The metadata column describing sample pairs which exist.")
     },
     output_descriptions={
         'transformed': ("The 'other' ordination transformed into the space of "
