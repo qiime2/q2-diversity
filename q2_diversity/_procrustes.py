@@ -162,6 +162,7 @@ def partial_procrustes(reference: OrdinationResults, other: OrdinationResults,
             .copy())
     return out
 
+
 def _deconstructed_procrustes(mtx1, mtx2):
     # Derived from scipy procrustes
     # https://github.com/scipy/scipy/blob/d541c752246a9e196034957d3e044950eec75907/scipy/spatial/_procrustes.py#L100-L125

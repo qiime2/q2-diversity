@@ -359,8 +359,9 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_diversity.partial_procrustes,
-    inputs={'reference': PCoAResults,
-            'other': PCoAResults,
+    inputs={
+        'reference': PCoAResults,
+        'other': PCoAResults,
     },
     parameters={
         'dimensions': Int % Range(1, None),
