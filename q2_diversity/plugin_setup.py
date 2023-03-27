@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2022, QIIME 2 development team.
+# Copyright (c) 2016-2023, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -355,6 +355,38 @@ plugin.methods.register_function(
                              'its p value.'},
     name='Procrustes Analysis',
     description='Fit two ordination matrices with Procrustes analysis'
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.partial_procrustes,
+    inputs={'reference': PCoAResults,
+            'other': PCoAResults,
+    },
+    parameters={
+        'dimensions': Int % Range(1, None),
+        'pairing': MetadataColumn[Categorical],
+    },
+    outputs=[
+        ('transformed', PCoAResults),
+    ],
+    input_descriptions={
+        'reference': ('The ordination matrix to which data is fitted to.'),
+        'other': ("The ordination matrix that's fitted to the reference "
+                  "ordination."),
+    },
+    parameter_descriptions={
+        'dimensions': ('The number of dimensions to use when fitting the two '
+                       'matrices'),
+        'pairing': ("The metadata column describing sample pairs which exist.")
+    },
+    output_descriptions={
+        'transformed': ("The 'other' ordination transformed into the space of "
+                        "the reference ordination."),
+    },
+    name='Partial Procrustes',
+    description=('Transform one ordination into another, using paired samples '
+                 'to anchor the transformation. This method allows does not '
+                 'require all samples to be paired.')
 )
 
 plugin.pipelines.register_function(

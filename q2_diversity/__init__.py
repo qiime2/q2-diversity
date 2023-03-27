@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2022, QIIME 2 development team.
+# Copyright (c) 2016-2023, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -12,7 +12,7 @@ from ._beta import (beta, beta_phylogenetic, bioenv,
                     beta_group_significance, mantel, beta_rarefaction,
                     beta_correlation, adonis)
 from ._ordination import pcoa, pcoa_biplot, tsne, umap
-from ._procrustes import procrustes_analysis
+from ._procrustes import procrustes_analysis, partial_procrustes
 from ._core_metrics import core_metrics_phylogenetic, core_metrics
 from ._filter import filter_distance_matrix
 from ._version import get_versions
@@ -27,5 +27,5 @@ __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
            'beta_rarefaction', 'procrustes_analysis', 'beta_correlation',
-           'adonis',
+           'adonis', 'partial_procrustes'
            ]

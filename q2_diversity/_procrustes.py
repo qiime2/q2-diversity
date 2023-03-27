@@ -1,10 +1,12 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2022, QIIME 2 development team.
+# Copyright (c) 2016-2023, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
+
+import qiime2
 
 import numpy as np
 import pandas as pd
@@ -117,11 +119,52 @@ def _procrustes_monte_carlo(reference: np.ndarray, other: np.ndarray,
     return df
 
 
-def deconstructed_procrustes(mtx1: np.array,
-                             mtx2: np.array) -> (np.ndarray, np.ndarray,
-                                                 float, float, np.ndarray,
-                                                 float):
-    """Derived from scipy procrustes."""
+def partial_procrustes(reference: OrdinationResults, other: OrdinationResults,
+                       pairing: qiime2.CategoricalMetadataColumn,
+                       dimensions: int = 5) -> OrdinationResults:
+    if reference.samples.shape[1] < dimensions:
+        raise ValueError('Cannot fit fewer dimensions than available')
+
+    if other.samples.shape[1] < dimensions:
+        raise ValueError('Cannot fit fewer dimensions than available')
+
+    pairing = pairing.to_series()
+    pairing = pairing[~pairing.isnull()]
+
+    if len(pairing) == 0:
+        raise ValueError('The metadata are lacking paired samples')
+
+    ref_pairs = sorted(set(pairing.index) & set(reference.samples.index))
+    other_pairs = sorted(set(pairing.index) & set(other.samples.index))
+
+    if len(ref_pairs) == 0:
+        raise ValueError('The reference frame lacks paired samples')
+
+    if len(other_pairs) == 0:
+        raise ValueError('The other frame lacks paired samples')
+
+    ref_order = ref_pairs
+    other_order = pairing.loc[ref_pairs].values
+
+    ref_df, other_df = _partial_procrustes(reference.samples,
+                                           other.samples,
+                                           ref_order, other_order)
+
+    out = OrdinationResults(
+            short_method_name=reference.short_method_name,
+            long_method_name=reference.long_method_name,
+            eigvals=reference.eigvals[:dimensions].copy(),
+            samples=pd.concat([ref_df, other_df]),
+            features=reference.features,
+            biplot_scores=reference.biplot_scores,
+            sample_constraints=reference.sample_constraints,
+            proportion_explained=reference.proportion_explained[:dimensions]
+            .copy())
+    return out
+
+def _deconstructed_procrustes(mtx1, mtx2):
+    # Derived from scipy procrustes
+    # https://github.com/scipy/scipy/blob/d541c752246a9e196034957d3e044950eec75907/scipy/spatial/_procrustes.py#L100-L125
     mtx1 = mtx1.copy()
     mtx2 = mtx2.copy()
 
@@ -147,10 +190,7 @@ def deconstructed_procrustes(mtx1: np.array,
     return mtx1_translate, mtx2_translate, norm1, norm2, R, s
 
 
-def partial_procrustes(df_mtx1: pd.DataFrame,
-                       df_mtx2: pd.DataFrame,
-                       df_mtx1_pair_ids: list,
-                       df_mtx2_pair_ids: list) -> (pd.DataFrame, pd.DataFrame):
+def _partial_procrustes(df_mtx1, df_mtx2, df_mtx1_pair_ids, df_mtx2_pair_ids):
     df_mtx1 = df_mtx1.copy()
     df_mtx2 = df_mtx2.copy()
 
@@ -159,7 +199,7 @@ def partial_procrustes(df_mtx1: pd.DataFrame,
     paired_mtx2 = df_mtx2.loc[df_mtx2_pair_ids]
 
     # compute procrustes on paired data
-    results = deconstructed_procrustes(paired_mtx1, paired_mtx2)
+    results = _deconstructed_procrustes(paired_mtx1, paired_mtx2)
     mtx1_translate, mtx2_translate, norm1, norm2, R, s = results
 
     # transform both full input matrices
