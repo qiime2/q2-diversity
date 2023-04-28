@@ -12,7 +12,7 @@ import versioneer
 
 setup(
     name="q2-diversity",
-    version=versioneer.get_version(),
+    version="2022.2.1.dev50",
     cmdclass=versioneer.get_cmdclass(),
     packages=find_packages(),
     package_data={'q2_diversity._alpha': [
