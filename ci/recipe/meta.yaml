@@ -51,6 +51,9 @@ requirements:
     - r-base {{ r_base }}
     - r-vegan >=2.5_3
     - umap-learn
+    # TODO: unpin or move this to distro wide pin
+    # https://github.com/lmcinnes/umap/issues/1004
+    - numba 0.56.4
 
 test:
   requires:
