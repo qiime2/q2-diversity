@@ -53,7 +53,7 @@ requirements:
     - umap-learn
     # TODO: unpin or move this to distro wide pin
     # https://github.com/lmcinnes/umap/issues/1004
-    - numba <=0.56.4
+    - numba=0.57.1
 
 test:
   requires:
