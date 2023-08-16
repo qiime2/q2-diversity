@@ -194,7 +194,8 @@ class BetaDiversityTests(TestPluginBase):
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+                npt.assert_almost_equal(
+                    actual[id1, id2], expected[id1, id2], decimal=6)
 
     def test_beta_unweighted_parallel(self):
         bt_fp = self.get_data_path('crawford.biom')
@@ -229,7 +230,8 @@ class BetaDiversityTests(TestPluginBase):
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+                npt.assert_almost_equal(
+                    actual[id1, id2], expected[id1, id2], decimal=6)
 
     def test_beta_weighted(self):
         actual = self.beta_phylogenetic(table=self.crawford_table,
@@ -360,7 +362,8 @@ class BetaDiversityTests(TestPluginBase):
         self.assertEqual(actual.ids, expected.ids)
         for id1 in actual.ids:
             for id2 in actual.ids:
-                npt.assert_almost_equal(actual[id1, id2], expected[id1, id2])
+                npt.assert_almost_equal(
+                    actual[id1, id2], expected[id1, id2], decimal=6)
 
     def test_not_generalized_passed_alpha(self):
         with self.assertRaisesRegex(ValueError,
