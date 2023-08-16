@@ -10,7 +10,14 @@ from sklearn.manifold import TSNE
 import skbio.stats.ordination
 import pandas as pd
 import numpy as np
-import umap as up
+
+# Ignore warnings related to deprecated behavior umap is using in numba
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        'ignore', message=".*The 'nopython' keyword argument was not supplied "
+                          "to the 'numba.jit' decorator.*")
+    import umap as up
 
 
 def pcoa(distance_matrix: skbio.DistanceMatrix,
