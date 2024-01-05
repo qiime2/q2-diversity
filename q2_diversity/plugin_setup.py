@@ -401,6 +401,7 @@ plugin.pipelines.register_function(
         'metadata': Metadata,
         'with_replacement': Bool,
         'n_jobs_or_threads': Int % Range(1, None) | Str % Choices(['auto']),
+        'ignore_missing_samples': Bool
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -436,7 +437,15 @@ plugin.pipelines.register_function(
         'metadata': 'The sample metadata to use in the emperor plots.',
         'with_replacement': with_replacement_description,
         'n_jobs_or_threads': '[beta/beta-phylogenetic methods only] - %s'
-                          % n_jobs_or_threads_description
+                          % n_jobs_or_threads_description,
+        'ignore_missing_samples': 'If set to `True` samples and features '
+                                  'without metadata are included by '
+                                  'setting all metadata values to: '
+                                  '"This element has no metadata". By '
+                                  'default an exception will be raised if '
+                                  'missing elements are encountered. Note, '
+                                  'this flag only takes effect if there is at '
+                                  'least one overlapping element.'
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
@@ -490,6 +499,7 @@ plugin.pipelines.register_function(
         'metadata': Metadata,
         'with_replacement': Bool,
         'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
+        'ignore_missing_samples': Bool
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -512,7 +522,15 @@ plugin.pipelines.register_function(
                           'rarefied to prior to computing diversity metrics.',
         'metadata': 'The sample metadata to use in the emperor plots.',
         'with_replacement': with_replacement_description,
-        'n_jobs': '[beta methods only] - %s' % n_jobs_description
+        'n_jobs': '[beta methods only] - %s' % n_jobs_description,
+        'ignore_missing_samples': 'If set to `True` samples and features '
+                                  'without metadata are included by '
+                                  'setting all metadata values to: '
+                                  '"This element has no metadata". By '
+                                  'default an exception will be raised if '
+                                  'missing elements are encountered. Note, '
+                                  'this flag only takes effect if there is at '
+                                  'least one overlapping element.'
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
