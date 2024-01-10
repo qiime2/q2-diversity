@@ -59,7 +59,8 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
 
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
                       metadata=metadata, with_replacement=with_replacement,
-                      n_jobs=n_jobs_or_threads)
+                      n_jobs=n_jobs_or_threads,
+                      ignore_missing_samples=ignore_missing_samples)
 
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)
