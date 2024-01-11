@@ -27,5 +27,5 @@ __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_distance_matrix', 'mantel', 'alpha_rarefaction',
            'beta_rarefaction', 'procrustes_analysis', 'beta_correlation',
-           'adonis', 'partial_procrustes', 'ignore_missing_samples'
+           'adonis', 'partial_procrustes'
            ]
