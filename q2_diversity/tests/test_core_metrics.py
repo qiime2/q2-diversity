@@ -18,7 +18,6 @@ import pandas.testing as pdt
 from qiime2.plugin.testing import TestPluginBase
 from qiime2 import Artifact, Metadata
 
-import warnings
 
 class CoreMetricsTests(TestPluginBase):
     package = 'q2_diversity'
