@@ -18,6 +18,7 @@ import pandas.testing as pdt
 from qiime2.plugin.testing import TestPluginBase
 from qiime2 import Artifact, Metadata
 
+import warnings
 
 class CoreMetricsTests(TestPluginBase):
     package = 'q2_diversity'
@@ -143,6 +144,84 @@ class CoreMetricsTests(TestPluginBase):
                                 name='shannon_entropy')
         pdt.assert_series_equal(results[1].view(pd.Series), obs_feat_exp)
         pdt.assert_series_equal(results[2].view(pd.Series), shannon_exp)
+
+    def test_core_metrics_ignore_missing_samples_false(self):
+        table = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+        table = Artifact.import_data('FeatureTable[Frequency]', table)
+
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2']},
+                         index=pd.Index(['S1', 'S2'], name='id')))
+
+        with self.assertRaisesRegex(KeyError, 'samples not included'):
+            self.core_metrics(table=table, sampling_depth=200,
+                              metadata=metadata,
+                              ignore_missing_samples=False)
+
+    def test_core_metrics_ignore_missing_samples_true(self):
+        table = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+        table = Artifact.import_data('FeatureTable[Frequency]', table)
+
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2']},
+                         index=pd.Index(['S1', 'S2'], name='id')))
+
+        results = self.core_metrics(table=table, sampling_depth=200,
+                                    metadata=metadata,
+                                    ignore_missing_samples=True)
+
+        self.assertEqual(len(results), 10)
+        self.assertEqual(repr(results.bray_curtis_distance_matrix.type),
+                         'DistanceMatrix')
+        self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
+
+    def test_core_metrics_phylogenetic_ignore_missing_samples_false(self):
+        table = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+        table = Artifact.import_data('FeatureTable[Frequency]', table)
+
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree)
+
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2']},
+                         index=pd.Index(['S1', 'S2'], name='id')))
+
+        with self.assertRaisesRegex(KeyError, 'samples not included'):
+            self.core_metrics_phylogenetic(table=table, phylogeny=tree,
+                                           sampling_depth=200,
+                                           metadata=metadata,
+                                           ignore_missing_samples=False)
+
+    def test_core_metrics_phylogenetic_ignore_missing_samples_true(self):
+        table = biom.Table(np.array([[150, 100, 100], [50, 100, 100]]),
+                           ['O1', 'O2'],
+                           ['S1', 'S2', 'S3'])
+        table = Artifact.import_data('FeatureTable[Frequency]', table)
+
+        tree = skbio.TreeNode.read(io.StringIO(
+            '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
+        tree = Artifact.import_data('Phylogeny[Rooted]', tree)
+
+        metadata = Metadata(
+            pd.DataFrame({'foo': ['1', '2']},
+                         index=pd.Index(['S1', 'S2'], name='id')))
+
+        results = self.core_metrics_phylogenetic(table=table, phylogeny=tree,
+                                                 sampling_depth=200,
+                                                 metadata=metadata,
+                                                 ignore_missing_samples=True)
+
+        self.assertEqual(len(results), 17)
+        self.assertEqual(repr(results.bray_curtis_distance_matrix.type),
+                         'DistanceMatrix')
+        self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
 
 if __name__ == '__main__':
