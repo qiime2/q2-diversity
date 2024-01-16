@@ -154,7 +154,7 @@ class CoreMetricsTests(TestPluginBase):
             pd.DataFrame({'foo': ['1', '2']},
                          index=pd.Index(['S1', 'S2'], name='id')))
 
-        with self.assertRaisesRegex(KeyError, 'samples not included'):
+        with self.assertRaisesRegex(KeyError, 'Offending samples: S3'):
             self.core_metrics(table=table, sampling_depth=200,
                               metadata=metadata,
                               ignore_missing_samples=False)
@@ -192,7 +192,7 @@ class CoreMetricsTests(TestPluginBase):
             pd.DataFrame({'foo': ['1', '2']},
                          index=pd.Index(['S1', 'S2'], name='id')))
 
-        with self.assertRaisesRegex(KeyError, 'samples not included'):
+        with self.assertRaisesRegex(KeyError, 'Offending samples: S3'):
             self.core_metrics_phylogenetic(table=table, phylogeny=tree,
                                            sampling_depth=200,
                                            metadata=metadata,
