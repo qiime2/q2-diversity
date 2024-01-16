@@ -8,7 +8,7 @@
 
 
 def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
-                 n_jobs=1):
+                 n_jobs=1, ignore_missing_samples=False):
     rarefy = ctx.get_action('feature_table', 'rarefy')
     observed_features = ctx.get_action('diversity_lib', 'observed_features')
     pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')
@@ -39,13 +39,15 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
         pcoas += pcoa_results
 
     for pcoa in pcoas:
-        results += emperor_plot(pcoa=pcoa, metadata=metadata)
+        results += emperor_plot(pcoa=pcoa, metadata=metadata,
+                                ignore_missing_samples=ignore_missing_samples)
 
     return tuple(results)
 
 
 def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
-                              with_replacement=False, n_jobs_or_threads=1):
+                              with_replacement=False, n_jobs_or_threads=1,
+                              ignore_missing_samples=False):
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
     weighted_unifrac = ctx.get_action(
@@ -57,7 +59,8 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
 
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
                       metadata=metadata, with_replacement=with_replacement,
-                      n_jobs=n_jobs_or_threads)
+                      n_jobs=n_jobs_or_threads,
+                      ignore_missing_samples=ignore_missing_samples)
 
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)
@@ -75,7 +78,8 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
 
     plots = []
     for pcoa in pcoas:
-        plots += emperor_plot(pcoa=pcoa, metadata=metadata)
+        plots += emperor_plot(pcoa=pcoa, metadata=metadata,
+                              ignore_missing_samples=ignore_missing_samples)
 
     return (
         cr.rarefied_table, faith_pd_vector, cr.observed_features_vector,
