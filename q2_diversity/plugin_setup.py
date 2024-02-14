@@ -8,7 +8,7 @@
 
 from qiime2.plugin import (Plugin, Str, Properties, Choices, Int, Bool, Range,
                            Float, Set, Visualization, Metadata, MetadataColumn,
-                           Categorical, Numeric, Citations)
+                           Categorical, Numeric, Citations, Threads)
 import q2_diversity
 from q2_diversity import _alpha as alpha
 from q2_diversity import _beta as beta
@@ -69,7 +69,7 @@ plugin.pipelines.register_function(
             'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta.METRICS['PHYLO']['IMPL'] |
                                         beta.METRICS['PHYLO']['UNIMPL']),
-                'threads': Int % Range(1, None) | Str % Choices(['auto']),
+                'threads': Threads,
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool},
@@ -112,10 +112,12 @@ plugin.pipelines.register_function(
     function=q2_diversity.beta,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
-    parameters={'metric': Str % Choices(beta.METRICS['NONPHYLO']['IMPL'] |
-                                        beta.METRICS['NONPHYLO']['UNIMPL']),
-                'pseudocount': Int % Range(1, None),
-                'n_jobs': Int % Range(1, None) | Str % Choices(['auto'])},
+    parameters={
+        'metric': Str % Choices(beta.METRICS['NONPHYLO']['IMPL'] |
+                                beta.METRICS['NONPHYLO']['UNIMPL']),
+        'pseudocount': Int % Range(1, None),
+        'n_jobs': Threads,
+    },
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -400,7 +402,7 @@ plugin.pipelines.register_function(
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
         'with_replacement': Bool,
-        'n_jobs_or_threads': Int % Range(1, None) | Str % Choices(['auto']),
+        'n_jobs_or_threads': Threads,
         'ignore_missing_samples': Bool
     },
     outputs=[
@@ -498,7 +500,7 @@ plugin.pipelines.register_function(
         'sampling_depth': Int % Range(1, None),
         'metadata': Metadata,
         'with_replacement': Bool,
-        'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
+        'n_jobs': Threads,
         'ignore_missing_samples': Bool
     },
     outputs=[
@@ -897,10 +899,12 @@ plugin.visualizers.register_function(
 plugin.visualizers.register_function(
     function=q2_diversity.adonis,
     inputs={'distance_matrix': DistanceMatrix},
-    parameters={'metadata': Metadata,
-                'formula': Str,
-                'permutations': Int % Range(1, None),
-                'n_jobs': Int % Range(1, None)},
+    parameters={
+        'metadata': Metadata,
+        'formula': Str,
+        'permutations': Int % Range(1, None),
+        'n_jobs': Threads,
+    },
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
     },

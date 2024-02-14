@@ -21,6 +21,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.sandbox.stats.multicomp import multipletests
 import qiime2
+from qiime2.plugin import get_available_cores
 import q2templates
 from natsort import natsorted
 from patsy import ModelDesc
@@ -351,6 +352,9 @@ def adonis(output_dir: str,
            formula: str,
            permutations: int = 999,
            n_jobs: int = 1) -> None:
+    if n_jobs == 0:
+        n_jobs = get_available_cores()
+
     # Validate sample metadata is superset et cetera
     metadata_ids = set(metadata.ids)
     dm_ids = distance_matrix.ids
