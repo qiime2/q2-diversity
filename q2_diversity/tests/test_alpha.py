@@ -401,8 +401,8 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            err_msg = ("does not contain any columns that satisfy this "
-                       "visualizer's requirements")
+            err_msg = ("Either the metadata file does not meet the "
+                       "requirements of this visualizer")
             with self.assertRaisesRegex(ValueError, err_msg):
                 alpha_group_significance(output_dir, alpha_div, md)
 
@@ -438,6 +438,22 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
             csv_fp = os.path.join(output_dir,
                                   'kruskal-wallis-pairwise-a%2Fb.csv')
             self.assertTrue(os.path.exists(csv_fp))
+
+    def test_sample_ids_in_error_message(self):
+        alpha_div = pd.Series([2.0, 4.0, 6.0], name='alpha-div',
+                              index=['sample1', 'sample2', 'sample3'])
+        md = qiime2.Metadata(
+            pd.DataFrame(
+                {'col1': [1, 2, 1],
+                 'col2': [4.2, 4.2, 4.3]},
+                index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+
+        with self.assertRaises(ValueError) as cm:
+            alpha_group_significance('output_dir', alpha_div, md)
+
+        self.assertIn('sample1', str(cm.exception))
+        self.assertIn('sample2', str(cm.exception))
+        self.assertIn('sample3', str(cm.exception))
 
 
 if __name__ == '__main__':
