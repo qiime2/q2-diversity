@@ -48,12 +48,20 @@ def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
     filtered_columns = pre_filtered_cols - set(metadata.columns)
 
     if len(metadata.columns) == 0:
+        sample_ids = ', '.join(alpha_diversity.index)
         raise ValueError(
-            "Metadata does not contain any columns that satisfy this "
-            "visualizer's requirements. There must be at least one metadata "
-            "column that contains categorical data, isn't empty, doesn't "
-            "consist of unique values, and doesn't consist of exactly one "
-            "value.")
+            "Either the metadata file does not meet the requirements of this "
+            "visualizer, or the samples associated with the metadata do not "
+            "meet the requirements. The visualizer requires at least one "
+            "metadata column that contains categorical data, isn't empty, "
+            "doesn't consist of unique values, and doesn't consist of exactly "
+            "one value. The contents of the metadata file associated with the "
+            "samples present in the alpha-diversity metric are: "
+            + sample_ids +
+            ". Please check your metadata file and the diversity metric to "
+            "ensure an appropriate sampling depth was selected. If your "
+            "sampling depth is too deep, it may result in too few samples "
+            "being retained for the visualizer.")
 
     metric_name = alpha_diversity.name
 
