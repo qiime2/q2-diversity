@@ -448,12 +448,12 @@ class AlphaGroupSignificanceTests(unittest.TestCase):
                  'col2': [4.2, 4.2, 4.3]},
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValueError) as ve:
             alpha_group_significance('output_dir', alpha_div, md)
 
-        self.assertIn('sample1', str(cm.exception))
-        self.assertIn('sample2', str(cm.exception))
-        self.assertIn('sample3', str(cm.exception))
+        self.assertIn('sample1', str(ve.exception))
+        self.assertIn('sample2', str(ve.exception))
+        self.assertIn('sample3', str(ve.exception))
 
 
 if __name__ == '__main__':
