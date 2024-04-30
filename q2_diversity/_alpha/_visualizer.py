@@ -173,7 +173,7 @@ def alpha_correlation(output_dir: str,
         ids2 = set(alpha_diversity.index)
         matched_ids = ids1 & ids2
         metadata = metadata.filter_ids(matched_ids)
-        alpha_diversity = alpha_diversity[matched_ids]
+        alpha_diversity = alpha_diversity[list(matched_ids)]
     else:
         metadata = metadata.filter_ids(alpha_diversity.index)
 
