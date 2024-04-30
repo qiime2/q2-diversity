@@ -250,7 +250,7 @@ def _reindex_with_metadata(column, columns, merged):
     col_diff = set(columns) - set([column])
     if col_diff:
         counts.drop(col_diff, axis=1, inplace=True, level=0)
-    median_ = grouped.median()
+    median_ = grouped.median(numeric_only=True)
     return median_, counts
 
 
