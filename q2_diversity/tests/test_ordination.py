@@ -64,11 +64,11 @@ class tsneTests(unittest.TestCase):
                                        ids=['S1', 'S2', 'S3'])
 
     def test_tsne_default(self):
-        observed = tsne(self.dm).samples.shape
+        observed = tsne(self.dm, perplexity=2.9).samples.shape
         self.assertEqual(observed, (3, 3))
 
     def test_tsne_custom_number_of_dims(self):
-        observed_second = tsne(self.dm, 3).samples.shape
+        observed_second = tsne(self.dm, 3, perplexity=2.9).samples.shape
         self.assertEqual(observed_second, (3, 3))
 
 
