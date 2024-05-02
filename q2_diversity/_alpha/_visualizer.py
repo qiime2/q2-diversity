@@ -173,7 +173,7 @@ def alpha_correlation(output_dir: str,
         ids2 = set(alpha_diversity.index)
         matched_ids = ids1 & ids2
         metadata = metadata.filter_ids(matched_ids)
-        alpha_diversity = alpha_diversity[matched_ids]
+        alpha_diversity = alpha_diversity[list(matched_ids)]
     else:
         metadata = metadata.filter_ids(alpha_diversity.index)
 
@@ -250,7 +250,7 @@ def _reindex_with_metadata(column, columns, merged):
     col_diff = set(columns) - set([column])
     if col_diff:
         counts.drop(col_diff, axis=1, inplace=True, level=0)
-    median_ = grouped.median()
+    median_ = grouped.median(numeric_only=True)
     return median_, counts
 
 
