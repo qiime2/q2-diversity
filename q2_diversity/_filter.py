@@ -9,6 +9,8 @@
 import skbio
 import qiime2
 
+import pandas as pd
+
 
 def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
                            metadata: qiime2.Metadata,
@@ -25,3 +27,18 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
     except skbio.stats.distance.DissimilarityMatrixError:
         raise ValueError(
             "All samples were filtered out of the distance matrix.")
+
+
+# This function filters the SampleData[AlphaDiversity] table by the metadata
+# only sample present in the metadata will remain
+def filter_alpha_diversity_artifact(alpha_diversity: pd.Series,
+                                    metadata: qiime2.Metadata,
+                                    exclude_ids: bool = False) -> pd.Series:
+    ids_to_keep = metadata.get_ids()
+    if exclude_ids:
+        ids_to_keep = set(alpha_diversity.ids) - set(ids_to_keep)
+        filtered_table = alpha_diversity.filter(ids_to_keep, inplace=False)
+    if filtered_table.is_empty():
+        raise ValueError(
+            "All samples were filtered out of the alpha diversity artifact.")
+    return filtered_table

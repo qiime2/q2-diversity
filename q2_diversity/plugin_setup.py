@@ -164,7 +164,6 @@ plugin.pipelines.register_function(
                  'metric for all samples in a feature table.'),
 )
 
-
 plugin.pipelines.register_function(
     function=q2_diversity.alpha,
     inputs={'table':
@@ -643,6 +642,42 @@ plugin.methods.register_function(
         'filtered_distance_matrix': 'Distance matrix filtered to include '
                                     'samples matching search criteria'
     }
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.filter_alpha_diversity_artifact,
+    inputs={
+        'alpha_diversity': SampleData[AlphaDiversity]
+    },
+    parameters={
+        'metadata': Metadata,
+        'exclude_ids': Bool
+    },
+    outputs=[
+        ('filtered_alpha_diversity_artifact', SampleData[AlphaDiversity])
+    ],
+    name="Filter samples from an alpha diversity metric.",
+    description="Filter samples from an alpha diversity metric, retaining "
+                "the samples with corresponding `metadata` (or retaining only "
+                "only samples without metadata, if `exclude_ids` is "
+                "True). See the filtering tutorial on "
+                "https://docs.qiime2.org for additional details.",
+    input_descriptions={
+        'alpha_diversity': 'Alpha diversity sample data to filter by sample'
+    },
+    parameter_descriptions={
+       'metadata': 'Sample metadata is used to select samples to retain from '
+                   'the sample data (default) or select samples to exclude '
+                   'using the `exclude_ids` parameter.',
+       'exclude_ids': 'If `True`, the samples selected by `metadata` '
+                      'will be excluded from the filtered '
+                      'sample data instead of being retained.'
+    }
+    # output_descriptions={
+    #     'filtered_alpha_diversity_artifact': 'Alpha diversity sample data '
+    #                                          'filtered to include samples '
+    #                                          'matching search criteria'
+    # }
 )
 
 plugin.visualizers.register_function(
