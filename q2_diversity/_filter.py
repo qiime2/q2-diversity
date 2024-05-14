@@ -36,9 +36,9 @@ def filter_alpha_diversity_artifact(alpha_diversity: pd.Series,
                                     exclude_ids: bool = False) -> pd.Series:
     ids_to_keep = metadata.get_ids()
     if exclude_ids:
-        ids_to_keep = set(alpha_diversity.ids) - set(ids_to_keep)
-        filtered_table = alpha_diversity.filter(ids_to_keep, inplace=False)
-    if filtered_table.is_empty():
+        ids_to_keep = set(alpha_diversity.index) - set(ids_to_keep)
+    filtered_table = alpha_diversity[alpha_diversity.index.isin(ids_to_keep)]
+    if filtered_table.empty:
         raise ValueError(
             "All samples were filtered out of the alpha diversity artifact.")
     return filtered_table

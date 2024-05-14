@@ -663,21 +663,16 @@ plugin.methods.register_function(
                 "True). See the filtering tutorial on "
                 "https://docs.qiime2.org for additional details.",
     input_descriptions={
-        'alpha_diversity': 'Alpha diversity sample data to filter by sample'
+        'alpha_diversity': 'Alpha diversity sample data to filter by sample.'
     },
     parameter_descriptions={
-       'metadata': 'Sample metadata is used to select samples to retain from '
+       'metadata': 'Sample metadata used to select samples to retain from '
                    'the sample data (default) or select samples to exclude '
                    'using the `exclude_ids` parameter.',
        'exclude_ids': 'If `True`, the samples selected by `metadata` '
                       'will be excluded from the filtered '
                       'sample data instead of being retained.'
     }
-    # output_descriptions={
-    #     'filtered_alpha_diversity_artifact': 'Alpha diversity sample data '
-    #                                          'filtered to include samples '
-    #                                          'matching search criteria'
-    # }
 )
 
 plugin.visualizers.register_function(
