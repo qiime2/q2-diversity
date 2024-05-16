@@ -29,16 +29,21 @@ def filter_distance_matrix(distance_matrix: skbio.DistanceMatrix,
             "All samples were filtered out of the distance matrix.")
 
 
-# This function filters the SampleData[AlphaDiversity] table by the metadata
-# only sample present in the metadata will remain
+"""
+This function filters the SampleData[AlphaDiversity] table by the metadata
+only sample present in the metadata will remain
+"""
+
+
 def filter_alpha_diversity_artifact(alpha_diversity: pd.Series,
                                     metadata: qiime2.Metadata,
+                                    where: str = None,
                                     exclude_ids: bool = False) -> pd.Series:
-    ids_to_keep = metadata.get_ids()
+    ids_to_keep = metadata.get_ids(where=where)
     if exclude_ids:
         ids_to_keep = set(alpha_diversity.index) - set(ids_to_keep)
-    filtered_table = alpha_diversity[alpha_diversity.index.isin(ids_to_keep)]
-    if filtered_table.empty:
+    filtered_metric = alpha_diversity[alpha_diversity.index.isin(ids_to_keep)]
+    if filtered_metric.empty:
         raise ValueError(
             "All samples were filtered out of the alpha diversity artifact.")
-    return filtered_table
+    return filtered_metric

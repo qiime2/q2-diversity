@@ -651,7 +651,8 @@ plugin.methods.register_function(
     },
     parameters={
         'metadata': Metadata,
-        'exclude_ids': Bool
+        'exclude_ids': Bool,
+        'where': Str
     },
     outputs=[
         ('filtered_alpha_diversity_artifact', SampleData[AlphaDiversity])
@@ -669,9 +670,14 @@ plugin.methods.register_function(
        'metadata': 'Sample metadata used to select samples to retain from '
                    'the sample data (default) or select samples to exclude '
                    'using the `exclude_ids` parameter.',
-       'exclude_ids': 'If `True`, the samples selected by `metadata` '
-                      'will be excluded from the filtered '
-                      'sample data instead of being retained.'
+       'where': 'SQLite WHERE clause specifying sample metadata criteria '
+                'that must be met to be included in the filtered alpha '
+                'diversity artifact. If not provided, all samples in '
+                '`metadata` that are also in the input alpha diversity '
+                'artifact will be retained.',
+       'exclude_ids': 'If `True`, the samples selected by `metadata` or the '
+                      '`where` parameters will be excluded from the filtered '
+                      'alpha diversity artifact instead of being retained.'
     }
 )
 
