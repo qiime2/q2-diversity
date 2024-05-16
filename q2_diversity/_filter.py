@@ -40,9 +40,14 @@ def filter_alpha_diversity_artifact(alpha_diversity: pd.Series,
     Parameters
     ----------
     alpha_diversity : pd.Series
+        The alpha diversity metrics, indexed by sample.
     metadata : qiime2.Metadata
+        The metadata object to be used for filtering.
     where : str, optional
+        A SQLite WHERE clause specifying which samples to select from the
+        metadata.
     exclude_ids : bool, optional
+        Whether to keep (default) or exclude the selected IDs in the metadata.
 
     Returns
     -------
