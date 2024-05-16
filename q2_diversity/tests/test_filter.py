@@ -391,6 +391,24 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         expected = pd.Series([1.0, 2.0], index=['S1', 'S2'])
         self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
 
+    def test_filter_alpha_diversity_artifact_where_exclude_ids_filter_some(
+            self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0],
+                                    index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity_artifact(alpha_diversity, metadata,
+                                                   where="SampleType='gut'",
+                                                   exclude_ids=True)
+
+        expected = pd.Series([2.0, 3.0], index=['S2', 'S3'])
+
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
+
 
 if __name__ == "__main__":
     unittest.main()
