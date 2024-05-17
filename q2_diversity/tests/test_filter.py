@@ -277,8 +277,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
 
         with self.assertRaisesRegex(ValueError, "All samples.*filtered"):
-            filter_alpha_diversity(alpha_diversity, metadata,
-                                            exclude_ids=True)
+            filter_alpha_diversity(alpha_diversity, metadata, exclude_ids=True)
 
     def test_filter_alpha_diversity_some_filtered(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
@@ -313,7 +312,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
 
         filtered = filter_alpha_diversity(alpha_diversity, metadata,
-                                                   exclude_ids=True)
+                                          exclude_ids=True)
 
         expected = pd.Series([3.0], index=['S3'])
         self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
@@ -327,7 +326,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         alpha_diversity = pd.Series([1.0, 2.0], index=['S3', 'S4'])
 
         filtered = filter_alpha_diversity(alpha_diversity, metadata,
-                                                   exclude_ids=True)
+                                          exclude_ids=True)
 
         self.assertTrue(filtered.equals(alpha_diversity))
 
@@ -356,7 +355,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
 
         filtered = filter_alpha_diversity(alpha_diversity, metadata,
-                                                   where="SampleType='gut'")
+                                          where="SampleType='gut'")
 
         expected = pd.Series([1.0], index=['S1'])
         self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
@@ -371,7 +370,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "All samples.*filtered"):
             filter_alpha_diversity(alpha_diversity, metadata,
-                                            where="SampleType='palm'")
+                                   where="SampleType='palm'")
 
     def test_filter_alpha_diversity_test_where_extra_ids(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2',
@@ -391,8 +390,7 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
         expected = pd.Series([1.0, 2.0], index=['S1', 'S2'])
         self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
 
-    def test_filter_alpha_diversity_where_exclude_ids_filter_some(
-            self):
+    def test_filter_alpha_diversity_where_exclude_ids_filter_some(self):
         df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
                            'SampleType': ['gut', 'tongue']},
                           index=pd.Index(['S1', 'S2'], name='id'))
@@ -402,8 +400,8 @@ class TestFilterAlphaDiversityArtifact(unittest.TestCase):
                                     index=['S1', 'S2', 'S3'])
 
         filtered = filter_alpha_diversity(alpha_diversity, metadata,
-                                                   where="SampleType='gut'",
-                                                   exclude_ids=True)
+                                          where="SampleType='gut'",
+                                          exclude_ids=True)
 
         expected = pd.Series([2.0, 3.0], index=['S2', 'S3'])
 
