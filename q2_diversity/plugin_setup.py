@@ -645,7 +645,7 @@ plugin.methods.register_function(
 )
 
 plugin.methods.register_function(
-    function=q2_diversity.filter_alpha_diversity_artifact,
+    function=q2_diversity.filter_alpha_diversity,
     inputs={
         'alpha_diversity': SampleData[AlphaDiversity]
     },
@@ -655,14 +655,14 @@ plugin.methods.register_function(
         'where': Str
     },
     outputs=[
-        ('filtered_alpha_diversity_artifact', SampleData[AlphaDiversity])
+        ('filtered_alpha_diversity', SampleData[AlphaDiversity])
     ],
     name="Filter samples from an alpha diversity metric.",
     description="Filter samples from an alpha diversity metric, retaining "
-                "the samples with corresponding `metadata` (or retaining only "
-                "only samples without metadata, if `exclude_ids` is "
-                "True). See the filtering tutorial on "
-                "https://docs.qiime2.org for additional details.",
+                "samples with corresponding `metadata` (or retaining "
+                "samples without metadata, if `exclude_ids` is True). See "
+                "the filtering tutorial on https://docs.qiime2.org for "
+                "additional details.",
     input_descriptions={
         'alpha_diversity': 'Alpha diversity sample data to filter by sample.'
     },
