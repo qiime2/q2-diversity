@@ -14,6 +14,7 @@ import qiime2
 import skbio
 
 from q2_diversity import filter_distance_matrix
+from q2_diversity import filter_alpha_diversity
 
 
 class TestFilterDistanceMatrix(unittest.TestCase):
@@ -253,6 +254,158 @@ class TestFilterDistanceMatrix(unittest.TestCase):
             filter_distance_matrix(dm, metadata,
                                    where,
                                    exclude_ids=True)
+
+
+class TestFilterAlphaDiversityArtifact(unittest.TestCase):
+    def test_filter_alpha_diversity(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
+                           'SampleType': ['gut', 'tongue', 'gut']},
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata)
+        self.assertTrue(filtered.equals(alpha_diversity))
+
+    def test_filter_alpha_diversity_exclude_ids_true_filter_all(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
+                           'SampleType': ['gut', 'tongue', 'gut']},
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        with self.assertRaisesRegex(ValueError, "All samples.*filtered"):
+            filter_alpha_diversity(alpha_diversity, metadata, exclude_ids=True)
+
+    def test_filter_alpha_diversity_some_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata)
+
+        expected = pd.Series([1.0, 2.0], index=['S1', 'S2'])
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
+
+    def test_filter_alpha_diversity_all_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
+                           'SampleType': ['gut', 't', 'gut']},
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S4', 'S5', 'S6'])
+
+        with self.assertRaisesRegex(ValueError, "All samples.*filtered"):
+            filter_alpha_diversity(alpha_diversity, metadata)
+
+    def test_filter_alpha_diversity_exclude_ids_some_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata,
+                                          exclude_ids=True)
+
+        expected = pd.Series([3.0], index=['S3'])
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
+
+    def test_filter_alpha_diversity_exclude_ids_none_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0], index=['S3', 'S4'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata,
+                                          exclude_ids=True)
+
+        self.assertTrue(filtered.equals(alpha_diversity))
+
+    def test_filter_alpha_diversity_test_where_no_filtering(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
+                           'SampleType': ['gut', 'tongue', 'gut']},
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(
+            alpha_diversity,
+            metadata,
+            where="SampleType='gut' OR SampleType='tongue'"
+            )
+
+        self.assertTrue(filtered.equals(alpha_diversity))
+
+    def test_filter_alpha_diversity_test_where_some_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata,
+                                          where="SampleType='gut'")
+
+        expected = pd.Series([1.0], index=['S1'])
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
+
+    def test_filter_alpha_diversity_test_where_all_filtered(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2'],
+                           'SampleType': ['gut', 't', 'gut']},
+                          index=pd.Index(['S1', 'S2', 'S3'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        with self.assertRaisesRegex(ValueError, "All samples.*filtered"):
+            filter_alpha_diversity(alpha_diversity, metadata,
+                                   where="SampleType='palm'")
+
+    def test_filter_alpha_diversity_test_where_extra_ids(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1', 'subject-2',
+                                       'subject-2'],
+                           'SampleType': ['gut', 'tongue', 'gut', 'tongue']},
+                          index=pd.Index(['S1', 'S4', 'S2', 'S5'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0], index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(
+            alpha_diversity,
+            metadata,
+            where="SampleType='gut' OR SampleType='tongue'"
+            )
+
+        expected = pd.Series([1.0, 2.0], index=['S1', 'S2'])
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
+
+    def test_filter_alpha_diversity_where_exclude_ids_filter_some(self):
+        df = pd.DataFrame({'Subject': ['subject-1', 'subject-1'],
+                           'SampleType': ['gut', 'tongue']},
+                          index=pd.Index(['S1', 'S2'], name='id'))
+        metadata = qiime2.Metadata(df)
+
+        alpha_diversity = pd.Series([1.0, 2.0, 3.0],
+                                    index=['S1', 'S2', 'S3'])
+
+        filtered = filter_alpha_diversity(alpha_diversity, metadata,
+                                          where="SampleType='gut'",
+                                          exclude_ids=True)
+
+        expected = pd.Series([2.0, 3.0], index=['S2', 'S3'])
+
+        self.assertTrue(filtered.sort_values().equals(expected.sort_values()))
 
 
 if __name__ == "__main__":

@@ -164,7 +164,6 @@ plugin.pipelines.register_function(
                  'metric for all samples in a feature table.'),
 )
 
-
 plugin.pipelines.register_function(
     function=q2_diversity.alpha,
     inputs={'table':
@@ -642,6 +641,43 @@ plugin.methods.register_function(
     output_descriptions={
         'filtered_distance_matrix': 'Distance matrix filtered to include '
                                     'samples matching search criteria'
+    }
+)
+
+plugin.methods.register_function(
+    function=q2_diversity.filter_alpha_diversity,
+    inputs={
+        'alpha_diversity': SampleData[AlphaDiversity]
+    },
+    parameters={
+        'metadata': Metadata,
+        'exclude_ids': Bool,
+        'where': Str
+    },
+    outputs=[
+        ('filtered_alpha_diversity', SampleData[AlphaDiversity])
+    ],
+    name="Filter samples from an alpha diversity metric.",
+    description="Filter samples from an alpha diversity metric, retaining "
+                "samples with corresponding `metadata` (or retaining "
+                "samples without metadata, if `exclude_ids` is True). See "
+                "the filtering tutorial on https://docs.qiime2.org for "
+                "additional details.",
+    input_descriptions={
+        'alpha_diversity': 'Alpha diversity sample data to filter by sample.'
+    },
+    parameter_descriptions={
+       'metadata': 'Sample metadata used to select samples to retain from '
+                   'the sample data (default) or select samples to exclude '
+                   'using the `exclude_ids` parameter.',
+       'where': 'SQLite WHERE clause specifying sample metadata criteria '
+                'that must be met to be included in the filtered alpha '
+                'diversity artifact. If not provided, all samples in '
+                '`metadata` that are also in the input alpha diversity '
+                'artifact will be retained.',
+       'exclude_ids': 'If `True`, the samples selected by `metadata` or the '
+                      '`where` parameters will be excluded from the filtered '
+                      'alpha diversity artifact instead of being retained.'
     }
 )
 
