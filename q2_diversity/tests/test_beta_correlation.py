@@ -35,10 +35,10 @@ class BetaCorrelationTests(TestPluginBase):
 
     def test_execution(self):
         # does it run?
-        self.beta_correlation(self.md, self.dm)
+        self.beta_correlation(self.dm, self.md)
 
     def test_outputs(self):
-        result = self.beta_correlation(self.md, self.dm)
+        result = self.beta_correlation(self.dm, self.md)
         # correct number of outputs?
         self.assertEqual(2, len(result))
         # correct types?
