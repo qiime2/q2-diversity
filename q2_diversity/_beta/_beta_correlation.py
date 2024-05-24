@@ -7,10 +7,10 @@
 # ----------------------------------------------------------------------------
 
 
-def beta_correlation(ctx, metadata, distance_matrix,
+def beta_correlation(ctx, distance_matrix, metadata,
                      method="spearman", permutations=999,
-                     intersect_ids=False, label1='Metadata',
-                     label2='Distance Matrix'):
+                     intersect_ids=False, label1='Distance Matrix',
+                     label2='Metadata'):
 
     convert_to_dist_matrix = ctx.get_action('metadata', 'distance_matrix')
     mantel = ctx.get_action('diversity', 'mantel')
