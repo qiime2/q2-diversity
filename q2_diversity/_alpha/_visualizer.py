@@ -273,6 +273,9 @@ def _compute_summary(data, id_label, counts=None):
         summary_df['count'] = 1
     summary_df = summary_df.reset_index()
     summary_df.rename(columns={'level_0': id_label}, inplace=True)
+    # this seems to work, but it's unclear to me why this wasn't needed before
+    summary_df.rename(columns={'level_1': '_alpha_rarefaction_depth_column_'},
+                      inplace=True)
     return summary_df
 
 
@@ -280,6 +283,7 @@ def _alpha_rarefaction_jsonp(output_dir, filename, metric, data, column):
     with open(os.path.join(output_dir, filename), 'w') as fh:
         fh.write("load_data('%s', '%s'," % (metric, column))
         data.to_json(fh, orient='split')
+        # _alpha_rarefaction_depth_column_ is changed to level_1
         fh.write(");")
 
 
@@ -319,6 +323,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
 
                 vector = vector.view(pd.Series)
                 data[metric][(depth, i)] = vector
+        # at this point, the _alpha_rarefaction_depth_column_ is still present
         return data
 
 
@@ -379,7 +384,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
         metadata_df.columns = pd.MultiIndex.from_tuples(
             [(c, '') for c in metadata_df.columns])
         columns = metadata_df.columns.get_level_values(0)
-
+    # _alpha_rarefaction_depth_column_ still present
     data = _compute_rarefaction_data(table, min_depth, max_depth,
                                      steps, iterations, phylogeny, metrics)
 
