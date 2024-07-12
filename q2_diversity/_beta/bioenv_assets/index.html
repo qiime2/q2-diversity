@@ -3,26 +3,25 @@
 {% block content %}
     {% if non_numeric_cols %}
       <div class="alert alert-warning col-md-12">
-        The following metadata columns have been omitted because the metadata
-        column was not numeric:
+        The following metadata column(s) have been omitted
+        because they were not numeric:
         <strong>{{ non_numeric_cols }}</strong>
       </div>
     {% endif %}
     {% if zero_variance_cols %}
       <div class="alert alert-warning col-md-12">
-        The following metadata columns have been omitted because the metadata
-        column had no variance, or consisted only of missing values:
+        The following metadata column(s) have been omitted
+        because they had no variance:
         <strong>{{ zero_variance_cols }}</strong>
       </div>
     {% endif %}
-    {% if initial_dm_length != filtered_dm_length %}
-      <p class="alert alert-warning">
-        <b>Warning</b>: Some samples were filtered from the input distance matrix
-        because they were missing metadata values.<br><b>The input distance matrix
-        contained {{ initial_dm_length }} samples but bioenv was computed on only
-        {{ filtered_dm_length }} samples.
-      </p>
-    {% endif %}
+    {% if missing_values_cols %}
+    <div class="alert alert-warning col-md-12">
+      The following metadata column(s) have been omitted
+      because they contained missing values:
+      <strong>{{ missing_values_cols }}</strong>
+    </div>
+  {% endif %}
     <div class="row">
         <div class="col-lg-12">
             {{ result }}

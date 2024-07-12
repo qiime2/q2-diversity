@@ -385,88 +385,81 @@ class BetaDiversityTests(TestPluginBase):
 class BioenvTests(TestPluginBase):
     package = 'q2_diversity.tests'
 
-    def test_bioenv(self):
-        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
-                                   [0.25, 0.00, 0.00],
-                                   [0.25, 0.00, 0.00]],
-                                  ids=['sample1', 'sample2', 'sample3'])
+    def setUp(self):
+        super().setUp()
+        self.dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                        [0.25, 0.00, 0.00],
+                                        [0.25, 0.00, 0.00]],
+                                       ids=['sample1', 'sample2', 'sample3'])
+
+    def test_bioenv_exclude_non_numeric_columns(self):
         md = qiime2.Metadata(
             pd.DataFrame(
                 [[1.0, 'a'], [2.0, 'b'], [3.0, 'c']],
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
                 columns=['metadata1', 'metadata2']))
+
         with tempfile.TemporaryDirectory() as output_dir:
-            bioenv(output_dir, dm, md)
+            bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
+
+            # assert that the html file exists
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('metadata1' in open(index_fp).read())
 
-            self.assertTrue('not numeric:' in open(index_fp).read())
-            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+            # assert that metadata1 was found in the table
+            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
 
-            self.assertFalse('Warning' in open(index_fp).read())
+            # assert that metadata2 was found in the alert div at the top
+            # of the page in the list of excluded non-numeric cols
+            self.assertTrue(
+                '        because they were not numeric:\n'
+                '        <strong>metadata2</strong>' in open(index_fp).read())
 
-    def test_bioenv_exclude_missing_data(self):
-        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
-                                   [0.25, 0.00, 0.00],
-                                   [0.25, 0.00, 0.00]],
-                                  ids=['sample1', 'sample2', 'sample3'])
+    def test_bioenv_exclude_missing_data_columns(self):
         md = qiime2.Metadata(
             pd.DataFrame(
                 [[1.0, 2.0], [2.0, np.nan], [3.0, 42.0]],
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
                 columns=['metadata1', 'metadata2']))
+
         with tempfile.TemporaryDirectory() as output_dir:
-            bioenv(output_dir, dm, md)
+            bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
+
+            # assert that the html file exists
             self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('metadata1' in open(index_fp).read())
-            self.assertTrue('metadata2' in open(index_fp).read())
-            self.assertTrue('Warning' in open(index_fp).read())
-            self.assertTrue('contained 3 samples' in open(index_fp).read())
-            self.assertTrue('2 samples' in open(index_fp).read())
 
-    def test_bioenv_extra_metadata(self):
-        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
-                                   [0.25, 0.00, 0.00],
-                                   [0.25, 0.00, 0.00]],
-                                  ids=['sample1', 'sample2', 'sample3'])
-        md = qiime2.Metadata(
-            pd.DataFrame(
-                [[1.0, 'a'], [2.0, 'b'], [3.0, 'c'], [4.0, 'd']],
-                index=pd.Index(['sample1', 'sample2', 'sample3', 'sample4'],
-                               name='id'),
-                columns=['metadata1', 'metadata2']))
-        with tempfile.TemporaryDirectory() as output_dir:
-            bioenv(output_dir, dm, md)
-            index_fp = os.path.join(output_dir, 'index.html')
-            self.assertTrue(os.path.exists(index_fp))
-            self.assertTrue('metadata1' in open(index_fp).read())
+            # assert that metadata1 was found in the table
+            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
 
-            self.assertTrue('not numeric:' in open(index_fp).read())
-            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+            # assert that metadata2 was found in the alert div at the top
+            # of the page in the list of excluded cols w/missing vals
+            self.assertTrue(
+                '      because they contained missing values:\n'
+                '      <strong>metadata2</strong>' in open(index_fp).read())
 
-            self.assertFalse('Warning' in open(index_fp).read())
-
-    def test_bioenv_zero_variance_column(self):
-        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
-                                   [0.25, 0.00, 0.00],
-                                   [0.25, 0.00, 0.00]],
-                                  ids=['sample1', 'sample2', 'sample3'])
+    def test_bioenv_exclude_zero_variance_columns(self):
         md = qiime2.Metadata(
             pd.DataFrame(
                 [[1.0, 2.0], [2.0, 2.0], [3.0, 2.0]],
                 index=pd.Index(['sample1', 'sample2', 'sample3'], name='id'),
                 columns=['metadata1', 'metadata2']))
+
         with tempfile.TemporaryDirectory() as output_dir:
-            bioenv(output_dir, dm, md)
+            bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
-            self.assertTrue('metadata1' in open(index_fp).read())
 
-            self.assertTrue('no variance' in open(index_fp).read())
-            self.assertTrue('<strong>metadata2' in open(index_fp).read())
+            # assert that the html file exists
+            self.assertTrue(os.path.exists(index_fp))
 
-            self.assertFalse('Warning' in open(index_fp).read())
+            # assert that metadata1 was found in the table
+            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
+
+            # assert that metadata2 was found in the alert div at the top
+            # of the page in the list of excluded cols w/no variance
+            self.assertTrue(
+                '        because they had no variance:\n'
+                '        <strong>metadata2</strong>' in open(index_fp).read())
 
 
 class BetaGroupSignificanceTests(unittest.TestCase):
