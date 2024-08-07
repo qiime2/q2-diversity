@@ -402,18 +402,18 @@ class BioenvTests(TestPluginBase):
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
+            html = open(index_fp).read()
 
             # assert that the html file exists
             self.assertTrue(os.path.exists(index_fp))
 
             # assert that metadata1 was found in the table
-            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
+            self.assertIn('<th>metadata1</th>', html)
 
             # assert that metadata2 was found in the alert div at the top
             # of the page in the list of excluded non-numeric cols
-            self.assertTrue(
-                '        because they were not numeric:\n'
-                '        <strong>metadata2</strong>' in open(index_fp).read())
+            self.assertIn('        because they were not numeric:\n'
+                          '        <strong>metadata2</strong>', html)
 
     def test_bioenv_exclude_missing_data_columns(self):
         md = qiime2.Metadata(
@@ -425,18 +425,18 @@ class BioenvTests(TestPluginBase):
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
+            html = open(index_fp).read()
 
             # assert that the html file exists
             self.assertTrue(os.path.exists(index_fp))
 
             # assert that metadata1 was found in the table
-            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
+            self.assertIn('<th>metadata1</th>', html)
 
             # assert that metadata2 was found in the alert div at the top
             # of the page in the list of excluded cols w/missing vals
-            self.assertTrue(
-                '      because they contained missing values:\n'
-                '      <strong>metadata2</strong>' in open(index_fp).read())
+            self.assertIn('      because they contained missing values:\n'
+                          '      <strong>metadata2</strong>', html)
 
     def test_bioenv_exclude_zero_variance_columns(self):
         md = qiime2.Metadata(
@@ -448,18 +448,18 @@ class BioenvTests(TestPluginBase):
         with tempfile.TemporaryDirectory() as output_dir:
             bioenv(output_dir, self.dm, md)
             index_fp = os.path.join(output_dir, 'index.html')
+            html = open(index_fp).read()
 
             # assert that the html file exists
             self.assertTrue(os.path.exists(index_fp))
 
             # assert that metadata1 was found in the table
-            self.assertTrue('<th>metadata1</th>' in open(index_fp).read())
+            self.assertIn('<th>metadata1</th>', html)
 
             # assert that metadata2 was found in the alert div at the top
             # of the page in the list of excluded cols w/no variance
-            self.assertTrue(
-                '        because they had no variance:\n'
-                '        <strong>metadata2</strong>' in open(index_fp).read())
+            self.assertIn('        because they had no variance:\n'
+                          '        <strong>metadata2</strong>', html)
 
 
 class BetaGroupSignificanceTests(unittest.TestCase):
