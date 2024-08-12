@@ -36,41 +36,34 @@ def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
     # Also ensures every distance matrix ID is present in the metadata.
     metadata = metadata.filter_ids(distance_matrix.ids)
 
-    # drop non-numeric columns and empty columns
+    # drop non-numeric columns
     pre_filtered_cols = set(metadata.columns)
     metadata = metadata.filter_columns(column_type='numeric')
     non_numeric_cols = pre_filtered_cols - set(metadata.columns)
 
-    # Drop samples that have any missing values.
-    # TODO use Metadata API if more filtering is supported in the future.
+    # Drop cols with any empty values so we're only retaining dense columns.
+    # TODO: use Metadata API if more filtering is supported in the future.
     df = metadata.to_dataframe()
-    df = df.dropna()
+    all_cols = set(df.columns)
+    df = df.dropna(axis=1)
+    missing_values_cols = all_cols - set(df.columns)
     metadata = qiime2.Metadata(df)
 
-    # filter 0 variance numerical columns and empty columns
+    # filter 0 variance numerical columns
     pre_filtered_cols = set(metadata.columns)
-    metadata = metadata.filter_columns(drop_zero_variance=True,
-                                       drop_all_missing=True)
+    metadata = metadata.filter_columns(drop_zero_variance=True)
     zero_variance_cols = pre_filtered_cols - set(metadata.columns)
 
     df = metadata.to_dataframe()
-
-    # filter the distance matrix to exclude samples that were dropped from
-    # the metadata, and keep track of how many samples survived the filtering
-    # so that information can be presented to the user.
-    initial_dm_length = distance_matrix.shape[0]
-    distance_matrix = distance_matrix.filter(df.index)
-    filtered_dm_length = distance_matrix.shape[0]
 
     result = skbio.stats.distance.bioenv(distance_matrix, df)
     result = q2templates.df_to_html(result)
 
     index = os.path.join(TEMPLATES, 'bioenv_assets', 'index.html')
     q2templates.render(index, output_dir, context={
-        'initial_dm_length': initial_dm_length,
-        'filtered_dm_length': filtered_dm_length,
         'non_numeric_cols': ', '.join(sorted(non_numeric_cols)),
         'zero_variance_cols': ', '.join(sorted(zero_variance_cols)),
+        'missing_values_cols': ', '.join(sorted(missing_values_cols)),
         'result': result})
 
 
