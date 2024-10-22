@@ -295,31 +295,31 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
             for k in metrics}
 
-    with qiime2.sdk.Context() as scope:
-        feature_table = scope.ctx.make_artifact(
-                'FeatureTable[Frequency]', feature_table)
+    ctx = qiime2.sdk.Context()
+    feature_table = ctx.make_artifact(
+            'FeatureTable[Frequency]', feature_table)
 
-        if phylogeny:
-            phylogeny = scope.ctx.make_artifact('Phylogeny[Rooted]', phylogeny)
+    if phylogeny:
+        phylogeny = ctx.make_artifact('Phylogeny[Rooted]', phylogeny)
 
-        for depth, i in itertools.product(depth_range, iter_range):
-            rarefy_method = scope.ctx.get_action('feature_table', 'rarefy')
-            rt, = rarefy_method(feature_table, depth)
+    for depth, i in itertools.product(depth_range, iter_range):
+        rarefy_method = ctx.get_action('feature_table', 'rarefy')
+        rt, = rarefy_method(feature_table, depth)
 
-            for metric in metrics:
-                if metric in (METRICS['PHYLO']['IMPL'] |
-                              METRICS['PHYLO']['UNIMPL']):
-                    alpha_phylo = scope.ctx.get_action('diversity',
-                                                       'alpha_phylogenetic')
-                    vector, = alpha_phylo(table=rt, metric=metric,
-                                          phylogeny=phylogeny)
-                else:
-                    alpha = scope.ctx.get_action('diversity', 'alpha')
-                    vector, = alpha(table=rt, metric=metric)
+        for metric in metrics:
+            if metric in (METRICS['PHYLO']['IMPL'] |
+                          METRICS['PHYLO']['UNIMPL']):
+                alpha_phylo = ctx.get_action('diversity',
+                                             'alpha_phylogenetic')
+                vector, = alpha_phylo(table=rt, metric=metric,
+                                      phylogeny=phylogeny)
+            else:
+                alpha = ctx.get_action('diversity', 'alpha')
+                vector, = alpha(table=rt, metric=metric)
 
-                vector = vector.view(pd.Series)
-                data[metric][(depth, i)] = vector
-        return data
+            vector = vector.view(pd.Series)
+            data[metric][(depth, i)] = vector
+    return data
 
 
 def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,

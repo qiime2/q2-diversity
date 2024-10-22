@@ -180,40 +180,40 @@ class GetMultipleRarefactionTests(SharedSetup, TestPluginBase):
     package = 'q2_diversity.tests'
 
     def test_with_phylogeny(self):
-        with qiime2.sdk.Context() as scope:
-            table = qiime2.Artifact.import_data('FeatureTable[Frequency]',
-                                                self.table)
-            tree = qiime2.Artifact.import_data('Phylogeny[Rooted]',
-                                               self.tree)
-            api_method = scope.ctx.get_action('diversity', 'beta_phylogenetic')
-            beta_func = functools.partial(api_method, phylogeny=tree)
-            rare_func = scope.ctx.get_action('feature-table', 'rarefy')
+        ctx = qiime2.sdk.Context()
+        table = qiime2.Artifact.import_data('FeatureTable[Frequency]',
+                                            self.table)
+        tree = qiime2.Artifact.import_data('Phylogeny[Rooted]',
+                                           self.tree)
+        api_method = ctx.get_action('diversity', 'beta_phylogenetic')
+        beta_func = functools.partial(api_method, phylogeny=tree)
+        rare_func = ctx.get_action('feature-table', 'rarefy')
 
-            for iterations in range(1, 4):
-                obs_dms = _get_multiple_rarefaction(
-                        beta_func, rare_func, 'weighted_unifrac',
-                        iterations, table, 2)
+        for iterations in range(1, 4):
+            obs_dms = _get_multiple_rarefaction(
+                    beta_func, rare_func, 'weighted_unifrac',
+                    iterations, table, 2)
 
-                self.assertEqual(len(obs_dms), iterations)
-                for obs in obs_dms:
-                    self.assertEqual(obs.shape, (3, 3))
-                    self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
+            self.assertEqual(len(obs_dms), iterations)
+            for obs in obs_dms:
+                self.assertEqual(obs.shape, (3, 3))
+                self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
 
     def test_without_phylogeny(self):
-        with qiime2.sdk.Context() as scope:
-            table = qiime2.Artifact.import_data('FeatureTable[Frequency]',
-                                                self.table)
-            beta_func = scope.ctx.get_action('diversity', 'beta')
-            rare_func = scope.ctx.get_action('feature-table', 'rarefy')
-            for iterations in range(1, 4):
-                obs_dms = _get_multiple_rarefaction(beta_func, rare_func,
-                                                    'braycurtis', iterations,
-                                                    table, 2)
+        ctx = qiime2.sdk.Context()
+        table = qiime2.Artifact.import_data('FeatureTable[Frequency]',
+                                            self.table)
+        beta_func = ctx.get_action('diversity', 'beta')
+        rare_func = ctx.get_action('feature-table', 'rarefy')
+        for iterations in range(1, 4):
+            obs_dms = _get_multiple_rarefaction(beta_func, rare_func,
+                                                'braycurtis', iterations,
+                                                table, 2)
 
-                self.assertEqual(len(obs_dms), iterations)
-                for obs in obs_dms:
-                    self.assertEqual(obs.shape, (3, 3))
-                    self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
+            self.assertEqual(len(obs_dms), iterations)
+            for obs in obs_dms:
+                self.assertEqual(obs.shape, (3, 3))
+                self.assertEqual(set(obs.ids), set(['S1', 'S2', 'S3']))
 
 
 class UPGMATests(unittest.TestCase):
