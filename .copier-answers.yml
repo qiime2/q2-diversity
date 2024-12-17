@@ -1,0 +1,11 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: a7e63b7
+_src_path: https://github.com/qiime2/q2-setup-template.git
+module_name: diversity
+plugin_name: q2_diversity
+project_author_email: null
+project_author_name: ''
+project_description: null
+project_name: null
+project_urls_homepage: null
+project_urls_repository: https://github.com/qiime2/q2-diversity
