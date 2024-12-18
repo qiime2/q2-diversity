@@ -15,10 +15,11 @@ from ._ordination import pcoa, pcoa_biplot, tsne, umap
 from ._procrustes import procrustes_analysis, partial_procrustes
 from ._core_metrics import core_metrics_phylogenetic, core_metrics
 from ._filter import filter_distance_matrix, filter_alpha_diversity
-from ._version import get_versions
 
-__version__ = get_versions()['version']
-del get_versions
+try:
+    from ._version import __version__
+except ModuleNotFoundError:
+    __version__ = '0.0.0+notfound'
 
 
 __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
