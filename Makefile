@@ -37,7 +37,7 @@ viz-alpha-group-significance: q2_diversity/_alpha/alpha_group_significance_asset
 viz-alpha-rarefaction: q2_diversity/_alpha/alpha_rarefaction_assets/dist
 
 install: all
-	$(PYTHON) setup.py install
+	$(PYTHON) -m pip install -v .
 
 dev: all
 	pip install -e .
