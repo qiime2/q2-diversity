@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: dfb0404
+_src_path: https://github.com/qiime2/q2-setup-template.git
+module_name: diversity
+plugin_name: q2_diversity
+plugin_scripts: q2_diversity/_beta/adonis_assets/run_adonis.R
+project_author_email: gregcaporaso@gmail.com
+project_author_name: Greg Caporaso
+project_description: Core diversity analyses.
+project_name: q2-diversity
+project_urls_homepage: https://qiime2.org
+project_urls_repository: https://github.com/qiime2/q2-diversity

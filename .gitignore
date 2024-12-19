@@ -70,3 +70,7 @@ package-lock.json
 
 #VSCode Workspace Files
 .vscode/
+
+# Version file from versioningit
+_version.py
+
