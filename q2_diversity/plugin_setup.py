@@ -178,7 +178,7 @@ plugin.pipelines.register_function(
     parameter_descriptions={
         'metric': 'The alpha diversity metric to be computed. Information '
         'about specific metrics is available at '
-        'https://data.qiime2.org/a_diversity_metrics'
+        'https://scikit.bio/docs/latest/generated/skbio.diversity.alpha.html.'
     },
     output_descriptions={
         'alpha_diversity': 'Vector containing per-sample alpha diversities.'
