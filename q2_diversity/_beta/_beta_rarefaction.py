@@ -6,7 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import pkg_resources
+import importlib.resources
 import os.path
 import functools
 
@@ -22,7 +22,7 @@ import q2templates
 from . import METRICS
 from .._ordination import pcoa
 
-TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
+TEMPLATES = importlib.resources.files('q2_diversity') / '_beta'
 
 
 def beta_rarefaction(output_dir: str, table: biom.Table, metric: str,

@@ -8,8 +8,8 @@
 
 import os.path
 import collections
+import importlib.resources
 import urllib.parse
-import pkg_resources
 import itertools
 import tempfile
 import subprocess
@@ -27,7 +27,7 @@ from natsort import natsorted
 from patsy import ModelDesc
 
 
-TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_beta')
+TEMPLATES = importlib.resources.files('q2_diversity') / '_beta'
 
 
 def bioenv(output_dir: str, distance_matrix: skbio.DistanceMatrix,
