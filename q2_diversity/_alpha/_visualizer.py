@@ -6,9 +6,9 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import importlib.resources
 import json
 import os
-import pkg_resources
 import shutil
 from urllib.parse import quote
 import functools
@@ -25,7 +25,7 @@ import itertools
 from . import METRICS
 from q2_types.tree import NewickFormat
 
-TEMPLATES = pkg_resources.resource_filename('q2_diversity', '_alpha')
+TEMPLATES = importlib.resources.files('q2_diversity') / '_alpha'
 
 
 def alpha_group_significance(output_dir: str, alpha_diversity: pd.Series,
