@@ -238,6 +238,11 @@ class CoreMetricsTests(TestPluginBase):
                                            sampling_depth=200,
                                            metadata=metadata,
                                            ignore_missing_samples=False)
+        with self.assertRaisesRegex(ValueError, 'Table must have at least two '
+                                                'samples as beta diversity '
+                                                'will be applied later.'):
+            self.core_metrics(table=table, sampling_depth=200,
+                              metadata=metadata, ignore_missing_samples=False)
 
 
 if __name__ == '__main__':
