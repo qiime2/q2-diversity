@@ -16,6 +16,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
             'Table must have at least two samples as beta diversity will be'
             ' applied later.'
         )
+
     rarefy = ctx.get_action('feature_table', 'rarefy')
     observed_features = ctx.get_action('diversity_lib', 'observed_features')
     pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')

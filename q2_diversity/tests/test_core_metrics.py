@@ -223,14 +223,23 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(repr(results.jaccard_emperor.type), 'Visualization')
 
     def test_core_metrics_sample_number(self):
+        '''
+        This function tests the`core_metrics` pipeline and
+        `core_metrics_phylogenetic` pipeline to make sure that an
+        error is raised when a user passes a feature table with only one
+        sample.
+        '''
         table = biom.Table(np.array([[150], [100]]), ['O1', 'O2'], ['S1'])
         table = Artifact.import_data('FeatureTable[Frequency]', table)
+
         tree = skbio.TreeNode.read(io.StringIO(
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;'))
         tree = Artifact.import_data('Phylogeny[Rooted]', tree)
+
         metadata = Metadata(
             pd.DataFrame({'foo': ['1']},
                          index=pd.Index(['S1'], name='id')))
+
         with self.assertRaisesRegex(ValueError, 'Table must have at least two '
                                                 'samples as beta diversity '
                                                 'will be applied later.'):
@@ -238,6 +247,7 @@ class CoreMetricsTests(TestPluginBase):
                                            sampling_depth=200,
                                            metadata=metadata,
                                            ignore_missing_samples=False)
+
         with self.assertRaisesRegex(ValueError, 'Table must have at least two '
                                                 'samples as beta diversity '
                                                 'will be applied later.'):
