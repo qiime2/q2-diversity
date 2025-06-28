@@ -5,10 +5,18 @@
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
+import biom
 
 
 def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
                  n_jobs=1, ignore_missing_samples=False):
+    biom_table = table.view(biom.Table)
+    if biom_table.length() < 2:
+        raise ValueError(
+            'Table must have at least two samples as beta diversity will be'
+            ' applied later.'
+        )
+
     rarefy = ctx.get_action('feature_table', 'rarefy')
     observed_features = ctx.get_action('diversity_lib', 'observed_features')
     pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')
