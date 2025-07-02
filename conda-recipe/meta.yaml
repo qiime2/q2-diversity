@@ -38,7 +38,7 @@ requirements:
   - q2-diversity-lib >={{ q2_diversity_lib }}
   - r-base {{ r_base }}
   - r-vegan >=2.5_3
-  - umap-learn
+  - umap-learn {{ umap_learn }}
   - numba
 test:
   requires:
