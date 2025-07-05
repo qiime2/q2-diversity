@@ -37,7 +37,7 @@ requirements:
   - q2-emperor >={{ q2_emperor }}
   - q2-diversity-lib >={{ q2_diversity_lib }}
   - r-base {{ r_base }}
-  - r-vegan >=2.5_3
+  - r-vegan {{ r_vegan }}
   - umap-learn {{ umap_learn }}
   - numba
 test:
