@@ -74,3 +74,4 @@ package-lock.json
 # Version file from versioningit
 _version.py
 
+.idea/
