@@ -325,7 +325,9 @@ def mantel(output_dir: str, dm1: skbio.DistanceMatrix,
     x = 'Pairwise Distance (%s)' % label1
     y = 'Pairwise Distance (%s)' % label2
     scatter_data = pd.DataFrame(scatter_data, columns=[x, y])
-    sns.jointplot(x=x, y=y, data=scatter_data, kind='hex')
+    sns.jointplot(
+        x=x, y=y, data=scatter_data, kind='hex', joint_kws=dict(gridsize=25)
+    )
     plt.savefig(os.path.join(output_dir, 'mantel-scatter.svg'))
     plt.close()
 
