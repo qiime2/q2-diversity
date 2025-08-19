@@ -292,7 +292,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     cols = pd.MultiIndex.from_product(
         [list(depth_range), list(iter_range)],
         names=['_alpha_rarefaction_depth_column_', 'iter'])
-    data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
+    data = {k: pd.DataFrame(np.nan, index=rows, columns=cols)
             for k in metrics}
 
     ctx = qiime2.sdk.Context()
@@ -377,7 +377,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
             raise ValueError("All metadata filtered after dropping columns "
                              "that contained non-categorical data.")
         metadata_df.columns = pd.MultiIndex.from_tuples(
-            [(c, '') for c in metadata_df.columns],
+            [(c, '_') for c in metadata_df.columns],
             names=('_alpha_rarefaction_depth_column_', 'iter'))
         columns = metadata_df.columns.get_level_values(0)
     data = _compute_rarefaction_data(table, min_depth, max_depth,
