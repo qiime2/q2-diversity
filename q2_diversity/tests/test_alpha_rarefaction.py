@@ -38,7 +38,13 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -54,7 +60,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -70,7 +83,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer']},
                          index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -92,7 +112,14 @@ class AlphaRarefactionTests(unittest.TestCase):
                           'bar': [42, 4.2, 99.9, 100.0]},
                          index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
 
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
@@ -122,7 +149,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'depth': ['1', '2', '3']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -138,7 +172,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                phylogeny=p,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -158,8 +199,15 @@ class AlphaRarefactionTests(unittest.TestCase):
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p,
-                              metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                phylogeny=p,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -218,8 +266,14 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['S1', 'S2', 'S3'])
         metrics = set(['observed_features', 'shannon', 'pielou_e'])
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, metrics=metrics,
-                              max_depth=200)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metrics=metrics,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -236,7 +290,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet name': ['russ', 'milo', 'peanut']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
