@@ -9,7 +9,7 @@ import biom
 
 
 def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
-                 n_jobs=1, ignore_missing_samples=False):
+                 n_jobs=1, ignore_missing_samples=False, random_seed=None):
     biom_table = table.view(biom.Table)
     if biom_table.length() < 2:
         raise ValueError(
@@ -28,7 +28,8 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
 
     results = []
     rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth,
-                             with_replacement=with_replacement)
+                             with_replacement=with_replacement,
+                             random_seed=random_seed)
     results.append(rarefied_table)
 
     for metric in (observed_features, shannon, pielou_e):
@@ -55,7 +56,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
 
 def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
                               with_replacement=False, n_jobs_or_threads=1,
-                              ignore_missing_samples=False):
+                              ignore_missing_samples=False, random_seed=None):
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
     weighted_unifrac = ctx.get_action(
@@ -68,7 +69,8 @@ def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
     cr = core_metrics(table=table, sampling_depth=sampling_depth,
                       metadata=metadata, with_replacement=with_replacement,
                       n_jobs=n_jobs_or_threads,
-                      ignore_missing_samples=ignore_missing_samples)
+                      ignore_missing_samples=ignore_missing_samples,
+                      random_seed=random_seed)
 
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)

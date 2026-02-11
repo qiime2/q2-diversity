@@ -402,7 +402,8 @@ plugin.pipelines.register_function(
         'metadata': Metadata,
         'with_replacement': Bool,
         'n_jobs_or_threads': Threads,
-        'ignore_missing_samples': Bool
+        'ignore_missing_samples': Bool,
+        'random_seed': Int
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -446,7 +447,9 @@ plugin.pipelines.register_function(
                                   'default an exception will be raised if '
                                   'missing elements are encountered. Note, '
                                   'this flag only takes effect if there is at '
-                                  'least one overlapping element.'
+                                  'least one overlapping element.',
+        'random_seed': 'Seed for the random number generation used to rarefy '
+                       'your feature table.'
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
@@ -500,7 +503,8 @@ plugin.pipelines.register_function(
         'metadata': Metadata,
         'with_replacement': Bool,
         'n_jobs': Threads,
-        'ignore_missing_samples': Bool
+        'ignore_missing_samples': Bool,
+        'random_seed': Int
     },
     outputs=[
         ('rarefied_table', FeatureTable[Frequency]),
@@ -531,7 +535,10 @@ plugin.pipelines.register_function(
                                   'default an exception will be raised if '
                                   'missing elements are encountered. Note, '
                                   'this flag only takes effect if there is at '
-                                  'least one overlapping element.'
+                                  'least one overlapping element.',
+        'random_seed': 'Seed for the random number generation used to rarefy '
+                       'your feature table.'
+
     },
     output_descriptions={
         'rarefied_table': 'The resulting rarefied feature table.',
