@@ -53,7 +53,7 @@ def tsne(distance_matrix: skbio.DistanceMatrix,
 
     tsne = TSNE(number_of_dimensions, perplexity=perplexity,
                 learning_rate=learning_rate,
-                n_iter=n_iter,
+                max_iter=n_iter,
                 early_exaggeration=early_exaggeration,
                 random_state=random_state).fit_transform(data)
 
