@@ -160,7 +160,7 @@ def _upgma(dm):
 def _nj(dm):
     # Negative branch lengths are strange, BUT we are clustering, not modeling
     # evolution, so it's not necessarily a problem
-    nj = skbio.tree.nj(dm, disallow_negative_branch_length=False)
+    nj = skbio.tree.nj(dm, neg_as_zero=False)
     return nj.root_at_midpoint()
 
 
