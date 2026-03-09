@@ -32,8 +32,8 @@ out.path <- args[[6]]
 dm <- as.dist(distances)
 formula <- as.formula(paste("dm ~ ", formula))
 
-res <- adonis(formula, data=sample.md, permutations=perms, parallel=njobs)
+res <- adonis2(formula, by='terms', data=sample.md, permutations=perms, parallel=njobs)
 
-write.table(res$aov.tab, out.path, sep="\t", append=F, quote=FALSE)
+write.table(res, out.path, sep="\t", append=F, quote=FALSE)
 
 q(status=0)
