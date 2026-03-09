@@ -37,12 +37,11 @@ class AdonisTests(TestPluginBase):
             index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
 
         exp = pd.DataFrame(
-            [[1.0, 0.322916667, 0.0, 0.534482759, 1.0],
-             [1.0, 0.281250000, 0.0, 0.465517241, 1.0],
-             [0.0, -1.403048e-18, np.nan, -2.322286e-18, np.nan],
-             [2.0, 0.604166667, np.nan, 1.0, np.nan]],
-            columns=['Df', 'SumOfSqs', 'F', 'R2', 'Pr(>F)'],
-            index=['letter', 'number', 'Residuals', 'Total'])
+            [[2.0, 0.604167, 1.0, np.nan, np.nan],
+             [0.0, 0.000000, 0.0, np.nan, np.nan],
+             [2.0, 0.604167, 1.0, np.nan, np.nan]],
+            columns=['Df', 'SumOfSqs', 'R2', 'F', 'Pr(>F)'],
+            index=['Model', 'Residual', 'Total'])
 
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
