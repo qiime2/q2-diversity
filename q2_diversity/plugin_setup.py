@@ -971,5 +971,6 @@ plugin.visualizers.register_function(
                  'more details, consult the reference manual available '
                  'on the CRAN vegan page: '
                  'https://CRAN.R-project.org/package=vegan'),
-    citations=[citations['anderson2001new'], citations['Oksanen2018']]
+    citations=[citations['anderson2001new'], citations['Oksanen2018'],
+               citations['mcardleanderson2001']]
 )
