@@ -28,20 +28,33 @@ class AdonisTests(TestPluginBase):
         super().setUp()
 
         self.dm = skbio.DistanceMatrix(
-            [[0, 0.5, 1], [0.5, 0, 0.75], [1, 0.75, 0]],
-            ids=['sample1', 'sample2', 'sample3'])
+            [[0, 0.5, 1, 0.25, 1],
+             [0.5, 0, 0.75, 0.25, 0.75],
+             [1, 0.75, 0, 0.25, 0],
+             [0.25, 0.25, 0.25, 0, 0.25],
+             [1, 0.75, 0, 0.25, 0]],
+            ids=['sample1', 'sample2', 'sample3', 'sample4', 'sample5'])
 
+    # due to the adonis -> adonis2 migration in preparation for 2026.4 release,
+    # this test data has been updated to provide a distance matrix with
+    # sufficient residuals so as to not overfit the model when running adonis2
+    # this confirms that we still get the same terms in our output
+    # the expected DF has been confirmed correct by using the updated test data
+    # and running the prior adonis implementation, providing the same results
     def test_execute_and_validate_output(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [2, 'b']], columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a'], [3, 'c']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
 
         exp = pd.DataFrame(
-            [[2.0, 0.604167, 1.0, np.nan, np.nan],
-             [0.0, 0.000000, 0.0, np.nan, np.nan],
-             [2.0, 0.604167, 1.0, np.nan, np.nan]],
+            [[2, 0.41250, 0.568966, -6.6, 0.933333],
+             [1, 0.34375, 0.474138, -11.0, 1.000000],
+             [1, -0.03125, -0.043103, np.nan, np.nan],
+             [4, 0.72500, 1.000000, np.nan, np.nan]],
             columns=['Df', 'SumOfSqs', 'R2', 'F', 'Pr(>F)'],
-            index=['Model', 'Residual', 'Total'])
+            index=['letter', 'number', 'Residual', 'Total'])
 
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
