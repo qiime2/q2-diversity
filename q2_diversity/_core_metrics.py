@@ -7,12 +7,22 @@
 # ----------------------------------------------------------------------------
 import biom
 
+from rachis import Artifact, Visualization, Metadata
 from rachis.plugin import CaptureHolder, set_np_random_seed
 
 
-def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
-                 n_jobs=1, ignore_missing_samples=False,
-                 random_seed: CaptureHolder = None):
+def core_metrics(ctx,
+                 table: Artifact,
+                 sampling_depth: int,
+                 metadata: Metadata,
+                 with_replacement: bool = False,
+                 n_jobs: int = 1,
+                 ignore_missing_samples: bool = False,
+                 random_seed: CaptureHolder = None) -> \
+        tuple[
+            Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
+            Artifact, Artifact, Visualization, Visualization
+        ]:
     set_np_random_seed(random_seed)
     biom_table = table.view(biom.Table)
     if biom_table.length() < 2:
@@ -58,10 +68,21 @@ def core_metrics(ctx, table, sampling_depth, metadata, with_replacement=False,
     return tuple(results)
 
 
-def core_metrics_phylogenetic(ctx, table, phylogeny, sampling_depth, metadata,
-                              with_replacement=False, n_jobs_or_threads=1,
-                              ignore_missing_samples=False,
-                              random_seed: CaptureHolder = None):
+def core_metrics_phylogenetic(ctx,
+                              table: Artifact,
+                              phylogeny: Artifact,
+                              sampling_depth: int,
+                              metadata: Metadata,
+                              with_replacement: bool = False,
+                              n_jobs_or_threads: int = 1,
+                              ignore_missing_samples: bool = False,
+                              random_seed: CaptureHolder = None) -> \
+        tuple[
+            Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
+            Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
+            Artifact, Visualization, Visualization, Visualization,
+            Visualization
+        ]:
     set_np_random_seed(random_seed)
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
