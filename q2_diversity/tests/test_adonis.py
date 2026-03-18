@@ -49,10 +49,10 @@ class AdonisTests(TestPluginBase):
                             'sample4', 'sample5'], name='id')))
 
         exp = pd.DataFrame(
-            [[2, 0.41250, 0.568966, -6.6, 0.933333],
-             [1, 0.34375, 0.474138, -11.0, 1.000000],
-             [1, -0.03125, -0.043103, np.nan, np.nan],
-             [4, 0.72500, 1.000000, np.nan, np.nan]],
+            [[2, 0.41250, 0.568965517241379, -6.6, 0.933333],
+             [1, 0.34375, 0.474137931034483, -11.0, 1.0],
+             [1, -0.03125, -0.043103448275862, np.nan, np.nan],
+             [4, 0.72500, 1.0, np.nan, np.nan]],
             columns=['Df', 'SumOfSqs', 'R2', 'F', 'Pr(>F)'],
             index=['letter', 'number', 'Residual', 'Total'])
 
@@ -66,17 +66,19 @@ class AdonisTests(TestPluginBase):
 
     def test_adonis_handles_single_quotes_in_metadata(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a\'s'], [1, 'b\'s'], [2, 'b\'s'], [2, 'a\'s']],
+            [[1, 'a\'s'], [1, 'b\'s'], [2, 'b\'s'], [2, 'a\'s'], [3, 'c\'s']],
             columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3', 'F'], name='id')))
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
 
     def test_metadata_is_superset(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a']],
+            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a'], [3, 'c'], [4, 'd']],
             columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3', 'F'], name='id')))
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5', 'sample6'], name='id')))
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
 
@@ -90,25 +92,29 @@ class AdonisTests(TestPluginBase):
 
     def test_invalid_formula(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [2, 'b']], columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a'], [3, 'c']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
         with self.assertRaisesRegex(ValueError, "not a column"):
             with tempfile.TemporaryDirectory() as temp_dir_name:
                 adonis(temp_dir_name, self.dm, md, 'letter+fakecolumn')
 
     def test_metadata_index_rename(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a']],
+            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a'], [3, 'c']],
             columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3', 'F'],
-                           name='#SampleID')))
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='#SampleID')))
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, self.dm, md, 'letter+number')
 
     def test_nans_in_formula_column(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [np.nan, 'b']], columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            [[1, 'a'], [1, 'b'], [np.nan, 'b'], [2, 'a'], [3, 'c']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
         with redirected_stdio(stderr=os.devnull):
             with self.assertRaisesRegex(ValueError, "no NaN values.*`number`"):
                 with tempfile.TemporaryDirectory() as temp_dir_name:
@@ -116,8 +122,10 @@ class AdonisTests(TestPluginBase):
 
     def test_nans_in_unused_column(self):
         md = qiime2.Metadata(pd.DataFrame(
-            [[1, 'a'], [1, 'b'], [np.nan, 'b']], columns=['number', 'letter'],
-            index=pd.Index(['sample1', 'sample2', 'sample3'], name='id')))
+            [[1, 'a'], [1, 'b'], [np.nan, 'b'], [2, 'a'], [3, 'c']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
         with redirected_stdio(stderr=os.devnull):
             with tempfile.TemporaryDirectory() as temp_dir_name:
                 adonis(temp_dir_name, self.dm, md, 'letter+letter')
