@@ -39,7 +39,7 @@ class AdonisTests(TestPluginBase):
     # this test data has been updated to provide a distance matrix with
     # sufficient residuals so as to not overfit the model when running adonis2
     # this confirms that we still get the same terms in our output
-    # the expected DF has been confirmed correct by using the updated test data
+    # the expected DF has been validated by using the updated test data
     # and running the prior adonis implementation, providing the same results
     def test_execute_and_validate_output(self):
         md = qiime2.Metadata(pd.DataFrame(
