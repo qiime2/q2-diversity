@@ -8,10 +8,10 @@
 import biom
 
 from rachis import Artifact, Visualization, Metadata
-from rachis.plugin import CaptureHolder, set_np_random_seed
+from rachis.plugin import IContext, CaptureHolder, set_np_random_seed
 
 
-def core_metrics(ctx,
+def core_metrics(ctx: IContext,
                  table: Artifact,
                  sampling_depth: int,
                  metadata: Metadata,
@@ -68,7 +68,7 @@ def core_metrics(ctx,
     return tuple(results)
 
 
-def core_metrics_phylogenetic(ctx,
+def core_metrics_phylogenetic(ctx: IContext,
                               table: Artifact,
                               phylogeny: Artifact,
                               sampling_depth: int,
