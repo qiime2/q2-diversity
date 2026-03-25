@@ -242,7 +242,11 @@ def alpha_correlation(output_dir: str,
 
 
 def _reindex_with_metadata(column, columns, merged):
-    reindexed = merged.set_index(column)
+    # Metadata columns are padded to a 2-level MultiIndex to align with the
+    # rarefaction data, and pandas preserves that tuple-shaped key on join.
+    metadata_key = (column, '_')
+    reindexed = merged.set_index(metadata_key)
+    reindexed.index.name = column
     reindexed.sort_index(axis=0, ascending=True, inplace=True)
     grouped = reindexed.groupby(level=[column])
     counts = grouped.count()
