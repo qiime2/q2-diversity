@@ -8,7 +8,7 @@
 import biom
 
 from rachis import Artifact, Visualization, Metadata
-from rachis.plugin import IContext, CaptureHolder, set_np_random_seed
+from rachis.plugin import IContext, CaptureHolder, get_np_random_seed
 
 
 def core_metrics(ctx: IContext,
@@ -23,7 +23,7 @@ def core_metrics(ctx: IContext,
             Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
             Artifact, Artifact, Visualization, Visualization
         ]:
-    set_np_random_seed(random_seed)
+    random_int = CaptureHolder.get_or_set(random_seed, get_np_random_seed)
     biom_table = table.view(biom.Table)
     if biom_table.length() < 2:
         raise ValueError(
@@ -43,7 +43,7 @@ def core_metrics(ctx: IContext,
     results = []
     rarefied_table, = rarefy(table=table, sampling_depth=sampling_depth,
                              with_replacement=with_replacement,
-                             random_seed=random_seed.value)
+                             random_seed=random_int)
     results.append(rarefied_table)
 
     for metric in (observed_features, shannon, pielou_e):
@@ -83,7 +83,7 @@ def core_metrics_phylogenetic(ctx: IContext,
             Artifact, Visualization, Visualization, Visualization,
             Visualization
         ]:
-    set_np_random_seed(random_seed)
+    random_int = CaptureHolder.get_or_set(random_seed, get_np_random_seed)
     faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
     unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
     weighted_unifrac = ctx.get_action(
@@ -97,7 +97,7 @@ def core_metrics_phylogenetic(ctx: IContext,
                       metadata=metadata, with_replacement=with_replacement,
                       n_jobs=n_jobs_or_threads,
                       ignore_missing_samples=ignore_missing_samples,
-                      random_seed=random_seed.value)
+                      random_seed=random_int)
 
     faith_pd_vector, = faith_pd(table=cr.rarefied_table,
                                 phylogeny=phylogeny)
