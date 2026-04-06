@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2025, QIIME 2 development team.
+# Copyright (c) 2016-2026, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -242,7 +242,11 @@ def alpha_correlation(output_dir: str,
 
 
 def _reindex_with_metadata(column, columns, merged):
-    reindexed = merged.set_index(column)
+    # Metadata columns are padded to a 2-level MultiIndex to align with the
+    # rarefaction data, and pandas preserves that tuple-shaped key on join.
+    metadata_key = (column, '_')
+    reindexed = merged.set_index(metadata_key)
+    reindexed.index.name = column
     reindexed.sort_index(axis=0, ascending=True, inplace=True)
     grouped = reindexed.groupby(level=[column])
     counts = grouped.count()
@@ -292,7 +296,7 @@ def _compute_rarefaction_data(feature_table, min_depth, max_depth, steps,
     cols = pd.MultiIndex.from_product(
         [list(depth_range), list(iter_range)],
         names=['_alpha_rarefaction_depth_column_', 'iter'])
-    data = {k: pd.DataFrame(np.NaN, index=rows, columns=cols)
+    data = {k: pd.DataFrame(np.nan, index=rows, columns=cols)
             for k in metrics}
 
     ctx = qiime2.sdk.Context()
@@ -377,7 +381,7 @@ def alpha_rarefaction(output_dir: str, table: biom.Table, max_depth: int,
             raise ValueError("All metadata filtered after dropping columns "
                              "that contained non-categorical data.")
         metadata_df.columns = pd.MultiIndex.from_tuples(
-            [(c, '') for c in metadata_df.columns],
+            [(c, '_') for c in metadata_df.columns],
             names=('_alpha_rarefaction_depth_column_', 'iter'))
         columns = metadata_df.columns.get_level_values(0)
     data = _compute_rarefaction_data(table, min_depth, max_depth,

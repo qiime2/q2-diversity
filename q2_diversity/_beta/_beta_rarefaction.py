@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2025, QIIME 2 development team.
+# Copyright (c) 2016-2026, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -160,8 +160,10 @@ def _upgma(dm):
 def _nj(dm):
     # Negative branch lengths are strange, BUT we are clustering, not modeling
     # evolution, so it's not necessarily a problem
-    nj = skbio.tree.nj(dm, disallow_negative_branch_length=False)
-    return nj.root_at_midpoint()
+    # disallow_negative_branch_length was replaced by neg_as_zero in 0.6.3
+    nj = skbio.tree.nj(dm, neg_as_zero=False)
+    # root_at_midpoint default changed from False to True in 0.7.0
+    return nj.root_at_midpoint(reset=True)
 
 
 def _add_support_count(nodes, support):

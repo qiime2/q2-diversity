@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2025, QIIME 2 development team.
+# Copyright (c) 2016-2026, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -38,7 +38,13 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['O1', 'O2'],
                        ['S1', 'S2', 'S3'])
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -54,7 +60,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -70,7 +83,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet': ['russ', 'milo', 'peanut', 'summer']},
                          index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -80,6 +100,34 @@ class AlphaRarefactionTests(unittest.TestCase):
             metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
             with open(metric_fp) as metric_fh:
                 self.assertTrue('summer' not in metric_fh.read())
+
+    def test_alpha_rarefaction_with_partial_missing_metadata(self):
+        t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
+                       ['O1', 'O2'],
+                       ['S1', 'S2', 'S3'])
+        md = qiime2.Metadata(
+            pd.DataFrame({'pet': ['russ', np.nan, 'peanut']},
+                         index=pd.Index(['S1', 'S2', 'S3'], name='id')))
+        with tempfile.TemporaryDirectory() as output_dir:
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
+            metric_fp = os.path.join(output_dir, 'shannon-pet.jsonp')
+            self.assertTrue(os.path.exists(metric_fp))
+            with open(metric_fp) as metric_fh:
+                jsonp_content = metric_fh.read()
+            prefix = "load_data('shannon', 'pet',"
+            self.assertTrue(jsonp_content.startswith(prefix))
+            self.assertTrue(jsonp_content.endswith(");"))
+            contents = pd.read_json(
+                io.StringIO(jsonp_content[len(prefix):-2]), orient='split')
+            self.assertEqual(['peanut', 'peanut', 'russ', 'russ'],
+                             list(contents['pet']))
 
     def test_alpha_rarefaction_with_filtered_metadata_columns(self):
         t = biom.Table(np.array([[100, 111, 113], [111, 111, 112]]),
@@ -92,7 +140,14 @@ class AlphaRarefactionTests(unittest.TestCase):
                           'bar': [42, 4.2, 99.9, 100.0]},
                          index=pd.Index(['S1', 'S2', 'S3', 'S4'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
 
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
@@ -122,7 +177,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'depth': ['1', '2', '3']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -138,7 +200,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             '((O1:0.25, O2:0.50):0.25, O3:0.75)root;')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                phylogeny=p,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -158,8 +227,15 @@ class AlphaRarefactionTests(unittest.TestCase):
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
 
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, phylogeny=p,
-                              metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                phylogeny=p,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -218,8 +294,14 @@ class AlphaRarefactionTests(unittest.TestCase):
                        ['S1', 'S2', 'S3'])
         metrics = set(['observed_features', 'shannon', 'pielou_e'])
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, metrics=metrics,
-                              max_depth=200)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metrics=metrics,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -236,7 +318,14 @@ class AlphaRarefactionTests(unittest.TestCase):
             pd.DataFrame({'pet name': ['russ', 'milo', 'peanut']},
                          index=pd.Index(['S1', 'S2', 'S3'], name='id')))
         with tempfile.TemporaryDirectory() as output_dir:
-            alpha_rarefaction(output_dir, t, max_depth=200, metadata=md)
+            alpha_rarefaction(
+                output_dir,
+                t,
+                metadata=md,
+                max_depth=200,
+                steps=2,
+                iterations=1
+            )
             index_fp = os.path.join(output_dir, 'index.html')
             self.assertTrue(os.path.exists(index_fp))
             with open(index_fp) as index_fh:
@@ -446,7 +535,7 @@ class ComputeSummaryTests(unittest.TestCase):
 class ReindexWithMetadataTests(unittest.TestCase):
     def test_unique_metadata_groups(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
-                                             (200, 2), ('pet', '')],
+                                             (200, 2), ('pet', '_')],
                                             names=['depth', 'iter'])
         data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'milo'],
                                   [9, 10, 11, 12, 'peanut']],
@@ -454,7 +543,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
-        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '_']],
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
@@ -472,7 +561,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
     def test_some_duplicates_in_column(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
-                                             (200, 2), ('pet', '')],
+                                             (200, 2), ('pet', '_')],
                                             names=['depth', 'iter'])
         data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'milo'],
                                   [9, 10, 11, 12, 'russ']],
@@ -480,7 +569,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
-        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '_']],
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'russ'], name='pet')
@@ -496,7 +585,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
     def test_all_identical(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
-                                             (200, 2), ('pet', '')],
+                                             (200, 2), ('pet', '_')],
                                             names=['depth', 'iter'])
         data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'], [5, 6, 7, 8, 'russ'],
                                   [9, 10, 11, 12, 'russ']],
@@ -504,7 +593,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         median, counts = _reindex_with_metadata('pet', ['pet'], data)
 
-        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '']],
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '_']],
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['russ'], name='pet')
@@ -520,8 +609,8 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
     def test_multiple_columns(self):
         columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
-                                             (200, 2), ('pet', ''),
-                                             ('toy', '')],
+                                             (200, 2), ('pet', '_'),
+                                             ('toy', '_')],
                                             names=['depth', 'iter'])
         data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ', 'stick'],
                                   [5, 6, 7, 8, 'milo', 'yeti'],
@@ -530,7 +619,7 @@ class ReindexWithMetadataTests(unittest.TestCase):
 
         median, counts = _reindex_with_metadata('pet', ['pet', 'toy'], data)
 
-        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '']],
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet', 'toy'], [1, 2, '_']],
                                 codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
                                 names=['depth', 'iter'])
         exp_ind = pd.Index(['milo', 'peanut', 'russ'], name='pet')
@@ -555,6 +644,32 @@ class ReindexWithMetadataTests(unittest.TestCase):
         pdt.assert_frame_equal(exp, median)
 
         exp = pd.DataFrame(data=[[2, 2, 2, 2], [1, 1, 1, 1]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, counts)
+
+    def test_missing_metadata_values_are_dropped(self):
+        columns = pd.MultiIndex.from_tuples([(1, 1), (1, 2), (200, 1),
+                                             (200, 2), ('pet', '_')],
+                                            names=['depth', 'iter'])
+        data = pd.DataFrame(data=[[1, 2, 3, 4, 'russ'],
+                                  [5, 6, 7, 8, np.nan],
+                                  [9, 10, 11, 12, 'peanut']],
+                            columns=columns, index=['S1', 'S2', 'S3'])
+
+        median, counts = _reindex_with_metadata('pet', ['pet'], data)
+
+        exp_col = pd.MultiIndex(levels=[[1, 200, 'pet'], [1, 2, '_']],
+                                codes=[[0, 0, 1, 1], [0, 1, 0, 1]],
+                                names=['depth', 'iter'])
+        exp_ind = pd.Index(['peanut', 'russ'], name='pet')
+        exp = pd.DataFrame(data=[[9., 10., 11., 12.],
+                                 [1., 2., 3., 4.]],
+                           columns=exp_col, index=exp_ind)
+
+        pdt.assert_frame_equal(exp, median)
+
+        exp = pd.DataFrame(data=[[1, 1, 1, 1], [1, 1, 1, 1]],
                            columns=exp_col, index=exp_ind)
 
         pdt.assert_frame_equal(exp, counts)

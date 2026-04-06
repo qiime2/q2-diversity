@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2025, QIIME 2 development team.
+# Copyright (c) 2016-2026, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -267,17 +267,36 @@ class ClusterSamplesTests(unittest.TestCase):
         s2 = result.find('S2')
         s3 = result.find('S3')
 
+        # skbio changed tree behavior from 0.6.2 -> 0.7.1
+        # - nj was optimized in 0.6.3; docs note that output may differ in
+        #   root placement / branch-length precision while preserving topology
+        # https://github.com/scikit-bio/scikit-bio/releases/tag/0.6.3
+        # - root_at_midpoint defaults changed in 0.7.0
+        # https://scikit.bio/docs/dev/generated/skbio.tree.TreeNode.root_at_midpoint.html#skbio-tree-treenode-root-at-midpoint
+        # Because _nj() immediately midpoint-roots the nj tree, this test has
+        # been modified to reflect the fact that the internal branch above
+        # the {S1, S2} clade is not stable across versions
+        # but the clade and tip-to-tip distances are
+
+        # confirm primary distances
+        npt.assert_almost_equal(s1.distance(s2), 1)
+        npt.assert_almost_equal(s1.distance(s3), 2.1)
+        npt.assert_almost_equal(s2.distance(s3), 3)
+
+        # confirm tip lengths
         npt.assert_almost_equal(s1.length, 0.05)
         npt.assert_almost_equal(s2.length, 0.95)
+        npt.assert_almost_equal(s3.length, 1.50)
+
+        # {S1, S2} clade assertions
         self.assertIs(s1.parent, s2.parent)
         s1_s2 = s1.parent
+        # half of the support agrees with the primary for {S1, S2} clade
+        self.assertEqual(s1_s2.name, '0.5')
 
-        self.assertEqual(s1_s2.name, '0.5')  # half of the support agrees
-        npt.assert_almost_equal(s1_s2.length, 1)
-
-        npt.assert_almost_equal(s3.length, 1.05)
+        # root assertions
         self.assertIs(s3.parent, s1_s2.parent)
-        self.assertIs(s3.parent.name, 'root')  # root support is pointless
+        self.assertIs(s3.parent.name, None)
 
     def test_upgma_support(self):
         result = _cluster_samples(self.dm, self.support, 'upgma')

@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016-2025, QIIME 2 development team.
+# Copyright (c) 2016-2026, QIIME 2 development team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -978,5 +978,6 @@ plugin.visualizers.register_function(
                  'more details, consult the reference manual available '
                  'on the CRAN vegan page: '
                  'https://CRAN.R-project.org/package=vegan'),
-    citations=[citations['anderson2001new'], citations['Oksanen2018']]
+    citations=[citations['anderson2001new'], citations['Oksanen2018'],
+               citations['mcardleanderson2001']]
 )
