@@ -18,7 +18,7 @@ def core_metrics(ctx: IContext,
                  with_replacement: bool = False,
                  n_jobs: int = 1,
                  ignore_missing_samples: bool = False,
-                 random_seed: CaptureHolder = None) -> \
+                 random_seed: CaptureHolder[int] = None) -> \
         tuple[
             Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
             Artifact, Artifact, Visualization, Visualization
@@ -76,7 +76,7 @@ def core_metrics_phylogenetic(ctx: IContext,
                               with_replacement: bool = False,
                               n_jobs_or_threads: int = 1,
                               ignore_missing_samples: bool = False,
-                              random_seed: CaptureHolder = None) -> \
+                              random_seed: CaptureHolder[int] = None) -> \
         tuple[
             Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
             Artifact, Artifact, Artifact, Artifact, Artifact, Artifact,
