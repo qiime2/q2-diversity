@@ -13,6 +13,7 @@ requirements:
   - versioningit
   host:
   - python {{ python }}
+  - pip
   - setuptools
   - versioningit
   - wheel
