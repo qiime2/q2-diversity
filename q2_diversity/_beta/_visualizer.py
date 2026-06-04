@@ -176,7 +176,8 @@ def beta_group_significance(output_dir: str,
         ax = sns.boxplot(data=group_distances, flierprops={
             'marker': 'o', 'markeredgecolor': 'black', 'markeredgewidth': 0.5,
             'alpha': 0.5})
-        ax.set_xticklabels(x_ticklabels, rotation=90)
+        position = range(len(x_ticklabels))
+        ax.set_xticks(position, x_ticklabels, rotation=90)
         ax.set_xlabel('Group')
         ax.set_ylabel('Distance')
         ax.set_title('Distances to %s' % group_id)

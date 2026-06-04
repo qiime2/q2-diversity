@@ -20,6 +20,9 @@ from biom.table import Table
 import pandas as pd
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
+from unittest.mock import patch
+from matplotlib.pyplot import savefig
+import xml.dom.minidom
 
 
 from qiime2 import Artifact
@@ -743,6 +746,42 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         exp_labels = ['g1 (n=1)', 'g3 (n=2)', 'g2 (n=4)']
         self.assertEqual(obs[0], exp_data)
         self.assertEqual(obs[1], exp_labels)
+
+    def test_beta_group_significance_label(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.CategoricalMetadataColumn(
+            pd.Series(['a', 'b', 'b'], name='categories',
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            import matplotlib
+            from matplotlib.figure import Figure
+            original_savefig = matplotlib.figure.Figure.savefig
+            matplotlib.pyplot.rcParams['svg.fonttype'] = 'none'
+            
+            with patch.object(Figure, "savefig", autospec=True) as mock:
+                def wrapper(*args, **kwargs):
+                    print('wrappers args', args)
+                    kwargs['format'] = 'svg'
+                    return original_savefig(*args, **kwargs)
+                
+                mock.side_effect = wrapper
+
+                beta_group_significance(output_dir, dm, md)
+                
+
+
+
+                import shutil
+                shutil.copy(os.path.join(output_dir, 'a-boxplots.png'), '/mnt/c/Users/michi/qiime/q2-diversity')
+                with open(os.path.join(output_dir, 'a-boxplots.png')) as fh:
+                    print(fh.readlines()[0:5])
+                
+
 
 
 class TestMantel(unittest.TestCase):
