@@ -130,6 +130,17 @@ class AdonisTests(TestPluginBase):
             with tempfile.TemporaryDirectory() as temp_dir_name:
                 adonis(temp_dir_name, self.dm, md, 'letter+letter')
 
+    # addresses https://github.com/qiime2/q2-diversity/pull/394
+    def test_njobs_handled_as_integer(self):
+        md = qiime2.Metadata(pd.DataFrame(
+            [[1, 'a\'s'], [1, 'b\'s'], [2, 'b\'s'], [2, 'a\'s'], [3, 'c\'s']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
+        with tempfile.TemporaryDirectory() as temp_dir_name:
+            adonis(temp_dir_name, distance_matrix=self.dm, metadata=md,
+                   formula='letter+number', n_jobs='8')
+
 
 if __name__ == '__main__':
     unittest.main()
