@@ -21,9 +21,7 @@ import pandas as pd
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
 from unittest.mock import patch
-from matplotlib.pyplot import savefig
-import xml.dom.minidom
-
+import re
 
 from qiime2 import Artifact
 from q2_diversity import (bioenv, beta_group_significance, mantel)
@@ -762,26 +760,28 @@ class BetaGroupSignificanceTests(unittest.TestCase):
             from matplotlib.figure import Figure
             original_savefig = matplotlib.figure.Figure.savefig
             matplotlib.pyplot.rcParams['svg.fonttype'] = 'none'
-            
+
             with patch.object(Figure, "savefig", autospec=True) as mock:
                 def wrapper(*args, **kwargs):
                     print('wrappers args', args)
                     kwargs['format'] = 'svg'
                     return original_savefig(*args, **kwargs)
-                
+
                 mock.side_effect = wrapper
 
                 beta_group_significance(output_dir, dm, md)
-                
-
-
-
-                import shutil
-                shutil.copy(os.path.join(output_dir, 'a-boxplots.png'), '/mnt/c/Users/michi/qiime/q2-diversity')
                 with open(os.path.join(output_dir, 'a-boxplots.png')) as fh:
-                    print(fh.readlines()[0:5])
-                
+                    svg_a = fh.read()
+                    b = r'translate\(([\d.]+).*?b'
+                    b_match = re.search(b, svg_a)
+                    x_coor = float(b_match.group(1))
 
+                    line = r'd="M ([\d.]+).*?L ([\d.]+).*?fill: #e1812c'
+                    line_match = re.search(line, svg_a, re.DOTALL)
+                    x_min = float(line_match.group(1))
+                    x_max = float(line_match.group(2))
+
+                    self.assertTrue(x_min < x_coor < x_max)
 
 
 class TestMantel(unittest.TestCase):
