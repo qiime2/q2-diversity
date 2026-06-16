@@ -775,19 +775,19 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                 beta_group_significance(output_dir, dm, md)
                 with open(os.path.join(output_dir, 'a-boxplots.png')) as fh:
                     svg_a = fh.read()
-                    # Searches for the x coordinates for the label 'b'
-                    b = r'translate\(([\d.]+).*?b'
-                    b_match = re.search(b, svg_a)
-                    x_coor = float(b_match.group(1))
+                # Searches for the x coordinates for the label 'b'
+                b = r'translate\(([\d.]+).*?b'
+                b_match = re.search(b, svg_a)
+                x_coor = float(b_match.group(1))
 
-                    # Searches for the leftmost and rightmost x coordinates for
-                    # the box plot with orange (#e1812c) fill
-                    line = r'd="M ([\d.]+).*?L ([\d.]+).*?fill: #e1812c'
-                    line_match = re.search(line, svg_a, re.DOTALL)
-                    x_min = float(line_match.group(1))
-                    x_max = float(line_match.group(2))
+                # Searches for the leftmost and rightmost x coordinates for
+                # the box plot with orange (#e1812c) fill
+                line = r'd="M ([\d.]+).*?L ([\d.]+).*?fill: #e1812c'
+                line_match = re.search(line, svg_a, re.DOTALL)
+                x_min = float(line_match.group(1))
+                x_max = float(line_match.group(2))
 
-                    self.assertTrue(x_min < x_coor < x_max)
+                self.assertTrue(x_min < x_coor < x_max)
 
 
 class TestMantel(unittest.TestCase):
