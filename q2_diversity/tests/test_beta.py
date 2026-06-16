@@ -746,9 +746,9 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         exp_labels = ['g1 (n=1)', 'g3 (n=2)', 'g2 (n=4)']
         self.assertEqual(obs[0], exp_data)
         self.assertEqual(obs[1], exp_labels)
-    
+
     '''
-    This test verifies that the labels are aligned with the correct boxplots 
+    This test verifies that the labels are aligned with the correct boxplots
     after changing the way x-axis labels are set.
     '''
     def test_beta_group_significance_label(self):
@@ -780,7 +780,7 @@ class BetaGroupSignificanceTests(unittest.TestCase):
                     b_match = re.search(b, svg_a)
                     x_coor = float(b_match.group(1))
 
-                    # Searches for the leftmost and rightmost x coordinates for 
+                    # Searches for the leftmost and rightmost x coordinates for
                     # the box plot with orange (#e1812c) fill
                     line = r'd="M ([\d.]+).*?L ([\d.]+).*?fill: #e1812c'
                     line_match = re.search(line, svg_a, re.DOTALL)
