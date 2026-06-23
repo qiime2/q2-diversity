@@ -20,7 +20,10 @@ from biom.table import Table
 import pandas as pd
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
-
+import matplotlib
+from matplotlib.figure import Figure
+from unittest.mock import patch
+import re
 
 from qiime2 import Artifact
 from q2_diversity import (bioenv, beta_group_significance, mantel)
@@ -743,6 +746,59 @@ class BetaGroupSignificanceTests(unittest.TestCase):
         exp_labels = ['g1 (n=1)', 'g3 (n=2)', 'g2 (n=4)']
         self.assertEqual(obs[0], exp_data)
         self.assertEqual(obs[1], exp_labels)
+
+    '''
+    This test verifies that the labels are aligned with the correct boxplots
+    after changing the way x-axis labels are set.
+    '''
+    def test_beta_group_significance_label(self):
+        dm = skbio.DistanceMatrix([[0.00, 0.25, 0.25],
+                                   [0.25, 0.00, 0.00],
+                                   [0.25, 0.00, 0.00]],
+                                  ids=['sample1', 'sample2', 'sample3'])
+        md = qiime2.CategoricalMetadataColumn(
+            pd.Series(['a', 'b', 'b'], name='categories',
+                      index=pd.Index(['sample1', 'sample2', 'sample3'],
+                                     name='id')))
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            original_savefig = matplotlib.figure.Figure.savefig
+            matplotlib.pyplot.rcParams['svg.fonttype'] = 'none'
+
+            with patch.object(Figure, "savefig", autospec=True) as mock:
+                def wrapper(*args, **kwargs):
+                    kwargs['format'] = 'svg'
+                    return original_savefig(*args, **kwargs)
+
+                mock.side_effect = wrapper
+
+                beta_group_significance(output_dir, dm, md)
+                with open(os.path.join(output_dir, 'a-boxplots.png')) as fh:
+                    svg_a = fh.read()
+
+                # Searches for the x coordinates for the label 'a'
+                a = r'translate\(([\d.]+).*?a'
+                a_match = re.search(a, svg_a)
+                a_x_coor = float(a_match.group(1))
+
+                # Searches for the x coordinates for the label 'b'
+                b = r'translate\(([\d.]+).*?b'
+                b_match = re.search(b, svg_a)
+                b_x_coor = float(b_match.group(1))
+
+                # Searches for the leftmost and rightmost x coordinates for
+                # the box plot with orange (#e1812c) fill
+                line = (
+                    r'<path[^>]*d="M\s*([\d.]+)\s+[\d.]+'
+                    r'(?:\s*L\s*([\d.]+)\s+[\d.]+)[^>]*style="fill:\s*#e1812c'
+                )
+
+                line_match = re.search(line, svg_a, re.DOTALL)
+                x_min = float(line_match.group(1))
+                x_max = float(line_match.group(2))
+
+                self.assertTrue((a_x_coor < x_min) or (a_x_coor > x_max))
+                self.assertTrue(x_min < b_x_coor < x_max)
 
 
 class TestMantel(unittest.TestCase):

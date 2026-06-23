@@ -261,12 +261,12 @@ def _reindex_with_metadata(column, columns, merged):
 def _compute_summary(data, id_label, counts=None):
     perc = [0.02, 0.09, 0.25, 0.5, 0.75, 0.91, 0.98]
     describer = functools.partial(pd.DataFrame.describe, percentiles=perc)
-    summary_df = data.stack(level=0)
+    summary_df = data.stack(level=0, future_stack=True)
     summary_df = summary_df.apply(describer, axis=1)
     summary_df.drop(['std', 'mean'], axis=1, inplace=True)
     if counts is not None:
         summary_df.drop('count', axis=1, inplace=True)
-        stacked_counts = counts.stack(level=0)
+        stacked_counts = counts.stack(level=0, future_stack=True)
         # There will always be at least one iteration, so we grab the first
         stacked_counts = stacked_counts[[1]]
         stacked_counts.rename(columns={1: 'count'}, inplace=True)
