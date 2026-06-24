@@ -348,7 +348,8 @@ def adonis(output_dir: str,
            metadata: qiime2.Metadata,
            formula: str,
            permutations: int = 999,
-           n_jobs: int = 1) -> None:
+           n_jobs: int = 1,
+           permutation_unit_column: str = None) -> None:
     if n_jobs == 0:
         n_jobs = get_available_cores()
 
@@ -363,13 +364,36 @@ def adonis(output_dir: str,
 
     # Validate formula
     terms = ModelDesc.from_formula(formula)
+    formula_columns = []
     for t in terms.rhs_termlist:
         for i in t.factors:
-            column = metadata.get_column(i.name())
+            column_name = i.name()
+            column = metadata.get_column(column_name)
+            formula_columns.append(column_name)
             if column.has_missing_values():
                 raise ValueError('adonis requires metadata columns with no '
                                  'NaN values (missing values in column `%s`.)'
                                  % (column.name, ))
+
+    permutation_target_column = None
+    if permutation_unit_column is not None:
+        unique_formula_columns = list(dict.fromkeys(formula_columns))
+
+        if len(unique_formula_columns) != 1:
+            raise ValueError('Unit-level label permutations require a formula '
+                             'with exactly one metadata column.')
+
+        permutation_target_column = unique_formula_columns[0]
+
+        if permutation_unit_column not in filtered_md.columns:
+            raise ValueError('permutation_unit_column must be a column in '
+                             'metadata. `%s` was not found.'
+                             % permutation_unit_column)
+
+        if filtered_md[permutation_unit_column].isna().any():
+            raise ValueError('permutation_unit_column must have no NaN '
+                             'values. Missing values were found in column '
+                             '`%s`.' % permutation_unit_column)
 
     # Run adonis
     results_fp = os.path.join(output_dir, 'adonis.tsv')
@@ -380,6 +404,12 @@ def adonis(output_dir: str,
         metadata.save(md_fp)
         cmd = ['run_adonis.R', dm_fp, md_fp, formula, str(permutations),
                str(n_jobs), results_fp]
+
+        if permutation_unit_column is not None:
+            cmd.extend(['--unit-label-permutations',
+                        permutation_unit_column,
+                        permutation_target_column])
+
         _run_command(cmd)
 
     # Visualize results

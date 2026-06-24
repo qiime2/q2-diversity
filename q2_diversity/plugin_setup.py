@@ -947,6 +947,7 @@ plugin.visualizers.register_function(
         'formula': Str,
         'permutations': Int % Range(1, None),
         'n_jobs': Threads,
+        'permutation_unit_column': Str,
     },
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
@@ -964,7 +965,14 @@ plugin.visualizers.register_function(
                    'quotes to avoid unpleasant surprises.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
-        'n_jobs': 'Number of parallel processes to run.'
+        'n_jobs': 'Number of parallel processes to run.',
+        'permutation_unit_column': 'Optional sample metadata column defining '
+                                   'the experimental units whose formula '
+                                   'labels should be permuted as whole units, '
+                                   'e.g. subject ID, patient ID, or repeated-'
+                                   'measures unit. When this option is used, '
+                                   'the formula must contain exactly one '
+                                   'tested metadata column.'
     },
     name='adonis PERMANOVA test for beta group significance',
     description=('Determine whether groups of samples are significantly '
