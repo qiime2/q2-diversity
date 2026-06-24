@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import unittest
+import subprocess
 import os
 import tempfile
 
@@ -130,6 +131,7 @@ class AdonisTests(TestPluginBase):
             with tempfile.TemporaryDirectory() as temp_dir_name:
                 adonis(temp_dir_name, self.dm, md, 'letter+letter')
 
+
     # addresses https://github.com/qiime2/q2-diversity/pull/394
     def test_njobs_handled_as_integer(self):
         md = qiime2.Metadata(pd.DataFrame(
@@ -140,6 +142,125 @@ class AdonisTests(TestPluginBase):
         with tempfile.TemporaryDirectory() as temp_dir_name:
             adonis(temp_dir_name, distance_matrix=self.dm, metadata=md,
                    formula='letter+number', n_jobs='8')
+
+
+    def _unit_permutation_test_data(self):
+        ids = ['sample1', 'sample2', 'sample3',
+               'sample4', 'sample5', 'sample6']
+
+        dm = skbio.DistanceMatrix(
+            [[0, 0.2, 0.3, 0.7, 0.8, 0.9],
+             [0.2, 0, 0.25, 0.75, 0.85, 0.95],
+             [0.3, 0.25, 0, 0.65, 0.7, 0.8],
+             [0.7, 0.75, 0.65, 0, 0.2, 0.3],
+             [0.8, 0.85, 0.7, 0.2, 0, 0.25],
+             [0.9, 0.95, 0.8, 0.3, 0.25, 0]],
+            ids=ids)
+
+        md = qiime2.Metadata(pd.DataFrame(
+            [['a', 'unit1'],
+             ['a', 'unit1'],
+             ['a', 'unit2'],
+             ['b', 'unit3'],
+             ['b', 'unit3'],
+             ['b', 'unit4']],
+            columns=['treatment', 'subject_id'],
+            index=pd.Index(ids, name='id')))
+
+        return dm, md
+
+    def test_adonis_with_permutation_unit_column(self):
+        dm, md = self._unit_permutation_test_data()
+
+        with tempfile.TemporaryDirectory() as temp_dir_name:
+            adonis(temp_dir_name, dm, md, 'treatment',
+                   permutations=19,
+                   permutation_unit_column='subject_id')
+
+            res = pd.read_csv(
+                os.path.join(temp_dir_name, 'adonis.tsv'),
+                sep='\t',
+                index_col=0)
+
+            self.assertIn('treatment', res.index)
+            self.assertIn('Pr(>F)', res.columns)
+            self.assertGreaterEqual(res.loc['treatment', 'Pr(>F)'], 0)
+            self.assertLessEqual(res.loc['treatment', 'Pr(>F)'], 1)
+
+    def test_unit_permutations_preserve_observed_statistics(self):
+        dm, md = self._unit_permutation_test_data()
+
+        with tempfile.TemporaryDirectory() as old_dir:
+            adonis(old_dir, dm, md, 'treatment', permutations=19)
+            old = pd.read_csv(
+                os.path.join(old_dir, 'adonis.tsv'),
+                sep='\t',
+                index_col=0)
+
+        with tempfile.TemporaryDirectory() as unit_dir:
+            adonis(unit_dir, dm, md, 'treatment',
+                   permutations=19,
+                   permutation_unit_column='subject_id')
+            unit = pd.read_csv(
+                os.path.join(unit_dir, 'adonis.tsv'),
+                sep='\t',
+                index_col=0)
+
+        observed_cols = ['Df', 'SumOfSqs', 'R2', 'F']
+
+        pdt.assert_series_equal(
+            old.loc['treatment', observed_cols],
+            unit.loc['treatment', observed_cols],
+            check_dtype=False,
+            check_names=False,
+            check_exact=False)
+
+    def test_permutation_unit_column_must_exist(self):
+        dm, md = self._unit_permutation_test_data()
+
+        with self.assertRaisesRegex(ValueError, 'permutation_unit_column.*not'):
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                adonis(temp_dir_name, dm, md, 'treatment',
+                       permutations=19,
+                       permutation_unit_column='fake_subject_id')
+
+    def test_unit_permutations_require_single_formula_column(self):
+        dm, md = self._unit_permutation_test_data()
+
+        with self.assertRaisesRegex(ValueError, 'exactly one metadata column'):
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                adonis(temp_dir_name, dm, md, 'treatment+subject_id',
+                       permutations=19,
+                       permutation_unit_column='subject_id')
+
+    def test_unit_permutations_require_constant_label_within_unit(self):
+        ids = ['sample1', 'sample2', 'sample3',
+               'sample4', 'sample5', 'sample6']
+
+        dm = skbio.DistanceMatrix(
+            [[0, 0.2, 0.3, 0.7, 0.8, 0.9],
+             [0.2, 0, 0.25, 0.75, 0.85, 0.95],
+             [0.3, 0.25, 0, 0.65, 0.7, 0.8],
+             [0.7, 0.75, 0.65, 0, 0.2, 0.3],
+             [0.8, 0.85, 0.7, 0.2, 0, 0.25],
+             [0.9, 0.95, 0.8, 0.3, 0.25, 0]],
+            ids=ids)
+
+        md = qiime2.Metadata(pd.DataFrame(
+            [['a', 'unit1'],
+             ['b', 'unit1'],
+             ['a', 'unit2'],
+             ['b', 'unit3'],
+             ['b', 'unit3'],
+             ['b', 'unit4']],
+            columns=['treatment', 'subject_id'],
+            index=pd.Index(ids, name='id')))
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                adonis(temp_dir_name, dm, md, 'treatment',
+                       permutations=19,
+                       permutation_unit_column='subject_id')
 
 
 if __name__ == '__main__':
