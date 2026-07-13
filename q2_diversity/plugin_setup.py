@@ -23,7 +23,6 @@ from qiime2.plugin import (
     Numeric,
     Citations,
     Threads,
-    TypeMap,
 )
 import q2_diversity
 from q2_diversity import _alpha as alpha
@@ -39,7 +38,7 @@ from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults, ProcrustesStatistics
-from q2_types.tabular import Dist1D, Ordered, Unordered, Matched, Independent
+from q2_types.metadata import ImmutableMetadata
 
 citations = Citations.load("citations.bib", package="q2_diversity")
 
@@ -1054,76 +1053,56 @@ plugin.visualizers.register_function(
     ],
 )
 
-T_group, T_dist = TypeMap(
-    {
-        Str % Choices(""): Dist1D[Unordered, Independent],
-        Str: Dist1D[Ordered, Matched],
-    }
-)
-
 plugin.methods.register_function(
     function=q2_diversity.pcoa_centroid_temporal_volatility,
     inputs={"pcoa": PCoAResults},
     parameters={
-        "metadata": Metadata,
-        "subject_column": Str,
-        "group_column": T_group,
+        "group": MetadataColumn[Categorical],
         "dimensions": Int % Range(1, None),
         "min_group_size": Int % Range(2, None),
         "metric": Str % Choices("mean", "sum", "median"),
     },
-    outputs=[("volatility", T_dist)],
+    outputs=[("volatility", ImmutableMetadata)],
     input_descriptions={
         "pcoa": "The PCoA ordination in which to measure sample dispersion "
-        "around each subject/group centroid."
+        "around each group centroid."
     },
     parameter_descriptions={
-        "metadata": "The sample metadata containing subject_column and, if "
-        "provided, group_column.",
-        "subject_column": "Metadata column identifying which subject each "
-        "sample belongs to.",
-        "group_column": "Metadata column identifying the timepoint (or "
-        "other repeated-measures group) each sample was "
-        "collected at. If left empty, all of a subject's "
-        "samples are treated as a single group (i.e. "
-        "subjects for which every sample belongs to the "
-        "same group).",
+        "group": "Sample metadata column identifying the group (e.g. "
+        "subject, timepoint, or subject@timepoint) each sample "
+        "belongs to.",
         "dimensions": "The number of leading PCoA axes to use when "
         "computing centroids and distances.",
-        "min_group_size": "The minimum number of samples a subject/group "
-        "combination must have for a volatility score to "
-        "be computed for it. Combinations with fewer "
+        "min_group_size": "The minimum number of samples a group "
+        "must have for a volatility score to "
+        "be computed for it. Groups with fewer "
         "samples are dropped from the output. Must be at "
         "least 2, since both the centroid distance and "
         "its standard error require more than one "
         "sample.",
-        "metric": "The summary statistic used to reduce each subject/group "
-        "combination's per-sample centroid distances to a "
+        "metric": "The summary statistic used to reduce each group's "
+        "per-sample centroid (euclidean) distances to a "
         "single volatility value.",
     },
     output_descriptions={
-        "volatility": 'One row per subject per group, with index "id" '
-        '(subject:group), and with columns: "measure" (the '
-        "chosen summary -- mean/sum/median -- of that "
-        "subject/group combination's samples' distances to "
+        "volatility": 'One row per group, with index "id" '
+        '(group), and with columns: "measure" (the '
+        "chosen summary - mean/sum/median - of that "
+        "group's samples' distances to "
         'their shared PCoA centroid), "error" (the standard '
         "error of those distances, SD / sqrt(n), regardless "
-        'of the chosen metric), "group" (the group_column '
-        'value, e.g. timepoint, or "all" if group_column was '
-        'left empty), "subject" (the subject_column value), '
-        'and "n_samples" (the number of samples that subject/'
-        "group combination's centroid and volatility were "
+        'of the chosen metric), "group" (the group column value), '
+        'and "n_samples" (the number of samples that '
+        "group's centroid and volatility were "
         "computed from)."
     },
     name="PCoA centroid temporal volatility",
     description=(
-        "For each subject at each group (e.g. timepoint), summarizes the "
-        "distance of that subject/group combination's samples to their "
+        "For each group (e.g. host, timepoint, host@timepoint), summarizes the "
+        "(euclidean) distance of that group's samples to their "
         "shared centroid in PCoA space. This quantifies how dispersed "
-        "replicate samples are for a given subject/group, which can be "
-        "used as a measure of compositional (temporal) volatility, e.g. "
-        "with q2-stats' wilcoxon-srt or plot-rainclouds actions to test "
-        "or visualize how volatility changes across groups."
+        "replicate samples are for a given group, which can be "
+        "used as a measure of compositional (temporal) volatility."
     ),
     citations=[citations["kerff2026gutmicrobiota"]],
 )
