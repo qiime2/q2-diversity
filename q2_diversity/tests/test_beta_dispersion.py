@@ -14,10 +14,10 @@ import pandas.testing as pdt
 import qiime2
 import skbio
 
-from q2_diversity import pcoa_centroid_temporal_volatility
+from q2_diversity import beta_dispersion
 
 
-class PCoACentroidVolatilityTests(unittest.TestCase):
+class BetaDispersionTests(unittest.TestCase):
 
     def _pcoa(self, samples):
         axes = samples.columns
@@ -56,13 +56,13 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         )
 
     def test_returns_metadata(self):
-        observed = pcoa_centroid_temporal_volatility(self.pcoa, self.group)
+        observed = beta_dispersion(self.pcoa, self.group)
         self.assertIsInstance(observed, qiime2.Metadata)
 
     def test_default_metric_is_median(self):
         # T1 pools a1-a3 and b1 (grouping is only by the group column now),
         # T2 pools a4-a5.
-        observed = pcoa_centroid_temporal_volatility(self.pcoa, self.group)
+        observed = beta_dispersion(self.pcoa, self.group)
         observed_df = observed.to_dataframe()
 
         t1 = self.samples.loc[["a1", "a2", "a3", "b1"]]
@@ -89,7 +89,7 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         pdt.assert_frame_equal(observed_df, expected)
 
     def test_metric_mean(self):
-        observed = pcoa_centroid_temporal_volatility(
+        observed = beta_dispersion(
             self.pcoa, self.group, metric="mean"
         )
         observed_df = observed.to_dataframe()
@@ -109,7 +109,7 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         )
 
     def test_metric_sum(self):
-        observed = pcoa_centroid_temporal_volatility(
+        observed = beta_dispersion(
             self.pcoa, self.group, metric="sum"
         )
         observed_df = observed.to_dataframe()
@@ -133,7 +133,7 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
             self.samples.index, ["T1", "T1", "T1", "T2", "T2", None]
         )
 
-        observed = pcoa_centroid_temporal_volatility(
+        observed = beta_dispersion(
             self.pcoa, group, min_group_size=2
         )
         observed_df = observed.to_dataframe()
@@ -150,7 +150,7 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         pcoa = self._pcoa(samples)
         group = self._group(samples.index, ["T1", "T1", "T2"])
 
-        observed = pcoa_centroid_temporal_volatility(
+        observed = beta_dispersion(
             pcoa, group, dimensions=2, min_group_size=2
         )
         observed_df = observed.to_dataframe()
@@ -158,20 +158,20 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         self.assertEqual(list(observed_df.index), ["T1"])
 
     def test_n_samples_column(self):
-        observed = pcoa_centroid_temporal_volatility(self.pcoa, self.group)
+        observed = beta_dispersion(self.pcoa, self.group)
         observed_df = observed.to_dataframe()
 
         self.assertEqual(list(observed_df["n_samples"]), [4.0, 2.0])
 
     def test_min_group_size_below_two_raises(self):
         with self.assertRaisesRegex(ValueError, "min_group_size"):
-            pcoa_centroid_temporal_volatility(
+            beta_dispersion(
                 self.pcoa, self.group, min_group_size=1
             )
 
     def test_dimensions_below_one_raises(self):
         with self.assertRaisesRegex(ValueError, "dimensions"):
-            pcoa_centroid_temporal_volatility(self.pcoa, self.group, dimensions=0)
+            beta_dispersion(self.pcoa, self.group, dimensions=0)
 
     def test_dimensions_exceeds_available_axes_raises(self):
         samples = pd.DataFrame(
@@ -181,7 +181,7 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         group = self._group(samples.index, ["T1", "T1"])
 
         with self.assertRaisesRegex(ValueError, "Cannot compute centroids"):
-            pcoa_centroid_temporal_volatility(pcoa, group, dimensions=3)
+            beta_dispersion(pcoa, group, dimensions=3)
 
     def test_no_overlapping_samples_raises(self):
         samples = pd.DataFrame(
@@ -191,16 +191,16 @@ class PCoACentroidVolatilityTests(unittest.TestCase):
         group = self._group(["x1", "x2"], ["T1", "T1"])
 
         with self.assertRaisesRegex(ValueError, "No samples are shared"):
-            pcoa_centroid_temporal_volatility(pcoa, group, dimensions=2)
+            beta_dispersion(pcoa, group, dimensions=2)
 
     def test_min_group_size_too_large_raises(self):
-        with self.assertRaisesRegex(ValueError, "no volatility scores"):
-            pcoa_centroid_temporal_volatility(
+        with self.assertRaisesRegex(ValueError, "no dispersion scores"):
+            beta_dispersion(
                 self.pcoa, self.group, min_group_size=10
             )
 
     def test_invalid_metric_raises(self):
         with self.assertRaisesRegex(ValueError, "metric must be one of"):
-            pcoa_centroid_temporal_volatility(
+            beta_dispersion(
                 self.pcoa, self.group, metric="stdev"
             )

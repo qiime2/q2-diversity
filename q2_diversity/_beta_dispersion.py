@@ -13,7 +13,7 @@ import pandas as pd
 from skbio import OrdinationResults
 
 
-def pcoa_centroid_temporal_volatility(
+def beta_dispersion(
     pcoa: OrdinationResults,
     group: qiime2.CategoricalMetadataColumn,
     dimensions: int = 3,
@@ -60,16 +60,16 @@ def pcoa_centroid_temporal_volatility(
     # standard error of the per-group distances: SD / sqrt(n)
     error = (grouped.std() / np.sqrt(n_samples)).rename("error")
 
-    volatility = pd.concat([measure, error, n_samples], axis=1)
-    volatility = volatility[volatility["n_samples"] >= min_group_size]
-    if volatility.empty:
+    dispersion = pd.concat([measure, error, n_samples], axis=1)
+    dispersion = dispersion[dispersion["n_samples"] >= min_group_size]
+    if dispersion.empty:
         raise ValueError(
             f"No group had at least min_group_size={min_group_size} "
-            "samples; no volatility scores could be computed."
+            "samples; no dispersion scores could be computed."
         )
 
-    volatility = volatility.reset_index()
-    volatility["id"] = volatility["group"].astype(str)
-    volatility = volatility.set_index("id")
+    dispersion = dispersion.reset_index()
+    dispersion["id"] = dispersion["group"].astype(str)
+    dispersion = dispersion.set_index("id")
 
-    return qiime2.Metadata(volatility[["measure", "error", "group", "n_samples"]])
+    return qiime2.Metadata(dispersion[["measure", "error", "group", "n_samples"]])
