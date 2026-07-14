@@ -26,7 +26,9 @@ class BetaDispersionTests(unittest.TestCase):
             long_method_name="Principal Coordinate Analysis",
             eigvals=pd.Series([3.0, 2.0, 1.0][: len(axes)], index=axes),
             samples=samples,
-            proportion_explained=pd.Series([0.5, 0.3, 0.2][: len(axes)], index=axes),
+            proportion_explained=pd.Series(
+                [0.5, 0.3, 0.2][: len(axes)], index=axes
+            ),
         )
 
     def _group(self, ids, values):
@@ -175,7 +177,9 @@ class BetaDispersionTests(unittest.TestCase):
 
     def test_dimensions_exceeds_available_axes_raises(self):
         samples = pd.DataFrame(
-            [[0.0, 0.0], [1.0, 0.0]], index=["a1", "a2"], columns=["Axis 1", "Axis 2"]
+            [[0.0, 0.0], [1.0, 0.0]],
+            index=["a1", "a2"],
+            columns=["Axis 1", "Axis 2"],
         )
         pcoa = self._pcoa(samples)
         group = self._group(samples.index, ["T1", "T1"])
@@ -185,7 +189,9 @@ class BetaDispersionTests(unittest.TestCase):
 
     def test_no_overlapping_samples_raises(self):
         samples = pd.DataFrame(
-            [[0.0, 0.0], [1.0, 0.0]], index=["a1", "a2"], columns=["Axis 1", "Axis 2"]
+            [[0.0, 0.0], [1.0, 0.0]],
+            index=["a1", "a2"],
+            columns=["Axis 1", "Axis 2"],
         )
         pcoa = self._pcoa(samples)
         group = self._group(["x1", "x2"], ["T1", "T1"])

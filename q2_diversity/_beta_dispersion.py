@@ -52,7 +52,9 @@ def beta_dispersion(
         )
 
     centroids = data.groupby("group")[axes].transform("mean")
-    data["distance_to_centroid"] = np.sqrt(((data[axes] - centroids) ** 2).sum(axis=1))
+    data["distance_to_centroid"] = np.sqrt(
+        ((data[axes] - centroids) ** 2).sum(axis=1)
+    )
 
     grouped = data.groupby("group")["distance_to_centroid"]
     n_samples = grouped.size().rename("n_samples")
@@ -72,4 +74,6 @@ def beta_dispersion(
     dispersion["id"] = dispersion["group"].astype(str)
     dispersion = dispersion.set_index("id")
 
-    return qiime2.Metadata(dispersion[["measure", "error", "group", "n_samples"]])
+    return qiime2.Metadata(
+        dispersion[["measure", "error", "group", "n_samples"]]
+    )
