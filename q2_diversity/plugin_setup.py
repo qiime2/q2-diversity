@@ -999,9 +999,9 @@ plugin.methods.register_function(
                 'around each group centroid.'
     },
     parameter_descriptions={
-        'group': 'Sample metadata column identifying the group (e.g. '
-                 'subject, timepoint, or subject@timepoint) each sample '
-                 'belongs to.',
+        'group': 'Sample metadata column defining the groups over which '
+                 'dispersion is measured (e.g. host, host@timepoint, '
+                 'disease status, or sample type).',
         'dimensions': 'The number of leading PCoA axes to use when '
                       'computing centroids and distances.',
         'min_group_size': 'The minimum number of samples a group must have '
@@ -1027,11 +1027,14 @@ plugin.methods.register_function(
     },
     name='Beta dispersion',
     description=(
-        'For each group (e.g. host, timepoint, host@timepoint), summarizes '
-        "the (euclidean) distance of that group's samples to their shared "
-        'centroid in PCoA space. This quantifies how dispersed replicate '
-        'samples are for a given group, which can be used as a measure of '
-        'compositional (temporal) dispersion.'
+        'For each group of samples defined by the group column (e.g. '
+        'host, host@timepoint, disease status, or sample type), computes the '
+        "euclidean distance of each sample to its group's centroid in "
+        'PCoA space, then summarizes those per-sample distances into a '
+        'single dispersion score (mean, median, or sum) with an '
+        'associated standard error. Whether the resulting '
+        'score reflects temporal volatility or a cross-sectional '
+        'comparison depends on how this column is defined'
     ),
     citations=[citations['kerff2026gutmicrobiota']]
 )
