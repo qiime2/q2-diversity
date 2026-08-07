@@ -15,6 +15,7 @@ from ._ordination import pcoa, pcoa_biplot, tsne, umap
 from ._procrustes import procrustes_analysis, partial_procrustes
 from ._core_metrics import core_metrics_phylogenetic, core_metrics
 from ._filter import filter_distance_matrix, filter_alpha_diversity
+from ._beta_dispersion import beta_dispersion
 
 try:
     from ._version import __version__
@@ -28,5 +29,6 @@ __all__ = ['beta', 'beta_phylogenetic', 'alpha', 'alpha_phylogenetic',
            'core_metrics_phylogenetic', 'core_metrics',
            'filter_alpha_diversity', 'filter_distance_matrix',
            'alpha_rarefaction', 'beta_rarefaction', 'procrustes_analysis',
-           'beta_correlation', 'adonis', 'partial_procrustes', 'mantel'
+           'beta_correlation', 'adonis', 'partial_procrustes', 'mantel',
+           'beta_dispersion'
            ]

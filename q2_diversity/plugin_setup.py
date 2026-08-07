@@ -19,6 +19,7 @@ from q2_types.distance_matrix import DistanceMatrix
 from q2_types.sample_data import AlphaDiversity, SampleData
 from q2_types.tree import Phylogeny, Rooted
 from q2_types.ordination import PCoAResults, ProcrustesStatistics
+from q2_types.metadata import ImmutableMetadata
 
 citations = Citations.load('citations.bib', package='q2_diversity')
 
@@ -980,4 +981,60 @@ plugin.visualizers.register_function(
                  'https://CRAN.R-project.org/package=vegan'),
     citations=[citations['anderson2001new'], citations['Oksanen2018'],
                citations['mcardleanderson2001']]
+)
+
+
+plugin.methods.register_function(
+    function=q2_diversity.beta_dispersion,
+    inputs={'pcoa': PCoAResults},
+    parameters={
+        'group': MetadataColumn[Categorical],
+        'dimensions': Int % Range(1, None),
+        'min_group_size': Int % Range(2, None),
+        'metric': Str % Choices('mean', 'sum', 'median'),
+    },
+    outputs=[('dispersion', ImmutableMetadata)],
+    input_descriptions={
+        'pcoa': 'The PCoA ordination in which to measure sample dispersion '
+                'around each group centroid.'
+    },
+    parameter_descriptions={
+        'group': 'Sample metadata column defining the groups over which '
+                 'dispersion is measured (e.g. host, host@timepoint, '
+                 'disease status, or sample type).',
+        'dimensions': 'The number of leading PCoA axes to use when '
+                      'computing centroids and distances.',
+        'min_group_size': 'The minimum number of samples a group must have '
+                          'for a dispersion score to be computed for it. '
+                          'Groups with fewer samples are dropped from the '
+                          'output. Must be at least 2, since both the '
+                          'centroid distance and its standard error require '
+                          'more than one sample.',
+        'metric': "The summary statistic used to reduce each group's "
+                  'per-sample centroid (euclidean) distances to a single '
+                  'dispersion value.',
+    },
+    output_descriptions={
+        'dispersion': 'One row per group, with index "id" (group), and '
+                      'with columns: "measure" (the chosen summary -- '
+                      "mean/sum/median -- of that group's samples' "
+                      'distances to their shared PCoA centroid), "error" '
+                      '(the standard error of those distances, SD / '
+                      'sqrt(n), regardless of the chosen metric), "group" '
+                      '(the group column value), and "n_samples" (the '
+                      "number of samples that group's centroid and "
+                      'dispersion were computed from).'
+    },
+    name='Beta dispersion',
+    description=(
+        'For each group of samples defined by the group column (e.g. '
+        'host, host@timepoint, disease status, or sample type), computes the '
+        "euclidean distance of each sample to its group's centroid in "
+        'PCoA space, then summarizes those per-sample distances into a '
+        'single dispersion score (mean, median, or sum) with an '
+        'associated standard error. Whether the resulting '
+        'score reflects temporal volatility or a cross-sectional '
+        'comparison depends on how this column is defined'
+    ),
+    citations=[citations['kerff2026gutmicrobiota']]
 )
