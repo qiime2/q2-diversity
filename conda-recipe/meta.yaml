@@ -51,11 +51,12 @@ test:
   - q2-emperor >={{ q2_emperor }}
   - q2-diversity-lib >={{ q2_diversity_lib }}
   - pytest
+  - pytest-xdist
   imports:
   - q2_diversity
   - qiime2.plugins.diversity
   commands:
-  - py.test --pyargs q2_diversity
+  - py.test -n auto --pyargs q2_diversity
 about:
   home: https://qiime2.org
   license: BSD-3-Clause
