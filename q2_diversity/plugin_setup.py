@@ -945,6 +945,7 @@ plugin.visualizers.register_function(
     parameters={
         'metadata': Metadata,
         'formula': Str,
+        'significance_by': Str,
         'permutations': Int % Range(1, None),
         'n_jobs': Threads,
     },
@@ -962,6 +963,10 @@ plugin.visualizers.register_function(
                    'formula "treatment*block" would test both of those '
                    'effects as well as their interaction. Enclose formulae in '
                    'quotes to avoid unpleasant surprises.',
+        'significance_by': 'The method to assess significance of each term.'
+                    'The setting "terms" will asssess the signicance of each term '
+                    'in the formula sequentially from first to last. The setting '
+                    '"margin" will assess the marginal effect of each term.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
         'n_jobs': 'Number of parallel processes to run.'

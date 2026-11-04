@@ -347,6 +347,7 @@ def adonis(output_dir: str,
            distance_matrix: skbio.DistanceMatrix,
            metadata: qiime2.Metadata,
            formula: str,
+           significance_by: str = 'terms',
            permutations: int = 999,
            n_jobs: int = 1) -> None:
     if n_jobs == 0:
@@ -360,6 +361,10 @@ def adonis(output_dir: str,
     filtered_md = metadata.to_dataframe().reindex(dm_ids)
     filtered_md.index.name = 'sample-id'
     metadata = qiime2.Metadata(filtered_md)
+
+    # Validate if value of significance_by is valid
+    if significance_by not in ['terms', 'margin']:
+        raise ValueError('Invalid value for significance_by. Must be either "terms" or "margin".')
 
     # Validate formula
     terms = ModelDesc.from_formula(formula)
@@ -378,7 +383,7 @@ def adonis(output_dir: str,
         distance_matrix.write(dm_fp)
         md_fp = os.path.join(temp_dir_name, 'md.tsv')
         metadata.save(md_fp)
-        cmd = ['run_adonis.R', dm_fp, md_fp, formula, str(permutations),
+        cmd = ['run_adonis.R', dm_fp, md_fp, formula, significance_by, str(permutations),
                str(n_jobs), results_fp]
         _run_command(cmd)
 

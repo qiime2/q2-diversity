@@ -23,16 +23,17 @@ suppressWarnings(library(vegan))
 distances <- read.table(file = args[[1]], sep="\t", header=TRUE, fill=TRUE, row.names=1)
 sample.md <- read.table(file = args[[2]], sep="\t", header=TRUE, fill=TRUE, row.names=1, quote="\"", na.strings="")
 formula <- args[[3]]
-perms <- as.integer(args[[4]])
-njobs <- as.integer(args[[5]])
-out.path <- args[[6]]
+sig_by <- args[[4]]
+perms <- as.integer(args[[5]])
+njobs <- as.integer(args[[6]])
+out.path <- args[[7]]
 
 ### RUN ADONIS ###
 
 dm <- as.dist(distances)
 formula <- as.formula(paste("dm ~ ", formula))
 
-res <- adonis2(formula, by='terms', data=sample.md, permutations=perms, parallel=njobs)
+res <- adonis2(formula, by=sig_by, data=sample.md, permutations=perms, parallel=njobs)
 
 write.table(res, out.path, sep="\t", append=F, quote=FALSE)
 

@@ -75,3 +75,4 @@ package-lock.json
 _version.py
 
 .idea/
+.DS_Store
