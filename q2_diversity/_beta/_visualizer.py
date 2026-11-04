@@ -363,8 +363,8 @@ def adonis(output_dir: str,
     metadata = qiime2.Metadata(filtered_md)
 
     # Validate if value of significance_by is valid
-    if significance_by not in ['terms', 'margin']:
-        raise ValueError('Invalid value for significance_by. Must be either "terms" or "margin".')
+    if significance_by not in ['terms', 'margin', 'null']:
+        raise ValueError('Invalid value for significance_by. Must be either "terms", "margin" or "null".')
 
     # Validate formula
     terms = ModelDesc.from_formula(formula)

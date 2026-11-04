@@ -32,6 +32,9 @@ out.path <- args[[7]]
 
 dm <- as.dist(distances)
 formula <- as.formula(paste("dm ~ ", formula))
+if (sig_by == "null") {
+  sig_by <- NULL
+}
 
 res <- adonis2(formula, by=sig_by, data=sample.md, permutations=perms, parallel=njobs)
 

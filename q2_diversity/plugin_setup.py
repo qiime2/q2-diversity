@@ -966,7 +966,9 @@ plugin.visualizers.register_function(
         'significance_by': 'The method to assess significance of each term.'
                     'The setting "terms" will asssess the signicance of each term '
                     'in the formula sequentially from first to last. The setting '
-                    '"margin" will assess the marginal effect of each term.',
+                    '"margin" will assess the marginal effect of each term. '
+                    'The setting "null" will assess the overall significance '
+                    'of all terms.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
         'n_jobs': 'Number of parallel processes to run.'
