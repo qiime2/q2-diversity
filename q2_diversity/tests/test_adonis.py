@@ -203,6 +203,27 @@ class AdonisTests(TestPluginBase):
             self.assertGreaterEqual(res.loc['treatment', 'Pr(>F)'], 0)
             self.assertLessEqual(res.loc['treatment', 'Pr(>F)'], 1)
 
+    def test_blocked_adonis_counts_exact_and_numerical_ties(self):
+        dm, md = self._unit_permutation_test_data()
+        f_statistics = [4.0, 1.0, 4.0, 4.0 - 1e-14, 6.0]
+        results = [
+            pd.DataFrame({'F': [f_stat], 'Pr(>F)': [np.nan]},
+                         index=['treatment'])
+            for f_stat in f_statistics
+        ]
+
+        with patch('q2_diversity._beta._adonis._run_adonis',
+                   side_effect=results):
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                blocked_adonis(temp_dir_name, dm, md, 'treatment',
+                               permutations=4,
+                               permutation_group_column='subject_id')
+                res = pd.read_csv(
+                    os.path.join(temp_dir_name, 'adonis.tsv'),
+                    sep='\t', index_col=0)
+
+        self.assertEqual(res.loc['treatment', 'Pr(>F)'], 0.8)
+
     def test_unit_permutations_preserve_observed_statistics(self):
         dm, md = self._unit_permutation_test_data()
 

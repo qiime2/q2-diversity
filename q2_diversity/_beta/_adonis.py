@@ -10,6 +10,7 @@ import os
 import tempfile
 import importlib
 
+import numpy as np
 import pandas as pd
 import skbio
 from patsy import ModelDesc
@@ -89,8 +90,11 @@ def blocked_adonis(
         f_stat = _extract_f_statistic(results, target)
         f_statistics.append(f_stat)
 
-    # get udpated p value
-    num_sig_fs = (pd.Series(f_statistics) >= observed_f_stat).sum()
+    # Count numerical ties using the same tolerance as vegan.
+    tolerance = np.sqrt(np.finfo(float).eps)
+    num_sig_fs = (
+        pd.Series(f_statistics) >= observed_f_stat - tolerance
+    ).sum()
     new_p = (num_sig_fs + 1) / (permutations + 1)
 
     observed.loc[target, 'Pr(>F)'] = new_p
