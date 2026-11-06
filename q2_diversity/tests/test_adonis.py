@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import unittest
-import subprocess
+from unittest.mock import patch
 import os
 import tempfile
 
@@ -16,7 +16,8 @@ import pandas as pd
 import qiime2
 from qiime2.util import redirected_stdio
 import numpy as np
-from q2_diversity import adonis
+from q2_diversity import adonis, blocked_adonis
+from q2_diversity._beta._adonis import _permute_target_column
 import pandas.testing as pdt
 
 from qiime2.plugin.testing import TestPluginBase
@@ -118,7 +119,7 @@ class AdonisTests(TestPluginBase):
             index=pd.Index(['sample1', 'sample2', 'sample3',
                             'sample4', 'sample5'], name='id')))
         with redirected_stdio(stderr=os.devnull):
-            with self.assertRaisesRegex(ValueError, "no NaN values.*`number`"):
+            with self.assertRaisesRegex(ValueError, "no NaN values.*number"):
                 with tempfile.TemporaryDirectory() as temp_dir_name:
                     adonis(temp_dir_name, self.dm, md, 'letter+number')
 
@@ -169,13 +170,28 @@ class AdonisTests(TestPluginBase):
 
         return dm, md
 
-    def test_adonis_with_permutation_unit_column(self):
+    def test_permute_target_column_preserves_shared_unit_labels(self):
+        _, md = self._unit_permutation_test_data()
+        expected = md.to_dataframe()
+        expected.loc[:, 'treatment'] = ['a', 'a', 'b', 'a', 'a', 'b']
+
+        with patch.object(pd.Series, 'sample', autospec=True) as sample:
+            sample.side_effect = lambda labels, **kwargs: labels.iloc[
+                [0, 2, 1, 3]]
+            shuffled = _permute_target_column(md, 'treatment', 'subject_id')
+
+        pdt.assert_frame_equal(shuffled.to_dataframe(), expected)
+
+    def test_blocked_adonis_with_permutation_group_column(self):
         dm, md = self._unit_permutation_test_data()
 
+        distance_matrix = qiime2.Artifact.import_data('DistanceMatrix', dm)
+        visualization, = self.plugin.visualizers['blocked_adonis'](
+            distance_matrix=distance_matrix, metadata=md, formula='treatment',
+            permutations=19, permutation_group_column='subject_id')
+
         with tempfile.TemporaryDirectory() as temp_dir_name:
-            adonis(temp_dir_name, dm, md, 'treatment',
-                   permutations=19,
-                   permutation_unit_column='subject_id')
+            visualization.export_data(temp_dir_name)
 
             res = pd.read_csv(
                 os.path.join(temp_dir_name, 'adonis.tsv'),
@@ -198,9 +214,9 @@ class AdonisTests(TestPluginBase):
                 index_col=0)
 
         with tempfile.TemporaryDirectory() as unit_dir:
-            adonis(unit_dir, dm, md, 'treatment',
-                   permutations=19,
-                   permutation_unit_column='subject_id')
+            blocked_adonis(unit_dir, dm, md, 'treatment',
+                           permutations=19,
+                           permutation_group_column='subject_id')
             unit = pd.read_csv(
                 os.path.join(unit_dir, 'adonis.tsv'),
                 sep='\t',
@@ -215,24 +231,24 @@ class AdonisTests(TestPluginBase):
             check_names=False,
             check_exact=False)
 
-    def test_permutation_unit_column_must_exist(self):
+    def test_permutation_group_column_must_exist(self):
         dm, md = self._unit_permutation_test_data()
 
         with self.assertRaisesRegex(
-                ValueError, 'permutation_unit_column.*not'):
+                ValueError, 'fake_subject_id.*not a column'):
             with tempfile.TemporaryDirectory() as temp_dir_name:
-                adonis(temp_dir_name, dm, md, 'treatment',
-                       permutations=19,
-                       permutation_unit_column='fake_subject_id')
+                blocked_adonis(temp_dir_name, dm, md, 'treatment',
+                               permutations=19,
+                               permutation_group_column='fake_subject_id')
 
     def test_unit_permutations_require_single_formula_column(self):
         dm, md = self._unit_permutation_test_data()
 
         with self.assertRaisesRegex(ValueError, 'exactly one metadata column'):
             with tempfile.TemporaryDirectory() as temp_dir_name:
-                adonis(temp_dir_name, dm, md, 'treatment+subject_id',
-                       permutations=19,
-                       permutation_unit_column='subject_id')
+                blocked_adonis(temp_dir_name, dm, md, 'treatment+subject_id',
+                               permutations=19,
+                               permutation_group_column='subject_id')
 
     def test_unit_permutations_require_constant_label_within_unit(self):
         ids = ['sample1', 'sample2', 'sample3',
@@ -257,11 +273,11 @@ class AdonisTests(TestPluginBase):
             columns=['treatment', 'subject_id'],
             index=pd.Index(ids, name='id')))
 
-        with self.assertRaises(subprocess.CalledProcessError):
+        with self.assertRaisesRegex(ValueError, 'constant within'):
             with tempfile.TemporaryDirectory() as temp_dir_name:
-                adonis(temp_dir_name, dm, md, 'treatment',
-                       permutations=19,
-                       permutation_unit_column='subject_id')
+                blocked_adonis(temp_dir_name, dm, md, 'treatment',
+                               permutations=19,
+                               permutation_group_column='subject_id')
 
 
 if __name__ == '__main__':
