@@ -947,7 +947,6 @@ plugin.visualizers.register_function(
         'formula': Str,
         'permutations': Int % Range(1, None),
         'n_jobs': Threads,
-        'permutation_unit_column': Str,
     },
     input_descriptions={
         'distance_matrix': 'Matrix of distances between pairs of samples.'
@@ -965,14 +964,7 @@ plugin.visualizers.register_function(
                    'quotes to avoid unpleasant surprises.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
-        'n_jobs': 'Number of parallel processes to run.',
-        'permutation_unit_column': 'Optional sample metadata column defining '
-                                   'the experimental units whose formula '
-                                   'labels should be permuted as whole units, '
-                                   'e.g. subject ID, patient ID, or repeated-'
-                                   'measures unit. When this option is used, '
-                                   'the formula must contain exactly one '
-                                   'tested metadata column.'
+        'n_jobs': 'Number of parallel processes to run.'
     },
     name='adonis PERMANOVA test for beta group significance',
     description=('Determine whether groups of samples are significantly '
@@ -986,6 +978,52 @@ plugin.visualizers.register_function(
                  'more details, consult the reference manual available '
                  'on the CRAN vegan page: '
                  'https://CRAN.R-project.org/package=vegan'),
+    citations=[citations['anderson2001new'], citations['Oksanen2018'],
+               citations['mcardleanderson2001']]
+)
+
+plugin.visualizers.register_function(
+    function=q2_diversity.blocked_adonis,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'metadata': Metadata,
+        'formula': Str,
+        'permutation_group_column': Str,
+        'permutations': Int % Range(1, None),
+        'n_jobs': Threads,
+    },
+    input_descriptions={
+        'distance_matrix': (
+            'Matrix of distances between pairs of samples.'
+        )
+    },
+    parameter_descriptions={
+        'metadata': (
+            'Sample metadata containing the formula and group columns.'
+        ),
+        'formula': (
+            'Model formula containing exactly one tested metadata column. '
+            'Its values must be constant within each experimental unit.'
+        ),
+        'permutation_group_column': (
+            'Sample metadata column identifying the experimental units whose '
+            'target values are permuted, e.g. subject ID or patient ID. All '
+            'samples in a unit receive the same permuted target value.'
+        ),
+        'permutations': (
+            'The number of permutations to be run when computing p-values.'
+        ),
+        'n_jobs': (
+            'Number of parallel processes to run.'
+        )
+    },
+    name='adonis PERMANOVA with unit-level label permutations',
+    description=(
+        'Test the association between a distance matrix and a single '
+        'metadata variable by permuting its values among experimental units '
+        'and comparing adonis2 pseudo-F statistics. Units may contain '
+        'different numbers of samples.'
+    ),
     citations=[citations['anderson2001new'], citations['Oksanen2018'],
                citations['mcardleanderson2001']]
 )
