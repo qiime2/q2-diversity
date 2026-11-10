@@ -274,7 +274,7 @@ class AdonisSignificanceByTests(TestPluginBase):
         self.assertIn('significance_by', parameters)
         self.assertEqual(parameters['significance_by'].default, 'terms')
         self.assertEqual(parameters['significance_by'].qiime_type,
-                         Str % Choices('terms', 'margin', 'null'))
+                         Str % Choices('terms', 'margin', 'onedf', 'null'))
 
 
 if __name__ == '__main__':

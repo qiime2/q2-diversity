@@ -945,7 +945,7 @@ plugin.visualizers.register_function(
     parameters={
         'metadata': Metadata,
         'formula': Str,
-        'significance_by': Str % Choices('terms', 'margin', 'null'),
+        'significance_by': Str % Choices('terms', 'margin', 'onedf', 'null'),
         'permutations': Int % Range(1, None),
         'n_jobs': Threads,
     },
@@ -968,8 +968,9 @@ plugin.visualizers.register_function(
                            'of each term in the formula sequentially from '
                            'first to last. The setting "margin" will assess '
                            'the marginal effect of each term. The setting '
-                           '"null" will assess the overall significance of '
-                           'all terms.',
+                           '"onedf" will assess one-degree-of-freedom '
+                           'contrasts sequentially. The setting "null" will '
+                           'assess the overall significance of all terms.',
         'permutations': 'The number of permutations to be run when computing '
                         'p-values.',
         'n_jobs': 'Number of parallel processes to run.'
