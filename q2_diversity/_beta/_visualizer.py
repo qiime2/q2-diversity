@@ -349,7 +349,7 @@ def adonis(output_dir: str,
            formula: str,
            permutations: int = 999,
            n_jobs: int = 1,
-           significance_by: str = 'terms') -> None:
+           by: str = 'terms') -> None:
     if n_jobs == 0:
         n_jobs = get_available_cores()
 
@@ -379,7 +379,7 @@ def adonis(output_dir: str,
         distance_matrix.write(dm_fp)
         md_fp = os.path.join(temp_dir_name, 'md.tsv')
         metadata.save(md_fp)
-        cmd = ['run_adonis.R', dm_fp, md_fp, formula, significance_by,
+        cmd = ['run_adonis.R', dm_fp, md_fp, formula, by,
                str(permutations), str(n_jobs), results_fp]
         _run_command(cmd)
 
