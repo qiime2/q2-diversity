@@ -62,6 +62,41 @@ def blocked_adonis(
     n_jobs: int = 1
 ) -> None:
     '''
+    Run adonis2 allowing target values to be permuted only in groups defined
+    by `permutation_group_column`.
+
+    Target values must be exchangeable among units under the null hypothesis.
+
+    Parameters
+    ----------
+    output_dir : str
+        The visualization directory.
+    distance_matrix : skbio.DistanceMatrix
+        The beta diversity distance matrix.
+    metadata : qiime2.Metadata
+        The sample metadata.
+    formula : str
+        Model formula containing exactly one tested metadata column.
+    permutation_group_column : str
+        Metadata column identifying the experimental units, e.g. subject IDs
+        Units may contain different numbers of samples and may share
+        the same target value.
+    permutations : int
+        Number of permutations used to calculate the p-value.
+    n_jobs : int
+        Number of parallel processes used by each adonis2 call. A value of 0
+        uses all available cores.
+
+    Raises
+    ------
+    ValueError
+        If any sample IDs in the distance matrix are missing from the metadata.
+        If required columns are missing.
+        If any of the metadata columns of interest have missing values.
+        If the formula does not contain exactly one metadata column
+        If target values vary within a group.
+        If the target row is absent from an adonis2 result or its F statistic
+        is missing.
     '''
     if n_jobs == 0:
         n_jobs = get_available_cores()
@@ -264,7 +299,25 @@ def _permute_target_column(
 
 def _extract_f_statistic(results: pd.DataFrame, target: str) -> float:
     '''
+    Return the target term's pseudo-F statistic from an adonis2 results table.
 
+    Parameters
+    ----------
+    results : pd.DataFrame
+        The adonis2 results table with model terms as row labels.
+    target : str
+        The row label for the metadata column tested in the formula.
+
+    Returns
+    -------
+    float
+        The target term's pseudo-F statistic. Infinite values are permitted.
+
+    Raises
+    ------
+    ValueError
+        If the target row is absent from the results table or its F statistic
+        is missing (NaN).
     '''
     if target not in results.index or pd.isna(results.loc[target, 'F']):
         raise ValueError('An undefined F statistic was created.')
