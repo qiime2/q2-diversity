@@ -102,10 +102,9 @@ def blocked_adonis(
         n_jobs = get_available_cores()
 
     metadata = _validate_and_filter_metadata(metadata, distance_matrix)
-    _validate_formula(formula, metadata, permutation_group_column)
-
-    terms = ModelDesc.from_formula(formula)
-    formula_columns = [i.name() for t in terms.rhs_termlist for i in t.factors]
+    formula_columns = _validate_formula(
+        formula, metadata, permutation_group_column
+    )
     target = formula_columns[0]
 
     observed = _run_adonis(
@@ -116,7 +115,7 @@ def blocked_adonis(
     f_statistics = []
     for _ in range(permutations):
         shuffled_md = _permute_target_column(
-            metadata, formula_columns[0], permutation_group_column
+            metadata, target, permutation_group_column
         )
         results = _run_adonis(
             distance_matrix, shuffled_md, formula, 1, n_jobs
@@ -210,11 +209,13 @@ def _validate_formula(
     formula: str,
     metadata: qiime2.Metadata,
     permutation_group_column: str = None
-) -> None:
+) -> list[str]:
     '''
-    Ensure all columns in the formula are in the metadata and that each has
-    no missing values. If the permutation group column is provided also ensure
-    that there is only one term in the formula.
+    Validate the formula and return the metadata columns it references.
+
+    Ensure all columns in the formula are in the metadata and have no missing
+    values. If the permutation group column is provided, also validate that
+    column and require exactly one distinct formula column.
 
     Parameters
     ----------
@@ -222,21 +223,29 @@ def _validate_formula(
         The model formula.
     metadata : qiime2.Metadata
         The sample metadata filtered to the distance matrix.
-    permuatation_group_column : str | None
+    permutation_group_column : str | None
         The grouping column if using the blocked permutation approach.
+
+    Returns
+    -------
+    list[str]
+        Names of the metadata columns referenced by the formula.
 
     Raises
     ------
     ValueError
-        If `permutation_group_column` is not None and there is more than
-        one term in the formula.
+        If `permutation_group_column` is not None and the formula does not
+        reference exactly one distinct metadata column.
     ValueError
         If a term in the formula is not a column in the metadata.
     ValueError
         If a metadata column has missing values.
     '''
+    # use patsy to parse the formula into terms (e.g. 'a:b'); use `factors`
+    # and `names` to access individual columns (e.g. 'a' and 'b')
     terms = ModelDesc.from_formula(formula)
     formula_columns = [i.name() for t in terms.rhs_termlist for i in t.factors]
+    columns_to_validate = formula_columns
 
     if permutation_group_column is not None:
         if len(set(formula_columns)) != 1:
@@ -245,15 +254,17 @@ def _validate_formula(
                 'one metadata column.'
             )
 
-        formula_columns.append(permutation_group_column)
+        columns_to_validate = formula_columns + [permutation_group_column]
 
-    for column_name in formula_columns:
+    for column_name in columns_to_validate:
         column = metadata.get_column(column_name)
         if column.has_missing_values():
             raise ValueError(
                 'adonis requires metadata columns with no NaN values (missing '
                 f'values in column {column.name}).'
             )
+
+    return formula_columns
 
 
 def _permute_target_column(
