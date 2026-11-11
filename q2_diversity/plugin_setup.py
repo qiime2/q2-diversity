@@ -981,3 +981,49 @@ plugin.visualizers.register_function(
     citations=[citations['anderson2001new'], citations['Oksanen2018'],
                citations['mcardleanderson2001']]
 )
+
+plugin.visualizers.register_function(
+    function=q2_diversity.blocked_adonis,
+    inputs={'distance_matrix': DistanceMatrix},
+    parameters={
+        'metadata': Metadata,
+        'formula': Str,
+        'permutation_group_column': Str,
+        'permutations': Int % Range(1, None),
+        'n_jobs': Threads,
+    },
+    input_descriptions={
+        'distance_matrix': (
+            'Matrix of distances between pairs of samples.'
+        )
+    },
+    parameter_descriptions={
+        'metadata': (
+            'Sample metadata containing the formula and group columns.'
+        ),
+        'formula': (
+            'Model formula containing exactly one tested metadata column. '
+            'Its values must be constant within each experimental unit.'
+        ),
+        'permutation_group_column': (
+            'Sample metadata column identifying the experimental units whose '
+            'target values are permuted, e.g. subject ID or patient ID. All '
+            'samples in a unit receive the same permuted target value.'
+        ),
+        'permutations': (
+            'The number of permutations to be run when computing p-values.'
+        ),
+        'n_jobs': (
+            'Number of parallel processes to run.'
+        )
+    },
+    name='adonis PERMANOVA with unit-level label permutations',
+    description=(
+        'Test the association between a distance matrix and a single '
+        'metadata variable by permuting its values among experimental units '
+        'and comparing adonis2 pseudo-F statistics. Units may contain '
+        'different numbers of samples.'
+    ),
+    citations=[citations['anderson2001new'], citations['Oksanen2018'],
+               citations['mcardleanderson2001']]
+)
