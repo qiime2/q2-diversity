@@ -22,7 +22,7 @@ requirements:
   - numpy
   - scipy {{ scipy }}
   - pandas {{ pandas }}
-  - statsmodels
+  - statsmodels {{ statsmodels }}
   - seaborn
   - ipywidgets
   - scikit-bio {{ scikit_bio }}
