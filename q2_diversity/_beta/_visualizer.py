@@ -171,12 +171,14 @@ def beta_group_significance(output_dir: str,
             group_pairs_summary, columns=['SubjectID1', 'SubjectID2',
                                           'Group1', 'Group2', 'Distance'])
 
-        pairs_summary = pd.concat([pairs_summary, group_pairs_summary])
+        df_list = [pairs_summary, group_pairs_summary]
+        pairs_summary = pd.concat([df for df in df_list if not df.empty])
 
         ax = sns.boxplot(data=group_distances, flierprops={
             'marker': 'o', 'markeredgecolor': 'black', 'markeredgewidth': 0.5,
             'alpha': 0.5})
-        ax.set_xticklabels(x_ticklabels, rotation=90)
+        position = range(len(x_ticklabels))
+        ax.set_xticks(position, x_ticklabels, rotation=90)
         ax.set_xlabel('Group')
         ax.set_ylabel('Distance')
         ax.set_title('Distances to %s' % group_id)

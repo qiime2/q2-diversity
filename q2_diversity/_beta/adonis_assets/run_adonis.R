@@ -24,7 +24,7 @@ distances <- read.table(file = args[[1]], sep="\t", header=TRUE, fill=TRUE, row.
 sample.md <- read.table(file = args[[2]], sep="\t", header=TRUE, fill=TRUE, row.names=1, quote="\"", na.strings="")
 formula <- args[[3]]
 perms <- as.integer(args[[4]])
-njobs <- args[[5]]
+njobs <- as.integer(args[[5]])
 out.path <- args[[6]]
 
 ### RUN ADONIS ###
