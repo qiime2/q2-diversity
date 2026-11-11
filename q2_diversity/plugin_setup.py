@@ -945,7 +945,7 @@ plugin.visualizers.register_function(
     parameters={
         'metadata': Metadata,
         'formula': Str,
-        'permutations': Int % Range(1, None),
+        'permutations': Int % Range(2, None),
         'n_jobs': Threads,
     },
     input_descriptions={
