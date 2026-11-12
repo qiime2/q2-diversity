@@ -348,7 +348,8 @@ def adonis(output_dir: str,
            metadata: qiime2.Metadata,
            formula: str,
            permutations: int = 999,
-           n_jobs: int = 1) -> None:
+           n_jobs: int = 1,
+           by: str = 'terms') -> None:
     if n_jobs == 0:
         n_jobs = get_available_cores()
 
@@ -378,8 +379,8 @@ def adonis(output_dir: str,
         distance_matrix.write(dm_fp)
         md_fp = os.path.join(temp_dir_name, 'md.tsv')
         metadata.save(md_fp)
-        cmd = ['run_adonis.R', dm_fp, md_fp, formula, str(permutations),
-               str(n_jobs), results_fp]
+        cmd = ['run_adonis.R', dm_fp, md_fp, formula, by,
+               str(permutations), str(n_jobs), results_fp]
         _run_command(cmd)
 
     # Visualize results
