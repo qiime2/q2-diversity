@@ -141,6 +141,31 @@ class AdonisTests(TestPluginBase):
             adonis(temp_dir_name, distance_matrix=self.dm, metadata=md,
                    formula='letter+number', n_jobs='8')
 
+    def _get_adonis_index(self, by):
+        md = qiime2.Metadata(pd.DataFrame(
+            [[1, 'a'], [1, 'b'], [2, 'b'], [2, 'a'], [3, 'c']],
+            columns=['number', 'letter'],
+            index=pd.Index(['sample1', 'sample2', 'sample3',
+                            'sample4', 'sample5'], name='id')))
+        with tempfile.TemporaryDirectory() as temp_dir_name:
+            adonis(temp_dir_name, self.dm, md, 'letter+number', by=by)
+            res = pd.read_csv(os.path.join(temp_dir_name, 'adonis.tsv'),
+                              sep='\t')
+        return list(res.index)
+
+    def test_by_margin(self):
+        self.assertEqual(self._get_adonis_index('margin'),
+                         ['letter', 'number', 'Residual', 'Total'])
+
+    def test_by_onedf(self):
+        self.assertEqual(self._get_adonis_index('onedf'),
+                         ['letterb', 'letterc', 'number', 'Residual',
+                          'Total'])
+
+    def test_by_null(self):
+        self.assertEqual(self._get_adonis_index('null'),
+                         ['Model', 'Residual', 'Total'])
+
 
 if __name__ == '__main__':
     unittest.main()
